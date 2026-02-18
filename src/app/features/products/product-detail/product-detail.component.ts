@@ -32,10 +32,12 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           }
         </div>
         <div class="info-section">
-          @if (product.category) {
-            <a [routerLink]="['/']" [queryParams]="{category: product.category.id}" class="breadcrumb">
-              {{ product.category.name }}
-            </a>
+          @if (product.categories && product.categories.length > 0) {
+            <div class="breadcrumbs">
+              @for (cat of product.categories; track cat.id; let last = $last) {
+                <a [routerLink]="['/']" [queryParams]="{category: cat.id}" class="breadcrumb">{{ cat.name }}</a>@if (!last) {<span class="separator">/</span>}
+              }
+            </div>
           }
           <h1>{{ product.name }}</h1>
           <div class="price-section">
@@ -79,7 +81,9 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .thumbnail-row { display: flex; gap: 8px; margin-top: 12px; }
     .thumbnail { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
     .thumbnail:hover { border-color: #3f51b5; }
+    .breadcrumbs { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
     .breadcrumb { color: #666; font-size: 0.9rem; }
+    .separator { color: #ccc; font-size: 0.9rem; }
     h1 { margin: 8px 0 16px; }
     .price-section { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .price { font-size: 1.8rem; font-weight: 700; color: #3f51b5; }

@@ -46,11 +46,23 @@ export class ProductService {
     return this.http.get<ApiResponse<Category[]>>(this.categoryUrl);
   }
 
-  createProduct(product: Partial<Product> & { categoryId?: number }): Observable<ApiResponse<Product>> {
+  createCategory(category: { name: string; description?: string; imageUrl?: string }): Observable<ApiResponse<Category>> {
+    return this.http.post<ApiResponse<Category>>(this.categoryUrl, category);
+  }
+
+  updateCategory(id: number, category: { name: string; description?: string; imageUrl?: string }): Observable<ApiResponse<Category>> {
+    return this.http.put<ApiResponse<Category>>(`${this.categoryUrl}/${id}`, category);
+  }
+
+  deleteCategory(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.categoryUrl}/${id}`);
+  }
+
+  createProduct(product: Partial<Product> & { categoryIds?: number[] }): Observable<ApiResponse<Product>> {
     return this.http.post<ApiResponse<Product>>(this.apiUrl, product);
   }
 
-  updateProduct(id: number, product: Partial<Product> & { categoryId?: number }): Observable<ApiResponse<Product>> {
+  updateProduct(id: number, product: Partial<Product> & { categoryIds?: number[] }): Observable<ApiResponse<Product>> {
     return this.http.put<ApiResponse<Product>>(`${this.apiUrl}/${id}`, product);
   }
 

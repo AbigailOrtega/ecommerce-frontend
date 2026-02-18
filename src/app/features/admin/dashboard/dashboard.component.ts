@@ -18,6 +18,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       <h1>Admin Dashboard</h1>
 
       <div class="admin-nav">
+        <a mat-raised-button routerLink="/admin/categories"><mat-icon>category</mat-icon> Categories</a>
         <a mat-raised-button routerLink="/admin/products"><mat-icon>inventory_2</mat-icon> Products</a>
         <a mat-raised-button routerLink="/admin/orders"><mat-icon>receipt_long</mat-icon> Orders</a>
         <a mat-raised-button routerLink="/admin/users"><mat-icon>people</mat-icon> Users</a>

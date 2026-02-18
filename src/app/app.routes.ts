@@ -53,6 +53,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
       {
+        path: 'categories',
+        loadComponent: () => import('./features/admin/category-management/category-management.component').then(m => m.CategoryManagementComponent),
+      },
+      {
         path: 'products',
         loadComponent: () => import('./features/admin/product-management/product-management.component').then(m => m.ProductManagementComponent),
       },

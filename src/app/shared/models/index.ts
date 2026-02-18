@@ -41,7 +41,7 @@ export interface Product {
   slug: string;
   featured: boolean;
   active: boolean;
-  category?: Category;
+  categories?: Category[];
   createdAt: string;
 }
 

@@ -55,9 +55,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <div class="row">
               <mat-form-field appearance="outline"><mat-label>Image URL</mat-label><input matInput formControlName="imageUrl"></mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Category</mat-label>
-                <mat-select formControlName="categoryId">
-                  <mat-option [value]="null">None</mat-option>
+                <mat-label>Categories</mat-label>
+                <mat-select formControlName="categoryIds" multiple>
                   @for (cat of categories; track cat.id) {
                     <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
                   }
@@ -145,7 +144,7 @@ export class ProductManagementComponent implements OnInit {
       sku: [''],
       stockQuantity: [0],
       imageUrl: [''],
-      categoryId: [null],
+      categoryIds: [[]],
       featured: [false],
       active: [true],
     });
@@ -170,7 +169,7 @@ export class ProductManagementComponent implements OnInit {
 
   resetForm(): void {
     this.editingId = null;
-    this.form.reset({ price: 0, stockQuantity: 0, featured: false, active: true });
+    this.form.reset({ price: 0, stockQuantity: 0, featured: false, active: true, categoryIds: [] });
   }
 
   editProduct(product: Product): void {
@@ -184,7 +183,7 @@ export class ProductManagementComponent implements OnInit {
       sku: product.sku,
       stockQuantity: product.stockQuantity,
       imageUrl: product.imageUrl,
-      categoryId: product.category?.id || null,
+      categoryIds: product.categories?.map(c => c.id) || [],
       featured: product.featured,
       active: product.active,
     });

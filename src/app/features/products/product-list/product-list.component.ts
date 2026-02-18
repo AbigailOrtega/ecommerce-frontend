@@ -60,8 +60,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                 <a [routerLink]="['/products', product.slug]" class="product-name">
                   <h3>{{ product.name }}</h3>
                 </a>
-                @if (product.category) {
-                  <p class="category-tag">{{ product.category.name }}</p>
+                @if (product.categories && product.categories.length > 0) {
+                  <p class="category-tag">{{ product.categories[0].name }}@if (product.categories.length > 1) { +{{ product.categories.length - 1 }}}</p>
                 }
                 <div class="price-row">
                   <span class="price">{{ product.price | currency }}</span>
