@@ -22,15 +22,36 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     } @else if (product) {
       <div class="container detail-grid">
         <div class="image-section">
-          <img [src]="product.imageUrl || 'https://via.placeholder.com/500x400?text=No+Image'" [alt]="product.name" class="main-image">
-          @if (product.images && product.images.length > 0) {
+          <!-- Carousel -->
+          <div class="carousel">
+            <img [src]="carouselImages[activeIndex]" [alt]="product.name" class="main-image">
+
+            @if (carouselImages.length > 1) {
+              <button mat-icon-button class="carousel-btn prev" (click)="prev()" [disabled]="activeIndex === 0">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button mat-icon-button class="carousel-btn next" (click)="next()" [disabled]="activeIndex === carouselImages.length - 1">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+
+              <div class="carousel-dots">
+                @for (img of carouselImages; track img; let i = $index) {
+                  <span class="dot" [class.active]="i === activeIndex" (click)="activeIndex = i"></span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Thumbnails -->
+          @if (carouselImages.length > 1) {
             <div class="thumbnail-row">
-              @for (img of product.images; track img) {
-                <img [src]="img" class="thumbnail" (click)="product.imageUrl = img">
+              @for (img of carouselImages; track img; let i = $index) {
+                <img [src]="img" class="thumbnail" [class.selected]="i === activeIndex" (click)="activeIndex = i" [alt]="'Image ' + (i + 1)">
               }
             </div>
           }
         </div>
+
         <div class="info-section">
           @if (product.categories && product.categories.length > 0) {
             <div class="breadcrumbs">
@@ -77,10 +98,28 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   `,
   styles: [`
     .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 32px 16px; }
-    .main-image { width: 100%; border-radius: 8px; object-fit: cover; max-height: 500px; }
-    .thumbnail-row { display: flex; gap: 8px; margin-top: 12px; }
+
+    /* Carousel */
+    .carousel { position: relative; }
+    .main-image { width: 100%; border-radius: 8px; object-fit: cover; max-height: 500px; display: block; }
+    .carousel-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.9) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .carousel-btn.prev { left: 8px; }
+    .carousel-btn.next { right: 8px; }
+    .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; cursor: pointer; transition: background 0.2s; }
+    .dot.active { background: #3f51b5; }
+
+    /* Thumbnails */
+    .thumbnail-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .thumbnail { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
     .thumbnail:hover { border-color: #3f51b5; }
+    .thumbnail.selected { border-color: #3f51b5; }
+
+    /* Info */
     .breadcrumbs { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
     .breadcrumb { color: #666; font-size: 0.9rem; }
     .separator { color: #ccc; font-size: 0.9rem; }
@@ -104,6 +143,8 @@ export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
   loading = true;
   quantity = 1;
+  activeIndex = 0;
+  carouselImages: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -116,9 +157,32 @@ export class ProductDetailComponent implements OnInit {
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug')!;
     this.productService.getProductBySlug(slug).subscribe({
-      next: (res) => { this.product = res.data; this.loading = false; },
+      next: (res) => {
+        this.product = res.data;
+        this.buildCarouselImages();
+        this.loading = false;
+      },
       error: () => this.loading = false,
     });
+  }
+
+  private buildCarouselImages(): void {
+    if (!this.product) return;
+    const all: string[] = [];
+    if (this.product.imageUrl) all.push(this.product.imageUrl);
+    for (const img of (this.product.images || [])) {
+      if (!all.includes(img)) all.push(img);
+    }
+    this.carouselImages = all.length > 0 ? all : ['https://via.placeholder.com/500x400?text=No+Image'];
+    this.activeIndex = 0;
+  }
+
+  prev(): void {
+    if (this.activeIndex > 0) this.activeIndex--;
+  }
+
+  next(): void {
+    if (this.activeIndex < this.carouselImages.length - 1) this.activeIndex++;
   }
 
   addToCart(): void {

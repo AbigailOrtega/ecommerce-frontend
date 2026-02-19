@@ -7,6 +7,7 @@ import { ApiResponse, DashboardStats, Order, Page, Product, User } from '@shared
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly apiUrl = `${environment.apiUrl}/admin`;
+  private readonly uploadUrl = `${environment.apiUrl}/upload`;
 
   constructor(private http: HttpClient) {}
 
@@ -34,5 +35,11 @@ export class AdminService {
 
   getAllUsers(): Observable<ApiResponse<User[]>> {
     return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/users`);
+  }
+
+  uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<{ url: string }>>(`${this.uploadUrl}/image`, formData);
   }
 }

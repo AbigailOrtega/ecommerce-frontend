@@ -38,4 +38,47 @@ export class PaymentService {
       { amount }
     );
   }
+
+  // PayPal methods
+
+  getPayPalConfig(): Observable<ApiResponse<{ clientId: string }>> {
+    return this.http.get<ApiResponse<{ clientId: string }>>(
+      `${this.apiUrl}/paypal/config`
+    );
+  }
+
+  loadPayPalSdk(clientId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any).paypal) {
+        resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+      document.head.appendChild(script);
+    });
+  }
+
+  createPayPalOrder(amount: number): Observable<ApiResponse<{ orderId: string; status: string }>> {
+    return this.http.post<ApiResponse<{ orderId: string; status: string }>>(
+      `${this.apiUrl}/paypal/create-order`,
+      { amount }
+    );
+  }
+
+  capturePayPalOrder(orderId: string): Observable<ApiResponse<{ orderId: string; status: string; captureId: string }>> {
+    return this.http.post<ApiResponse<{ orderId: string; status: string; captureId: string }>>(
+      `${this.apiUrl}/paypal/capture-order`,
+      { orderId }
+    );
+  }
+
+  confirmPayPalPayment(orderNumber: string, captureId: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(
+      `${this.apiUrl}/paypal/confirm-payment`,
+      { orderNumber, captureId }
+    );
+  }
 }

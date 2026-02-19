@@ -84,6 +84,22 @@ import { switchMap } from 'rxjs';
               </mat-card>
             }
 
+            @if (paymentForm.get('paymentMethod')?.value === 'paypal') {
+              <mat-card class="card-form">
+                <h4>PayPal</h4>
+                @if (paypalLoading) {
+                  <div class="stripe-loading">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span>Loading PayPal...</span>
+                  </div>
+                }
+                <div #paypalButtonContainer></div>
+                @if (paypalError) {
+                  <p class="stripe-error">{{ paypalError }}</p>
+                }
+              </mat-card>
+            }
+
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Order Notes (optional)</mat-label>
               <textarea matInput formControlName="notes" rows="3"></textarea>
@@ -150,6 +166,7 @@ import { switchMap } from 'rxjs';
 })
 export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('stripeElement') stripeElementRef!: ElementRef;
+  @ViewChild('paypalButtonContainer') paypalButtonContainerRef!: ElementRef;
 
   shippingForm: FormGroup;
   paymentForm: FormGroup;
@@ -158,7 +175,12 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   stripeLoading = false;
   stripeError: string | null = null;
   stripeReady = false;
+  paypalLoading = false;
+  paypalError: string | null = null;
+  paypalReady = false;
   private savedOrderNumber: string | null = null;
+  private paypalMountRequested = false;
+  private paypalMounted = false;
 
   private stripe: Stripe | null = null;
   private elements: StripeElements | null = null;
@@ -192,6 +214,9 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       if (method !== 'stripe') {
         this.destroyStripeElement();
       }
+      if (method !== 'paypal') {
+        this.destroyPayPalButtons();
+      }
     });
   }
 
@@ -209,10 +234,20 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
       this.initStripeElement();
     }
+    // Mount PayPal buttons when the container appears
+    if (
+      this.paypalButtonContainerRef?.nativeElement &&
+      !this.paypalMounted &&
+      !this.paypalMountRequested &&
+      this.paymentForm.get('paymentMethod')?.value === 'paypal'
+    ) {
+      this.initPayPalButtons();
+    }
   }
 
   ngOnDestroy(): void {
     this.destroyStripeElement();
+    this.destroyPayPalButtons();
   }
 
   private initStripeElement(): void {
@@ -271,10 +306,108 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   isPaymentStepValid(): boolean {
-    if (this.paymentForm.get('paymentMethod')?.value === 'stripe') {
+    const method = this.paymentForm.get('paymentMethod')?.value;
+    if (method === 'stripe') {
       return this.stripeReady;
     }
+    if (method === 'paypal') {
+      return this.paypalReady;
+    }
     return this.paymentForm.valid;
+  }
+
+  private initPayPalButtons(): void {
+    this.paypalMountRequested = true;
+    this.paypalLoading = true;
+    this.paypalError = null;
+
+    this.paymentService.getPayPalConfig().subscribe({
+      next: (res) => {
+        const clientId = res.data.clientId;
+        if (!clientId) {
+          this.paypalLoading = false;
+          this.paypalError = 'PayPal is not configured.';
+          this.paypalMountRequested = false;
+          return;
+        }
+        this.paymentService.loadPayPalSdk(clientId).then(() => {
+          this.paypalLoading = false;
+          this.renderPayPalButtons();
+        }).catch(() => {
+          this.paypalLoading = false;
+          this.paypalError = 'Failed to load PayPal SDK.';
+          this.paypalMountRequested = false;
+        });
+      },
+      error: () => {
+        this.paypalLoading = false;
+        this.paypalError = 'Failed to get PayPal configuration.';
+        this.paypalMountRequested = false;
+      },
+    });
+  }
+
+  private renderPayPalButtons(): void {
+    const paypal = (window as any).paypal;
+    if (!paypal || !this.paypalButtonContainerRef?.nativeElement) {
+      this.paypalError = 'PayPal SDK not available.';
+      return;
+    }
+
+    paypal.Buttons({
+      createOrder: (_data: any, _actions: any) => {
+        return new Promise<string>((resolve, reject) => {
+          this.paymentService.createPayPalOrder(this.cart.total()).subscribe({
+            next: (res) => resolve(res.data.orderId),
+            error: (err) => reject(err),
+          });
+        });
+      },
+      onApprove: (data: any, _actions: any) => {
+        this.processingPayment = true;
+        // 1. Capture the PayPal payment
+        this.paymentService.capturePayPalOrder(data.orderID).subscribe({
+          next: (res) => {
+            const captureId = res.data.captureId || res.data.orderId;
+            // 2. Create the order (PENDING) with the captureId
+            this.submitOrder(captureId, () => {
+              const orderNumber = this.savedOrderNumber!;
+              // 3. Confirm the order (CONFIRMED)
+              this.paymentService.confirmPayPalPayment(orderNumber, captureId).subscribe({
+                next: () => {
+                  this.processingPayment = false;
+                  this.snackBar.open('Order placed successfully!', 'Close', { duration: 5000 });
+                  this.router.navigate(['/orders', orderNumber]);
+                },
+                error: () => {
+                  this.processingPayment = false;
+                  this.snackBar.open('Order placed successfully!', 'Close', { duration: 5000 });
+                  this.router.navigate(['/orders', orderNumber]);
+                },
+              });
+            });
+          },
+          error: (err) => {
+            this.processingPayment = false;
+            this.snackBar.open(err.error?.message || 'PayPal capture failed', 'Close', { duration: 5000 });
+          },
+        });
+      },
+      onError: (err: any) => {
+        this.paypalError = 'PayPal payment failed. Please try again.';
+        console.error('PayPal error:', err);
+      },
+    }).render(this.paypalButtonContainerRef.nativeElement);
+
+    this.paypalMounted = true;
+    this.paypalReady = true;
+  }
+
+  private destroyPayPalButtons(): void {
+    this.paypalReady = false;
+    this.paypalMounted = false;
+    this.paypalMountRequested = false;
+    this.paypalError = null;
   }
 
   placeOrder(): void {
@@ -283,6 +416,9 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     if (method === 'stripe') {
       this.processStripePayment();
+    } else if (method === 'paypal') {
+      // PayPal flow is handled by the PayPal buttons callbacks
+      this.loading = false;
     } else {
       this.submitOrder();
     }
