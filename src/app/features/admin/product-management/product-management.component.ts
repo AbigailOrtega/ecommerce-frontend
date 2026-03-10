@@ -18,7 +18,10 @@ import { ProductService } from '@core/services/product.service';
 import { Product, Category } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
-const MAX_IMAGES = 6;
+const MAX_COLOR_IMAGES = 6;
+
+interface SizeEntry { name: string; stock: number; }
+interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSizeName: string; uploading: boolean; }
 
 @Component({
   selector: 'app-product-management',
@@ -41,48 +44,87 @@ const MAX_IMAGES = 6;
         <mat-card class="form-card">
           <h2>{{ editingId ? 'Edit' : 'New' }} Product</h2>
           <form [formGroup]="form" (ngSubmit)="saveProduct()">
+
             <div class="row">
               <mat-form-field appearance="outline"><mat-label>Name</mat-label><input matInput formControlName="name"></mat-form-field>
               <mat-form-field appearance="outline"><mat-label>SKU</mat-label><input matInput formControlName="sku"></mat-form-field>
             </div>
+
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Description</mat-label>
               <textarea matInput formControlName="description" rows="3"></textarea>
             </mat-form-field>
+
             <div class="row">
               <mat-form-field appearance="outline"><mat-label>Price</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
               <mat-form-field appearance="outline"><mat-label>Compare Price</mat-label><input matInput formControlName="compareAtPrice" type="number"></mat-form-field>
-              <mat-form-field appearance="outline"><mat-label>Stock</mat-label><input matInput formControlName="stockQuantity" type="number"></mat-form-field>
+              @if (colorEntries.length === 0) {
+                <mat-form-field appearance="outline"><mat-label>Stock</mat-label><input matInput formControlName="stockQuantity" type="number"></mat-form-field>
+              }
             </div>
 
-            <!-- Multi-image upload -->
-            <div class="images-section">
-              <label class="images-label">Product Images (max {{ maxImages }})</label>
-              <div class="images-grid">
-                @for (img of uploadedImages; track img; let i = $index) {
-                  <div class="image-slot filled">
-                    <img [src]="img" class="slot-img" [alt]="'Image ' + (i + 1)">
-                    @if (i === 0) {
-                      <span class="main-badge">Main</span>
-                    }
-                    <button type="button" mat-icon-button class="slot-delete" (click)="removeImage(i)">
-                      <mat-icon>close</mat-icon>
+            <!-- Colors Section -->
+            <div class="colors-section">
+              <div class="section-header">
+                <label class="section-label">Colors & Images (optional)</label>
+                <button type="button" mat-stroked-button (click)="addColor()">
+                  <mat-icon>add</mat-icon> Add Color
+                </button>
+              </div>
+
+              @for (ce of colorEntries; track ce; let ci = $index) {
+                <div class="color-card">
+                  <div class="color-card-header">
+                    <input class="color-name-input" [(ngModel)]="ce.name" [ngModelOptions]="{standalone: true}"
+                      placeholder="Color name (e.g. Red, Blue...)">
+                    <button type="button" mat-icon-button color="warn" (click)="removeColor(ci)">
+                      <mat-icon>delete</mat-icon>
                     </button>
                   </div>
-                }
-                @if (uploadedImages.length < maxImages) {
-                  <div class="image-slot empty" (click)="fileInput.click()">
-                    @if (uploading) {
-                      <mat-spinner diameter="28"></mat-spinner>
-                    } @else {
-                      <mat-icon>add_photo_alternate</mat-icon>
-                      <span>Add Photo</span>
+
+                  <!-- Per-color images -->
+                  <div class="images-grid">
+                    @for (img of ce.images; track img; let ii = $index) {
+                      <div class="image-slot filled">
+                        <img [src]="img" class="slot-img" [alt]="'Image ' + (ii + 1)">
+                        @if (ii === 0) { <span class="main-badge">Main</span> }
+                        <button type="button" mat-icon-button class="slot-delete" (click)="removeColorImage(ci, ii)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                    @if (ce.images.length < maxColorImages) {
+                      <div class="image-slot empty" (click)="triggerColorImageUpload(ci)">
+                        @if (ce.uploading) { <mat-spinner diameter="28"></mat-spinner> }
+                        @else { <mat-icon>add_photo_alternate</mat-icon><span>Add Photo</span> }
+                      </div>
                     }
                   </div>
-                }
-              </div>
-              <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+
+                  <!-- Per-color sizes -->
+                  <div class="sizes-section">
+                    <span class="sizes-label">Sizes</span>
+                    <div class="sizes-list">
+                      @for (se of ce.sizes; track se; let si = $index) {
+                        <div class="size-row">
+                          <input class="size-name-input" [(ngModel)]="se.name" [ngModelOptions]="{standalone: true}" placeholder="Size">
+                          <input class="size-stock-input" [(ngModel)]="se.stock" [ngModelOptions]="{standalone: true}" type="number" min="0" placeholder="Stock">
+                          <button type="button" mat-icon-button (click)="removeSize(ci, si)"><mat-icon>close</mat-icon></button>
+                        </div>
+                      }
+                      <div class="add-size-row">
+                        <input class="size-name-input" [(ngModel)]="ce.newSizeName" [ngModelOptions]="{standalone: true}"
+                          placeholder="Add size..." (keydown.enter)="$event.preventDefault(); addSize(ci)">
+                        <button type="button" mat-stroked-button (click)="addSize(ci)">Add</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
+
+            <!-- Hidden file input -->
+            <input #colorFileInput type="file" accept="image/*" hidden (change)="onColorFileSelected($event)">
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Categories</mat-label>
@@ -97,7 +139,8 @@ const MAX_IMAGES = 6;
               <mat-slide-toggle formControlName="featured">Featured</mat-slide-toggle>
               <mat-slide-toggle formControlName="active">Active</mat-slide-toggle>
             </div>
-            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || uploading">
+
+            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isAnyUploading()">
               {{ editingId ? 'Update' : 'Create' }}
             </button>
           </form>
@@ -111,9 +154,7 @@ const MAX_IMAGES = 6;
           <ng-container matColumnDef="image">
             <th mat-header-cell *matHeaderCellDef>Image</th>
             <td mat-cell *matCellDef="let p">
-              @if (p.imageUrl) {
-                <img [src]="p.imageUrl" class="table-thumb" [alt]="p.name">
-              }
+              @if (p.imageUrl) { <img [src]="p.imageUrl" class="table-thumb" [alt]="p.name"> }
             </td>
           </ng-container>
           <ng-container matColumnDef="name">
@@ -126,7 +167,13 @@ const MAX_IMAGES = 6;
           </ng-container>
           <ng-container matColumnDef="stock">
             <th mat-header-cell *matHeaderCellDef>Stock</th>
-            <td mat-cell *matCellDef="let p">{{ p.stockQuantity }}</td>
+            <td mat-cell *matCellDef="let p">
+              @if (p.colors && p.colors.length > 0) {
+                {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 's' : '' }})
+              } @else {
+                {{ p.stockQuantity }}
+              }
+            </td>
           </ng-container>
           <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef>Active</th>
@@ -155,42 +202,53 @@ const MAX_IMAGES = 6;
     .toggles { display: flex; gap: 24px; margin: 16px 0; }
     .product-table { width: 100%; margin-top: 16px; }
     .table-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+    .section-label { font-size: 12px; color: rgba(0,0,0,0.6); display: block; }
 
-    /* Images section */
-    .images-section { margin: 16px 0; }
-    .images-label { font-size: 12px; color: rgba(0,0,0,0.6); display: block; margin-bottom: 8px; }
-    .images-grid { display: flex; flex-wrap: wrap; gap: 12px; }
-    .image-slot { width: 120px; height: 120px; border-radius: 8px; overflow: hidden; position: relative; }
+    /* Colors section */
+    .colors-section { margin: 16px 0; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+
+    .color-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fafafa; }
+    .color-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .color-name-input { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; }
+    .color-name-input:focus { border-color: #3f51b5; }
+
+    /* Images */
+    .images-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .image-slot { width: 100px; height: 100px; border-radius: 8px; overflow: hidden; position: relative; }
     .image-slot.filled { border: 1px solid #ddd; }
-    .image-slot.empty {
-      border: 2px dashed #ccc; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 4px;
-      cursor: pointer; color: #999; font-size: 12px;
-    }
+    .image-slot.empty { border: 2px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #999; font-size: 11px; }
     .image-slot.empty:hover { border-color: #3f51b5; color: #3f51b5; }
     .slot-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .main-badge {
-      position: absolute; top: 4px; left: 4px; background: #3f51b5;
-      color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px;
-    }
-    .slot-delete {
-      position: absolute; top: 2px; right: 2px; width: 28px; height: 28px;
-      background: rgba(0,0,0,0.5) !important; color: white !important;
-    }
+    .main-badge { position: absolute; top: 4px; left: 4px; background: #3f51b5; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+    .slot-delete { position: absolute; top: 2px; right: 2px; width: 28px; height: 28px; background: rgba(0,0,0,0.5) !important; color: white !important; }
     .slot-delete mat-icon { font-size: 16px; width: 16px; height: 16px; line-height: 16px; }
+
+    /* Sizes */
+    .sizes-section { border-top: 1px solid #eee; padding-top: 12px; }
+    .sizes-label { font-size: 12px; color: rgba(0,0,0,0.6); display: block; margin-bottom: 8px; font-weight: 500; }
+    .sizes-list { display: flex; flex-direction: column; gap: 6px; }
+    .size-row { display: flex; align-items: center; gap: 8px; }
+    .add-size-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .size-name-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 13px; outline: none; width: 120px; }
+    .size-name-input:focus { border-color: #3f51b5; }
+    .size-stock-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 13px; outline: none; width: 80px; text-align: center; }
+    .size-stock-input:focus { border-color: #3f51b5; }
   `],
 })
 export class ProductManagementComponent implements OnInit {
-  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('colorFileInput') colorFileInputRef!: ElementRef<HTMLInputElement>;
 
   products: Product[] = [];
   categories: Category[] = [];
   loading = true;
-  uploading = false;
   showForm = false;
   editingId: number | null = null;
-  uploadedImages: string[] = [];
-  maxImages = MAX_IMAGES;
+  maxColorImages = MAX_COLOR_IMAGES;
+
+  colorEntries: ColorEntry[] = [];
+  currentUploadColorIndex = -1;
+
   form: FormGroup;
   columns = ['image', 'name', 'price', 'stock', 'active', 'actions'];
   totalElements = 0;
@@ -224,76 +282,119 @@ export class ProductManagementComponent implements OnInit {
   loadProducts(): void {
     this.loading = true;
     this.adminService.getAllProducts(this.currentPage, this.pageSize).subscribe({
-      next: (res) => {
-        this.products = res.data.content;
-        this.totalElements = res.data.totalElements;
-        this.loading = false;
-      },
+      next: (res) => { this.products = res.data.content; this.totalElements = res.data.totalElements; this.loading = false; },
       error: () => this.loading = false,
     });
   }
 
   resetForm(): void {
     this.editingId = null;
-    this.uploadedImages = [];
+    this.colorEntries = [];
     this.form.reset({ price: 0, stockQuantity: 0, featured: false, active: true, categoryIds: [] });
   }
 
   editProduct(product: Product): void {
     this.editingId = product.id;
     this.showForm = true;
-    // Build images list: start with imageUrl if not already in images array
-    const imgs: string[] = [...(product.images || [])];
-    if (product.imageUrl && !imgs.includes(product.imageUrl)) {
-      imgs.unshift(product.imageUrl);
-    }
-    this.uploadedImages = imgs.slice(0, MAX_IMAGES);
+
+    this.colorEntries = (product.colors || []).map(c => ({
+      name: c.name,
+      images: [...c.images],
+      sizes: c.sizes.map(s => ({ name: s.name, stock: s.stock })),
+      newSizeName: '',
+      uploading: false,
+    }));
+
     this.form.patchValue({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      compareAtPrice: product.compareAtPrice,
-      sku: product.sku,
+      name: product.name, description: product.description, price: product.price,
+      compareAtPrice: product.compareAtPrice, sku: product.sku,
       stockQuantity: product.stockQuantity,
       categoryIds: product.categories?.map(c => c.id) || [],
-      featured: product.featured,
-      active: product.active,
+      featured: product.featured, active: product.active,
     });
   }
 
-  onFileSelected(event: Event): void {
+  // Colors
+  addColor(): void {
+    this.colorEntries = [...this.colorEntries, { name: '', images: [], sizes: [], newSizeName: '', uploading: false }];
+  }
+
+  removeColor(index: number): void {
+    this.colorEntries = this.colorEntries.filter((_, i) => i !== index);
+  }
+
+  // Sizes per color
+  addSize(colorIndex: number): void {
+    const ce = this.colorEntries[colorIndex];
+    const name = ce.newSizeName.trim();
+    if (!name) return;
+    ce.sizes = [...ce.sizes, { name, stock: 0 }];
+    ce.newSizeName = '';
+  }
+
+  removeSize(colorIndex: number, sizeIndex: number): void {
+    const ce = this.colorEntries[colorIndex];
+    ce.sizes = ce.sizes.filter((_, i) => i !== sizeIndex);
+  }
+
+  // Images per color
+  triggerColorImageUpload(colorIndex: number): void {
+    this.currentUploadColorIndex = colorIndex;
+    this.colorFileInputRef.nativeElement.value = '';
+    this.colorFileInputRef.nativeElement.click();
+  }
+
+  onColorFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-    if (this.uploadedImages.length >= MAX_IMAGES) {
-      this.snackBar.open(`Maximum ${MAX_IMAGES} images allowed`, 'Close', { duration: 3000 });
+    const ci = this.currentUploadColorIndex;
+    if (ci < 0 || ci >= this.colorEntries.length) return;
+    const ce = this.colorEntries[ci];
+    if (ce.images.length >= MAX_COLOR_IMAGES) {
+      this.snackBar.open(`Maximum ${MAX_COLOR_IMAGES} images per color`, 'Close', { duration: 3000 });
       return;
     }
     const file = input.files[0];
-    input.value = '';
-    this.uploading = true;
+    ce.uploading = true;
     this.adminService.uploadImage(file).subscribe({
-      next: (res) => {
-        this.uploadedImages = [...this.uploadedImages, res.data.url];
-        this.uploading = false;
-      },
-      error: (err) => {
-        this.snackBar.open(err.error?.message || 'Image upload failed', 'Close', { duration: 3000 });
-        this.uploading = false;
-      },
+      next: (res) => { ce.images = [...ce.images, res.data.url]; ce.uploading = false; },
+      error: (err) => { this.snackBar.open(err.error?.message || 'Image upload failed', 'Close', { duration: 3000 }); ce.uploading = false; },
     });
   }
 
-  removeImage(index: number): void {
-    this.uploadedImages = this.uploadedImages.filter((_, i) => i !== index);
+  removeColorImage(colorIndex: number, imageIndex: number): void {
+    const ce = this.colorEntries[colorIndex];
+    ce.images = ce.images.filter((_, i) => i !== imageIndex);
+  }
+
+  isAnyUploading(): boolean {
+    return this.colorEntries.some(ce => ce.uploading);
+  }
+
+  totalColorStock(product: Product): number {
+    return (product.colors || []).reduce((sum, c) => sum + c.sizes.reduce((s2, sz) => s2 + sz.stock, 0), 0);
   }
 
   saveProduct(): void {
     if (this.form.invalid) return;
+
+    const colors = this.colorEntries
+      .filter(ce => ce.name.trim())
+      .map(ce => ({
+        name: ce.name.trim(),
+        images: ce.images,
+        sizes: ce.sizes.filter(s => s.name.trim()).map(s => ({ name: s.name.trim(), stock: s.stock })),
+      }));
+
+    const firstImage = this.colorEntries[0]?.images[0] || null;
+
     const payload = {
       ...this.form.value,
-      images: this.uploadedImages,
-      imageUrl: this.uploadedImages[0] || null,
+      images: this.colorEntries[0]?.images || [],
+      imageUrl: firstImage,
+      colors,
     };
+
     const obs = this.editingId
       ? this.productService.updateProduct(this.editingId, payload)
       : this.productService.createProduct(payload);
@@ -312,10 +413,7 @@ export class ProductManagementComponent implements OnInit {
   deleteProduct(id: number): void {
     if (!confirm('Are you sure you want to delete this product?')) return;
     this.productService.deleteProduct(id).subscribe({
-      next: () => {
-        this.snackBar.open('Product deleted', 'Close', { duration: 3000 });
-        this.loadProducts();
-      },
+      next: () => { this.snackBar.open('Product deleted', 'Close', { duration: 3000 }); this.loadProducts(); },
       error: () => this.snackBar.open('Error deleting product', 'Close', { duration: 3000 }),
     });
   }

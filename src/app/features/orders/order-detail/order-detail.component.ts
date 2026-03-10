@@ -28,6 +28,13 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <div class="order-item">
                 <div class="item-info">
                   <strong>{{ item.productName }}</strong>
+                  @if (item.selectedColorName || item.selectedSizeName) {
+                    <span class="item-variant">
+                      @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
+                      @if (item.selectedColorName && item.selectedSizeName) { &middot; }
+                      @if (item.selectedSizeName) { Size: {{ item.selectedSizeName }} }
+                    </span>
+                  }
                   <span>Qty: {{ item.quantity }} &times; {{ item.productPrice | currency }}</span>
                 </div>
                 <span class="item-total">{{ item.subtotal | currency }}</span>
@@ -73,6 +80,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .order-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
     .item-info { display: flex; flex-direction: column; gap: 4px; }
     .item-info span { color: #666; font-size: 0.9rem; }
+    .item-variant { color: #3f51b5 !important; font-size: 0.85rem !important; }
     .item-total { font-weight: 600; }
     .order-total { display: flex; justify-content: space-between; padding: 16px 0 0; font-size: 1.2rem; font-weight: 700; }
     .info-card { margin-bottom: 16px; }

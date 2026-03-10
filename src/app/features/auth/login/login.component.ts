@@ -47,6 +47,7 @@ import { AuthService } from '@core/services/auth.service';
             <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
               {{ loading ? 'Signing in...' : 'Sign In' }}
             </button>
+            <p class="forgot-link"><a routerLink="/forgot-password">Forgot password?</a></p>
           </form>
         </mat-card-content>
         <mat-card-actions align="end">
@@ -71,6 +72,8 @@ import { AuthService } from '@core/services/auth.service';
     .full-width { width: 100%; }
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
     mat-card-actions a { color: #3f51b5; font-weight: 500; }
+    .forgot-link { margin-top: 8px; font-size: 0.9rem; text-align: right; }
+    .forgot-link a { color: #3f51b5; }
   `],
 })
 export class LoginComponent {

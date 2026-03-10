@@ -22,8 +22,10 @@ export class CartService {
     });
   }
 
-  addToCart(productId: number, quantity = 1): Observable<ApiResponse<CartItem>> {
-    return this.http.post<ApiResponse<CartItem>>(this.apiUrl, { productId, quantity })
+  addToCart(productId: number, quantity = 1, sizeId?: number): Observable<ApiResponse<CartItem>> {
+    const body: any = { productId, quantity };
+    if (sizeId != null) body['sizeId'] = sizeId;
+    return this.http.post<ApiResponse<CartItem>>(this.apiUrl, body)
       .pipe(tap(() => this.loadCart()));
   }
 
@@ -40,5 +42,9 @@ export class CartService {
   clearCart(): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(this.apiUrl)
       .pipe(tap(() => this.cartItems.set([])));
+  }
+
+  resetLocalCart(): void {
+    this.cartItems.set([]);
   }
 }

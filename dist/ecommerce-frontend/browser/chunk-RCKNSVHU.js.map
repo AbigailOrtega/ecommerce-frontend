@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/core/services/order.service.ts"],
+  "sourcesContent": ["import { Injectable } from '@angular/core';\nimport { HttpClient } from '@angular/common/http';\nimport { Observable } from 'rxjs';\nimport { environment } from '@env/environment';\nimport { ApiResponse, Order, OrderRequest } from '@shared/models';\n\n@Injectable({ providedIn: 'root' })\nexport class OrderService {\n  private readonly apiUrl = `${environment.apiUrl}/orders`;\n\n  constructor(private http: HttpClient) {}\n\n  createOrder(request: OrderRequest): Observable<ApiResponse<Order>> {\n    return this.http.post<ApiResponse<Order>>(this.apiUrl, request);\n  }\n\n  getUserOrders(): Observable<ApiResponse<Order[]>> {\n    return this.http.get<ApiResponse<Order[]>>(this.apiUrl);\n  }\n\n  getOrderByNumber(orderNumber: string): Observable<ApiResponse<Order>> {\n    return this.http.get<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}`);\n  }\n}\n"],
+  "mappings": ";;;;;;;;;;AAOM,IAAO,eAAP,MAAO,cAAY;EAGvB,YAAoB,MAAgB;AAAhB,SAAA,OAAA;AAFH,SAAA,SAAS,GAAG,YAAY,MAAM;EAER;EAEvC,YAAY,SAAqB;AAC/B,WAAO,KAAK,KAAK,KAAyB,KAAK,QAAQ,OAAO;EAChE;EAEA,gBAAa;AACX,WAAO,KAAK,KAAK,IAA0B,KAAK,MAAM;EACxD;EAEA,iBAAiB,aAAmB;AAClC,WAAO,KAAK,KAAK,IAAwB,GAAG,KAAK,MAAM,IAAI,WAAW,EAAE;EAC1E;;;uCAfW,eAAY,mBAAA,UAAA,CAAA;IAAA;EAAA;;4EAAZ,eAAY,SAAZ,cAAY,WAAA,YADC,OAAM,CAAA;EAAA;;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;e7ef619d09d3c62ddbe181e825d1f3fe1ceb604f56b0503ad9224982387fae30;/Users/abigailortega/ecommerce/frontend/src/app/shared/components/footer/footer.component.ts"],
+  "sourcesContent": ["\n    footer {\n      background: #333;\n      color: #aaa;\n      padding: 16px 0;\n      text-align: center;\n      font-size: 0.9rem;\n    }\n  "],
+  "mappings": ";AACI;AACE,cAAY;AACZ,SAAO;AACP,WAAS,KAAK;AACd,cAAY;AACZ,aAAW;AACb;",
+  "names": []
+}

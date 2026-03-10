@@ -376,11 +376,13 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
               this.paymentService.confirmPayPalPayment(orderNumber, captureId).subscribe({
                 next: () => {
                   this.processingPayment = false;
+                  this.cart.resetLocalCart();
                   this.snackBar.open('Order placed successfully!', 'Close', { duration: 5000 });
                   this.router.navigate(['/orders', orderNumber]);
                 },
                 error: () => {
                   this.processingPayment = false;
+                  this.cart.resetLocalCart();
                   this.snackBar.open('Order placed successfully!', 'Close', { duration: 5000 });
                   this.router.navigate(['/orders', orderNumber]);
                 },
@@ -450,6 +452,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     if (error) {
       this.loading = false;
+      this.cart.resetLocalCart();
       this.snackBar.open(error.message || 'Payment failed. Your order will be updated automatically.', 'Close', { duration: 5000 });
       this.router.navigate(['/orders', this.savedOrderNumber]);
     } else if (paymentIntent) {
@@ -457,6 +460,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
         const msg = paymentIntent.status === 'succeeded'
           ? 'Order placed successfully!'
           : 'Payment is being processed. Your order will be confirmed shortly.';
+        this.cart.resetLocalCart();
         this.snackBar.open(msg, 'Close', { duration: 5000 });
         this.router.navigate(['/orders', this.savedOrderNumber]);
       } else {
@@ -484,6 +488,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.savedOrderNumber = res.data.orderNumber;
           onOrderCreated();
         } else {
+          this.cart.resetLocalCart();
           this.snackBar.open('Order placed successfully!', 'Close', { duration: 5000 });
           this.router.navigate(['/orders', res.data.orderNumber]);
         }

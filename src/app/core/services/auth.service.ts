@@ -41,6 +41,14 @@ export class AuthService {
         tap(res => this.handleAuth(res.data)));
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/reset-password`, { token, newPassword });
+  }
+
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
     const refreshToken = localStorage.getItem('refreshToken');
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/refresh`, { refreshToken })

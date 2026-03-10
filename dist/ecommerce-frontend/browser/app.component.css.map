@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;a6bfdcd7a6eff1749a07c661b6ba9fce69c37429f17389d812143863b8734ccb;/Users/abigailortega/ecommerce/frontend/src/app/app.component.ts"],
+  "sourcesContent": ["\n    :host {\n      display: flex;\n      flex-direction: column;\n      min-height: 100vh;\n    }\n    main {\n      flex: 1;\n    }\n  "],
+  "mappings": ";AACI;AACE,WAAS;AACT,kBAAgB;AAChB,cAAY;AACd;AACA;AACE,QAAM;AACR;",
+  "names": []
+}

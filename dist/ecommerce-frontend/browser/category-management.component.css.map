@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;fc5d018ef0e82ee901eaf72b3ecdfc6583d3151bd4360398d4ed26cac0159e1c;/Users/abigailortega/ecommerce/frontend/src/app/features/admin/category-management/category-management.component.ts"],
+  "sourcesContent": ["\n    .header { display: flex; justify-content: space-between; align-items: center; }\n    .form-card { padding: 24px; margin: 16px 0; }\n    .full-width { width: 100%; }\n    .row { display: flex; gap: 16px; }\n    .row mat-form-field { flex: 1; }\n    .category-table { width: 100%; margin-top: 16px; }\n    .no-data { text-align: center; padding: 32px; color: #666; }\n  "],
+  "mappings": ";AACI,CAAC;AAAS,WAAS;AAAM,mBAAiB;AAAe,eAAa;AAAQ;AAC9E,CAAC;AAAY,WAAS;AAAM,UAAQ,KAAK;AAAG;AAC5C,CAAC;AAAa,SAAO;AAAM;AAC3B,CAAC;AAAM,WAAS;AAAM,OAAK;AAAM;AACjC,CADC,IACI;AAAiB,QAAM;AAAG;AAC/B,CAAC;AAAiB,SAAO;AAAM,cAAY;AAAM;AACjD,CAAC;AAAU,cAAY;AAAQ,WAAS;AAAM,SAAO;AAAM;",
+  "names": []
+}

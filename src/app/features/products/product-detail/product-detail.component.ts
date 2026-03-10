@@ -9,13 +9,14 @@ import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '@core/services/product.service';
 import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
-import { Product } from '@shared/models';
+import { Product, ProductColor, ProductSize } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
+import { ProductReviewsComponent } from '../product-reviews/product-reviews.component';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent],
+  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent, ProductReviewsComponent],
   template: `
     @if (loading) {
       <app-loading />
@@ -71,15 +72,56 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           <p class="description">{{ product.description }}</p>
 
           <div class="stock-info">
-            @if (product.stockQuantity > 0) {
-              <mat-chip class="in-stock"><mat-icon>check_circle</mat-icon> In Stock ({{ product.stockQuantity }})</mat-chip>
-            } @else {
-              <mat-chip class="out-of-stock"><mat-icon>cancel</mat-icon> Out of Stock</mat-chip>
+            @if (colors.length === 0) {
+              @if (product.stockQuantity > 0) {
+                <mat-chip class="in-stock"><mat-icon>check_circle</mat-icon> In Stock ({{ product.stockQuantity }})</mat-chip>
+              } @else {
+                <mat-chip class="out-of-stock"><mat-icon>cancel</mat-icon> Out of Stock</mat-chip>
+              }
             }
           </div>
 
           @if (product.sku) {
             <p class="sku">SKU: {{ product.sku }}</p>
+          }
+
+          <!-- Color & Size variants -->
+          @if (colors.length > 0) {
+            <div class="variants-section">
+              <div class="variant-group">
+                <p class="variant-label">Color: <strong>{{ selectedColor?.name }}</strong></p>
+                <div class="variant-options">
+                  @for (c of colors; track c.id) {
+                    <button class="variant-btn" [class.selected]="selectedColor === c" (click)="selectColor(c)">
+                      {{ c.name }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              @if (selectedColor && selectedColor.sizes.length > 0) {
+                <div class="variant-group">
+                  <p class="variant-label">Size: <strong>{{ selectedSize?.name }}</strong></p>
+                  <div class="variant-options">
+                    @for (s of selectedColor.sizes; track s.id) {
+                      <button class="variant-btn" [class.selected]="selectedSize === s"
+                        [class.out-of-stock-btn]="s.stock === 0"
+                        (click)="selectSize(s)">
+                        {{ s.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (selectedColor && selectedSize) {
+                @if (selectedSize.stock > 0) {
+                  <p class="variant-stock in-stock-text">{{ selectedSize.stock }} in stock for {{ selectedColor.name }} / {{ selectedSize.name }}</p>
+                } @else {
+                  <p class="variant-stock out-of-stock-text">Out of stock for {{ selectedColor.name }} / {{ selectedSize.name }}</p>
+                }
+              }
+            </div>
           }
 
           <div class="quantity-section">
@@ -88,11 +130,18 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <button mat-icon-button (click)="quantity = quantity + 1"><mat-icon>add</mat-icon></button>
           </div>
 
-          <button mat-raised-button color="primary" class="add-btn" (click)="addToCart()" [disabled]="product.stockQuantity === 0">
+          @if (colors.length > 0 && (!selectedColor || (selectedColor.sizes.length > 0 && !selectedSize))) {
+            <p class="selection-warning">Please select a color and size before adding to cart.</p>
+          }
+          <button mat-raised-button color="primary" class="add-btn" (click)="addToCart()" [disabled]="isAddToCartDisabled()">
             <mat-icon>add_shopping_cart</mat-icon>
-            {{ product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart' }}
+            {{ addToCartLabel() }}
           </button>
         </div>
+      </div>
+
+      <div class="container">
+        <app-product-reviews [productId]="product.id" />
       </div>
     }
   `,
@@ -135,7 +184,22 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .sku { color: #999; font-size: 0.85rem; }
     .quantity-section { display: flex; align-items: center; gap: 8px; margin: 24px 0; }
     .quantity { font-size: 1.2rem; font-weight: 500; min-width: 32px; text-align: center; }
+    .selection-warning { font-size: 0.875rem; color: #e65100; margin: 0 0 8px; }
     .add-btn { width: 100%; padding: 12px; font-size: 1.1rem; }
+
+    /* Variants */
+    .variants-section { margin: 16px 0; display: flex; flex-direction: column; gap: 16px; }
+    .variant-group { display: flex; flex-direction: column; gap: 8px; }
+    .variant-label { margin: 0; font-size: 0.9rem; color: #555; }
+    .variant-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .variant-btn { padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
+    .variant-btn:hover { border-color: #3f51b5; color: #3f51b5; }
+    .variant-btn.selected { border-color: #3f51b5; background: #3f51b5; color: white; }
+    .variant-btn.out-of-stock-btn { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
+    .variant-stock { margin: 0; font-size: 0.875rem; }
+    .in-stock-text { color: #2e7d32; }
+    .out-of-stock-text { color: #c62828; }
+
     @media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
   `],
 })
@@ -145,6 +209,9 @@ export class ProductDetailComponent implements OnInit {
   quantity = 1;
   activeIndex = 0;
   carouselImages: string[] = [];
+  colors: ProductColor[] = [];
+  selectedColor: ProductColor | null = null;
+  selectedSize: ProductSize | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -159,7 +226,12 @@ export class ProductDetailComponent implements OnInit {
     this.productService.getProductBySlug(slug).subscribe({
       next: (res) => {
         this.product = res.data;
-        this.buildCarouselImages();
+        this.colors = res.data.colors || [];
+        if (this.colors.length > 0) {
+          this.selectColor(this.colors[0]);
+        } else {
+          this.buildCarouselImages();
+        }
         this.loading = false;
       },
       error: () => this.loading = false,
@@ -177,6 +249,22 @@ export class ProductDetailComponent implements OnInit {
     this.activeIndex = 0;
   }
 
+  selectColor(color: ProductColor): void {
+    this.selectedColor = color;
+    this.selectedSize = color.sizes.length > 0 ? color.sizes[0] : null;
+    const imgs = color.images.length > 0 ? color.images : [];
+    if (imgs.length > 0) {
+      this.carouselImages = imgs;
+    } else {
+      this.buildCarouselImages();
+    }
+    this.activeIndex = 0;
+  }
+
+  selectSize(size: ProductSize): void {
+    this.selectedSize = size;
+  }
+
   prev(): void {
     if (this.activeIndex > 0) this.activeIndex--;
   }
@@ -185,13 +273,36 @@ export class ProductDetailComponent implements OnInit {
     if (this.activeIndex < this.carouselImages.length - 1) this.activeIndex++;
   }
 
+  isAddToCartDisabled(): boolean {
+    if (!this.product) return true;
+    if (this.colors.length > 0) {
+      if (!this.selectedColor) return true;
+      if (this.selectedColor.sizes.length > 0 && !this.selectedSize) return true;
+      if (this.selectedSize && this.selectedSize.stock === 0) return true;
+    } else {
+      if (this.product.stockQuantity === 0) return true;
+    }
+    return false;
+  }
+
+  addToCartLabel(): string {
+    if (this.colors.length > 0) {
+      if (!this.selectedColor) return 'Select Color';
+      if (this.selectedColor.sizes.length > 0 && !this.selectedSize) return 'Select Size';
+      if (this.selectedSize && this.selectedSize.stock === 0) return 'Out of Stock';
+    } else if (this.product?.stockQuantity === 0) {
+      return 'Out of Stock';
+    }
+    return 'Add to Cart';
+  }
+
   addToCart(): void {
     if (!this.authService.isLoggedIn()) {
       this.snackBar.open('Please sign in first', 'Close', { duration: 3000 });
       return;
     }
     if (!this.product) return;
-    this.cartService.addToCart(this.product.id, this.quantity).subscribe({
+    this.cartService.addToCart(this.product.id, this.quantity, this.selectedSize?.id).subscribe({
       next: () => this.snackBar.open('Added to cart!', 'Close', { duration: 2000 }),
       error: () => this.snackBar.open('Failed to add to cart', 'Close', { duration: 3000 }),
     });

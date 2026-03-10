@@ -33,6 +33,13 @@ import { CartItem } from '@shared/models';
                   <img [src]="item.product.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.product.name">
                   <div class="item-info">
                     <a [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
+                    @if (item.selectedColorName || item.selectedSizeName) {
+                      <p class="item-variant">
+                        @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
+                        @if (item.selectedColorName && item.selectedSizeName) { &middot; }
+                        @if (item.selectedSizeName) { Size: {{ item.selectedSizeName }} }
+                      </p>
+                    }
                     <p class="item-price">{{ item.product.price | currency }}</p>
                   </div>
                   <div class="quantity-controls">
@@ -86,7 +93,8 @@ import { CartItem } from '@shared/models';
     .item-content img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
     .item-info { flex: 1; }
     .item-name { font-weight: 500; color: #333; }
-    .item-price { color: #666; margin: 4px 0 0; }
+    .item-variant { color: #3f51b5; font-size: 0.82rem; margin: 2px 0 0; }
+    .item-price { color: #666; margin: 2px 0 0; }
     .quantity-controls { display: flex; align-items: center; gap: 4px; }
     .item-subtotal { font-weight: 600; min-width: 80px; text-align: right; }
     .cart-summary { padding: 24px; position: sticky; top: 80px; }

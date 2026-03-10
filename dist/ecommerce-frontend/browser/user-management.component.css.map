@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;3c8764556cdab28ed677b6b728ccfcd8c7d42026b4e0d697a36a5881fbfe576e;/Users/abigailortega/ecommerce/frontend/src/app/features/admin/user-management/user-management.component.ts"],
+  "sourcesContent": ["\n    .header { display: flex; justify-content: space-between; align-items: center; }\n    .user-table { width: 100%; margin-top: 16px; }\n    .admin-chip { background: #e8eaf6 !important; color: #283593 !important; }\n  "],
+  "mappings": ";AACI,CAAC;AAAS,WAAS;AAAM,mBAAiB;AAAe,eAAa;AAAQ;AAC9E,CAAC;AAAa,SAAO;AAAM,cAAY;AAAM;AAC7C,CAAC;AAAa,cAAY;AAAoB,SAAO;AAAoB;",
+  "names": []
+}

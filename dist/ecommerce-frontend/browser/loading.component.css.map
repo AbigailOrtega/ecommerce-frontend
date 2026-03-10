@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;5b467b43e42bf25e9a08c40d5b4d584df1b063fde291de18b916a19bbc584e26;/Users/abigailortega/ecommerce/frontend/src/app/shared/components/loading/loading.component.ts"],
+  "sourcesContent": ["\n    .loading-container {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding: 48px;\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,mBAAiB;AACjB,eAAa;AACb,WAAS;AACX;",
+  "names": []
+}

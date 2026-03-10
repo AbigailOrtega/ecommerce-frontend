@@ -43,6 +43,20 @@ export interface Product {
   active: boolean;
   categories?: Category[];
   createdAt: string;
+  colors?: ProductColor[];
+}
+
+export interface ProductColor {
+  id?: number;
+  name: string;
+  images: string[];
+  sizes: ProductSize[];
+}
+
+export interface ProductSize {
+  id?: number;
+  name: string;
+  stock: number;
 }
 
 export interface CartItem {
@@ -50,6 +64,8 @@ export interface CartItem {
   product: Product;
   quantity: number;
   subtotal: number;
+  selectedColorName?: string;
+  selectedSizeName?: string;
 }
 
 export interface OrderItem {
@@ -59,6 +75,8 @@ export interface OrderItem {
   productPrice: number;
   quantity: number;
   subtotal: number;
+  selectedColorName?: string;
+  selectedSizeName?: string;
 }
 
 export interface Order {
@@ -97,6 +115,30 @@ export interface Page<T> {
   number: number;
   first: boolean;
   last: boolean;
+}
+
+export interface Review {
+  id: number;
+  productId: number;
+  userId: number;
+  userName: string;
+  rating: number;
+  title: string;
+  comment: string;
+  verified: boolean;
+  createdAt: string;
+}
+
+export interface ReviewRequest {
+  rating: number;
+  title: string;
+  comment: string;
+}
+
+export interface ReviewSummary {
+  averageRating: number | null;
+  totalReviews: number;
+  ratingDistribution: Record<number, number>;
 }
 
 export interface LoginRequest {
