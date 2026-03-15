@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { ApiResponse, Page, Product, Category } from '@shared/models';
+import { ApiResponse, Page, Product, Category, PromoBanner } from '@shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly apiUrl = `${environment.apiUrl}/products`;
   private readonly categoryUrl = `${environment.apiUrl}/categories`;
+  private readonly bannerUrl = `${environment.apiUrl}/banner`;
 
   constructor(private http: HttpClient) {}
 
@@ -68,5 +69,9 @@ export class ProductService {
 
   deleteProduct(id: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
+  }
+
+  getActiveBanners(): Observable<ApiResponse<PromoBanner[]>> {
+    return this.http.get<ApiResponse<PromoBanner[]>>(`${this.bannerUrl}/active`);
   }
 }

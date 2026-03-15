@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -14,7 +14,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '@core/services/product.service';
 import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
-import { Product, Category, ProductColor, ProductSize } from '@shared/models';
+import { Product, Category, ProductColor, ProductSize, PromoBanner } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
@@ -23,6 +23,38 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   imports: [FormsModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatPaginatorModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent],
   template: `
+    @if (banners.length > 0) {
+      <div class="carousel-root">
+        <!-- Slides strip -->
+        <div class="carousel-track" [style.transform]="'translateX(-' + carouselIndex * 100 + '%)'">
+          @for (banner of banners; track banner.id) {
+            <div class="carousel-slide">
+              @if (banner.linkUrl) {
+                <a [href]="banner.linkUrl" target="_blank" rel="noopener">
+                  <img [src]="banner.imageUrl" alt="Promotional banner" class="carousel-img">
+                </a>
+              } @else {
+                <img [src]="banner.imageUrl" alt="Promotional banner" class="carousel-img">
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Arrows (only when > 1 banner) -->
+        @if (banners.length > 1) {
+          <button class="carousel-arrow left" (click)="prevSlide()" aria-label="Previous">&#8249;</button>
+          <button class="carousel-arrow right" (click)="nextSlide()" aria-label="Next">&#8250;</button>
+
+          <!-- Dots -->
+          <div class="carousel-dots">
+            @for (b of banners; track b.id; let i = $index) {
+              <span class="dot" [class.active]="i === carouselIndex" (click)="goToSlide(i)"></span>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <div class="container">
       <h1>Our Products</h1>
 
@@ -64,9 +96,15 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                   <p class="category-tag">{{ product.categories[0].name }}@if (product.categories.length > 1) { +{{ product.categories.length - 1 }}}</p>
                 }
                 <div class="price-row">
-                  <span class="price">{{ product.price | currency }}</span>
-                  @if (product.compareAtPrice) {
-                    <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
+                  @if (product.discountedPrice) {
+                    <span class="price discounted">{{ product.discountedPrice | currency }}</span>
+                    <span class="compare-price">{{ product.price | currency }}</span>
+                    <span class="promo-badge">{{ product.activePromotionName }} -{{ product.activePromotionDiscount }}%</span>
+                  } @else {
+                    <span class="price">{{ product.price | currency }}</span>
+                    @if (product.compareAtPrice) {
+                      <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
+                    }
                   }
                 </div>
               </mat-card-content>
@@ -98,7 +136,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           </div>
 
           <p class="popup-product-name">{{ popupProduct.name }}</p>
-          <p class="popup-price">{{ popupProduct.price | currency }}</p>
+          @if (popupProduct.discountedPrice) {
+            <p class="popup-price"><span class="discounted-popup">{{ popupProduct.discountedPrice | currency }}</span> <span class="original-popup">{{ popupProduct.price | currency }}</span></p>
+          } @else {
+            <p class="popup-price">{{ popupProduct.price | currency }}</p>
+          }
 
           <!-- Color selection -->
           <div class="popup-group">
@@ -147,6 +189,37 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     }
   `,
   styles: [`
+    /* Carousel */
+    .carousel-root {
+      position: relative; width: 100%; overflow: hidden;
+      background: #000; line-height: 0;
+    }
+    .carousel-track {
+      display: flex; transition: transform 0.5s ease; will-change: transform;
+    }
+    .carousel-slide { flex: 0 0 100%; width: 100%; }
+    .carousel-img { width: 100%; max-height: 380px; object-fit: cover; display: block; }
+    .carousel-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.45); color: white; border: none;
+      font-size: 2.5rem; line-height: 1; padding: 4px 14px;
+      cursor: pointer; z-index: 10; border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .carousel-arrow:hover { background: rgba(0,0,0,0.7); }
+    .carousel-arrow.left { left: 12px; }
+    .carousel-arrow.right { right: 12px; }
+    .carousel-dots {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 10;
+    }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,0.5); cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .dot.active { background: white; transform: scale(1.2); }
+
     .filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
     .search-field { flex: 1; min-width: 250px; }
     .product-card { cursor: pointer; transition: transform 0.2s; }
@@ -156,7 +229,9 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .category-tag { color: #666; font-size: 0.85rem; margin: 0 0 8px; }
     .price-row { display: flex; align-items: center; gap: 8px; }
     .price { font-size: 1.25rem; font-weight: 700; color: #3f51b5; }
+    .price.discounted { color: #e53935; }
     .compare-price { font-size: 0.95rem; color: #999; text-decoration: line-through; }
+    .promo-badge { background: #ff5722; color: white; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
     .no-results { text-align: center; padding: 48px; color: #666; font-size: 1.1rem; grid-column: 1 / -1; }
     mat-card-actions { padding: 8px 16px 16px; }
 
@@ -175,6 +250,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .popup-header h3 { margin: 0; font-size: 1.1rem; }
     .popup-product-name { font-weight: 600; font-size: 1rem; margin: 0 0 2px; color: #333; }
     .popup-price { color: #3f51b5; font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
+    .discounted-popup { color: #e53935; }
+    .original-popup { font-size: 0.9rem; color: #999; text-decoration: line-through; margin-left: 4px; }
     .popup-group { margin-bottom: 16px; }
     .popup-label { margin: 0 0 8px; font-size: 0.9rem; color: #555; }
     .popup-options { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -189,9 +266,12 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .popup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
   `],
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   categories: Category[] = [];
+  banners: PromoBanner[] = [];
+  carouselIndex = 0;
+  private autoPlayTimer: ReturnType<typeof setInterval> | null = null;
   loading = true;
   searchQuery = '';
   selectedCategory = 0;
@@ -215,6 +295,40 @@ export class ProductListComponent implements OnInit {
   ngOnInit(): void {
     this.loadProducts();
     this.productService.getCategories().subscribe(res => this.categories = res.data);
+    this.productService.getActiveBanners().subscribe(res => {
+      this.banners = res.data;
+      if (this.banners.length > 1) this.startAutoPlay();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopAutoPlay();
+  }
+
+  private startAutoPlay(): void {
+    this.autoPlayTimer = setInterval(() => this.nextSlide(), 4500);
+  }
+
+  private stopAutoPlay(): void {
+    if (this.autoPlayTimer !== null) {
+      clearInterval(this.autoPlayTimer);
+      this.autoPlayTimer = null;
+    }
+  }
+
+  nextSlide(): void {
+    this.carouselIndex = (this.carouselIndex + 1) % this.banners.length;
+  }
+
+  prevSlide(): void {
+    this.carouselIndex = (this.carouselIndex - 1 + this.banners.length) % this.banners.length;
+  }
+
+  goToSlide(index: number): void {
+    this.carouselIndex = index;
+    // Restart timer so manual nav doesn't immediately auto-advance
+    this.stopAutoPlay();
+    if (this.banners.length > 1) this.startAutoPlay();
   }
 
   loadProducts(): void {

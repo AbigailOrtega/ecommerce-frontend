@@ -68,6 +68,30 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./features/admin/user-management/user-management.component').then(m => m.UserManagementComponent),
       },
+      {
+        path: 'promotions',
+        loadComponent: () => import('./features/admin/promotion-management/promotion-management.component').then(m => m.PromotionManagementComponent),
+      },
+      {
+        path: 'banners',
+        loadComponent: () => import('./features/admin/banner-management/banner-management.component').then(m => m.BannerManagementComponent),
+      },
+      {
+        path: 'coupons',
+        loadComponent: () => import('./features/admin/coupon-management/coupon-management.component').then(m => m.CouponManagementComponent),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () => import('./features/admin/review-management/review-management.component').then(m => m.ReviewManagementComponent),
+      },
+      {
+        path: 'tickets',
+        loadComponent: () => import('./features/admin/ticket-management/ticket-management.component').then(m => m.TicketManagementComponent),
+      },
+      {
+        path: 'shipping',
+        loadComponent: () => import('./features/admin/shipping-management/shipping-management.component').then(m => m.ShippingManagementComponent),
+      },
     ],
   },
   {

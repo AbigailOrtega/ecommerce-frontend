@@ -22,6 +22,12 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
         <a mat-raised-button routerLink="/admin/products"><mat-icon>inventory_2</mat-icon> Products</a>
         <a mat-raised-button routerLink="/admin/orders"><mat-icon>receipt_long</mat-icon> Orders</a>
         <a mat-raised-button routerLink="/admin/users"><mat-icon>people</mat-icon> Users</a>
+        <a mat-raised-button routerLink="/admin/promotions"><mat-icon>local_offer</mat-icon> Promotions</a>
+        <a mat-raised-button routerLink="/admin/banners"><mat-icon>image</mat-icon> Banners</a>
+        <a mat-raised-button routerLink="/admin/coupons"><mat-icon>confirmation_number</mat-icon> Coupons</a>
+        <a mat-raised-button routerLink="/admin/reviews"><mat-icon>rate_review</mat-icon> Reviews</a>
+        <a mat-raised-button routerLink="/admin/tickets"><mat-icon>support_agent</mat-icon> Tickets</a>
+        <a mat-raised-button routerLink="/admin/shipping"><mat-icon>local_shipping</mat-icon> Shipping</a>
       </div>
 
       @if (loading) {

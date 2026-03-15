@@ -63,10 +63,16 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
           }
           <h1>{{ product.name }}</h1>
           <div class="price-section">
-            <span class="price">{{ product.price | currency }}</span>
-            @if (product.compareAtPrice) {
-              <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
-              <mat-chip class="sale-chip">Sale</mat-chip>
+            @if (product.discountedPrice) {
+              <span class="price promo-price">{{ product.discountedPrice | currency }}</span>
+              <span class="compare-price">{{ product.price | currency }}</span>
+              <mat-chip class="promo-chip">{{ product.activePromotionName }} &minus;{{ product.activePromotionDiscount }}%</mat-chip>
+            } @else {
+              <span class="price">{{ product.price | currency }}</span>
+              @if (product.compareAtPrice) {
+                <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
+                <mat-chip class="sale-chip">Sale</mat-chip>
+              }
             }
           </div>
           <p class="description">{{ product.description }}</p>
@@ -175,8 +181,10 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
     h1 { margin: 8px 0 16px; }
     .price-section { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .price { font-size: 1.8rem; font-weight: 700; color: #3f51b5; }
+    .price.promo-price { color: #e53935; }
     .compare-price { font-size: 1.2rem; color: #999; text-decoration: line-through; }
     .sale-chip { background: #ff5722 !important; color: white !important; }
+    .promo-chip { background: #e53935 !important; color: white !important; }
     .description { color: #555; line-height: 1.6; margin-bottom: 24px; }
     .stock-info { margin-bottom: 16px; }
     .in-stock { background: #e8f5e9 !important; color: #2e7d32 !important; }
