@@ -15,8 +15,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   template: `
     <div class="container">
       <div class="header">
-        <h1>User Management</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Gestión de Usuarios</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       @if (loading) {
@@ -28,7 +28,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <td mat-cell *matCellDef="let u">{{ u.id }}</td>
           </ng-container>
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
             <td mat-cell *matCellDef="let u">{{ u.firstName }} {{ u.lastName }}</td>
           </ng-container>
           <ng-container matColumnDef="email">
@@ -36,11 +36,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <td mat-cell *matCellDef="let u">{{ u.email }}</td>
           </ng-container>
           <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef>Phone</th>
+            <th mat-header-cell *matHeaderCellDef>Teléfono</th>
             <td mat-cell *matCellDef="let u">{{ u.phone || '-' }}</td>
           </ng-container>
           <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef>Role</th>
+            <th mat-header-cell *matHeaderCellDef>Rol</th>
             <td mat-cell *matCellDef="let u">
               <mat-chip [class]="u.role === 'ADMIN' ? 'admin-chip' : ''">{{ u.role }}</mat-chip>
             </td>
@@ -54,7 +54,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .user-table { width: 100%; margin-top: 16px; }
-    .admin-chip { background: #e8eaf6 !important; color: #283593 !important; }
+    .admin-chip { background: rgba(0,0,0,0.06) !important; color: #283593 !important; }
   `],
 })
 export class UserManagementComponent implements OnInit {

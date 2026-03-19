@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
+import { StoreInfoService } from '@core/services/store-info.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,44 +15,59 @@ import { CartService } from '@core/services/cart.service';
   imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, MatMenuModule],
   template: `
     <mat-toolbar color="primary">
-      <a routerLink="/" class="brand">ShopHub</a>
+      <a routerLink="/" class="brand">
+        @if (logoUrl()) {
+          <img [src]="logoUrl()" class="brand-logo" alt="Logo" />
+        }
+        {{ storeName() }}
+      </a>
       <span class="spacer"></span>
 
       <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        <mat-icon>store</mat-icon> Shop
+        <mat-icon>store</mat-icon> Tienda
+      </a>
+      <a mat-button routerLink="/sobre-nosotros" routerLinkActive="active">Nosotros</a>
+
+      <a mat-icon-button routerLink="/cart">
+        <mat-icon [matBadge]="cart.itemCount()" matBadgeColor="accent"
+                  [matBadgeHidden]="cart.itemCount() === 0">shopping_cart</mat-icon>
       </a>
 
       @if (auth.isLoggedIn()) {
-        <a mat-icon-button routerLink="/cart">
-          <mat-icon [matBadge]="cart.itemCount()" matBadgeColor="accent"
-                    [matBadgeHidden]="cart.itemCount() === 0">shopping_cart</mat-icon>
-        </a>
-
         <button mat-icon-button [matMenuTriggerFor]="userMenu">
           <mat-icon>account_circle</mat-icon>
         </button>
         <mat-menu #userMenu="matMenu">
           <div class="menu-header">{{ auth.user()?.firstName }} {{ auth.user()?.lastName }}</div>
-          <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon> My Orders</a>
-          <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon> Profile</a>
+          <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon> Mis Pedidos</a>
+          <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon> Mi Perfil</a>
           @if (auth.isAdmin()) {
-            <a mat-menu-item routerLink="/admin"><mat-icon>dashboard</mat-icon> Admin Panel</a>
+            <a mat-menu-item routerLink="/admin"><mat-icon>dashboard</mat-icon> Panel Admin</a>
           }
-          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon> Logout</button>
+          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button>
         </mat-menu>
       } @else {
-        <a mat-button routerLink="/login">Login</a>
-        <a mat-raised-button color="accent" routerLink="/register">Sign Up</a>
+        <a mat-button routerLink="/login">Iniciar sesión</a>
+        <a mat-raised-button color="accent" routerLink="/register">Registrarse</a>
       }
     </mat-toolbar>
   `,
   styles: [`
     .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 1.4rem;
       font-weight: 700;
       letter-spacing: 1px;
       text-decoration: none;
       color: white;
+    }
+    .brand-logo {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 4px;
     }
     .spacer { flex: 1 1 auto; }
     .menu-header {
@@ -64,10 +80,26 @@ import { CartService } from '@core/services/cart.service';
     mat-toolbar a, mat-toolbar button { color: white; }
   `],
 })
-export class NavbarComponent {
-  constructor(public auth: AuthService, public cart: CartService) {
+export class NavbarComponent implements OnInit {
+  readonly storeName = signal('ShopHub');
+  readonly logoUrl = signal<string | null>(null);
+
+  constructor(
+    public auth: AuthService,
+    public cart: CartService,
+    private storeInfoService: StoreInfoService,
+  ) {
     if (auth.isLoggedIn()) {
       cart.loadCart();
     }
+  }
+
+  ngOnInit(): void {
+    this.storeInfoService.getPublic().subscribe({
+      next: (res) => {
+        if (res.data?.name) this.storeName.set(res.data.name);
+        if (res.data?.logoUrl) this.logoUrl.set(res.data.logoUrl);
+      },
+    });
   }
 }

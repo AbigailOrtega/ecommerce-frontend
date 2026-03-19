@@ -26,17 +26,17 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   template: `
     <div class="container">
       <div class="header">
-        <h1>Promotional Banners</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Banners Promocionales</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       <button mat-raised-button color="primary" (click)="toggleForm()">
-        <mat-icon>add</mat-icon> {{ showForm ? 'Cancel' : 'Add Banner' }}
+        <mat-icon>add</mat-icon> {{ showForm ? 'Cancelar' : 'Agregar Banner' }}
       </button>
 
       @if (showForm) {
         <mat-card class="form-card">
-          <h2>{{ editingId ? 'Edit Banner' : 'New Banner' }}</h2>
+          <h2>{{ editingId ? 'Editar Banner' : 'Nuevo Banner' }}</h2>
           <form [formGroup]="form" (ngSubmit)="save()">
 
             <!-- Image upload area -->
@@ -46,26 +46,26 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                 <p>Uploading…</p>
               } @else if (previewUrl) {
                 <img [src]="previewUrl" class="preview-img" alt="Banner preview">
-                <div class="overlay"><mat-icon>edit</mat-icon> Change image</div>
+                <div class="overlay"><mat-icon>edit</mat-icon> Cambiar imagen</div>
               } @else {
                 <mat-icon class="upload-icon">add_photo_alternate</mat-icon>
-                <p>Click to upload banner image</p>
-                <span class="hint">Recommended: 1200×300 px or wider</span>
+                <p>Haz clic para subir imagen del banner</p>
+                <span class="hint">Recomendado: 1200×300 px o más ancho</span>
               }
             </div>
             <input #fileInput type="file" accept="image/*" class="hidden-input" (change)="onFileSelected($event)">
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Link URL (optional)</mat-label>
+              <mat-label>URL del enlace (opcional)</mat-label>
               <input matInput formControlName="linkUrl" placeholder="https://...">
-              <mat-hint>Where to go when banner is clicked</mat-hint>
+              <mat-hint>A dónde ir al hacer clic en el banner</mat-hint>
             </mat-form-field>
 
             <div class="form-actions">
-              <button mat-button type="button" (click)="toggleForm()">Cancel</button>
+              <button mat-button type="button" (click)="toggleForm()">Cancelar</button>
               <button mat-raised-button color="primary" type="submit"
                       [disabled]="!previewUrl || uploading || saving">
-                {{ saving ? 'Saving…' : 'Save Banner' }}
+                {{ saving ? 'Guardando...' : 'Guardar Banner' }}
               </button>
             </div>
           </form>
@@ -83,27 +83,27 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               </div>
               <div class="banner-info">
                 <span [class]="banner.active ? 'badge-active' : 'badge-inactive'">
-                  {{ banner.active ? 'Active' : 'Inactive' }}
+                  {{ banner.active ? 'Activo' : 'Inactivo' }}
                 </span>
                 @if (banner.linkUrl) {
                   <p class="link-url"><mat-icon class="small-icon">link</mat-icon> {{ banner.linkUrl }}</p>
                 }
-                <p class="created">Added {{ banner.createdAt | date:'mediumDate' }}</p>
+                <p class="created">Añadido {{ banner.createdAt | date:'mediumDate' }}</p>
               </div>
               <div class="banner-actions">
-                <button mat-icon-button (click)="edit(banner)" title="Edit"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button (click)="edit(banner)" title="Editar"><mat-icon>edit</mat-icon></button>
                 <button mat-icon-button (click)="toggle(banner)"
-                        [title]="banner.active ? 'Deactivate' : 'Activate'">
+                        [title]="banner.active ? 'Desactivar' : 'Activar'">
                   <mat-icon>{{ banner.active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="delete(banner)" title="Delete">
+                <button mat-icon-button color="warn" (click)="delete(banner)" title="Eliminar">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </mat-card>
           }
           @if (banners.length === 0) {
-            <p class="no-data">No banners yet. Add one above.</p>
+            <p class="no-data">Sin banners aún. Agrega uno arriba.</p>
           }
         </div>
       }
@@ -123,7 +123,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       position: relative; min-height: 160px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .upload-area:hover { border-color: #3f51b5; }
+    .upload-area:hover { border-color: var(--theme-primary); }
     .upload-area.has-image { padding: 0; border-style: solid; overflow: hidden; }
     .upload-icon { font-size: 48px; width: 48px; height: 48px; color: #aaa; margin-bottom: 8px; }
     .upload-area p { margin: 4px 0; color: #555; }
@@ -183,7 +183,7 @@ export class BannerManagementComponent implements OnInit {
     this.loading = true;
     this.adminService.getBanners().subscribe({
       next: (res) => { this.banners = res.data; this.loading = false; },
-      error: () => { this.loading = false; this.snackBar.open('Failed to load banners', 'Close', { duration: 3000 }); },
+      error: () => { this.loading = false; this.snackBar.open('Error al cargar los banners', 'Cerrar', { duration: 3000 }); },
     });
   }
 
@@ -216,7 +216,7 @@ export class BannerManagementComponent implements OnInit {
       },
       error: () => {
         this.uploading = false;
-        this.snackBar.open('Image upload failed', 'Close', { duration: 3000 });
+        this.snackBar.open('Error al subir la imagen', 'Cerrar', { duration: 3000 });
       },
     });
     // Reset input so same file can be re-selected
@@ -240,11 +240,11 @@ export class BannerManagementComponent implements OnInit {
         this.showForm = false;
         this.resetForm();
         this.loadBanners();
-        this.snackBar.open('Banner saved', 'Close', { duration: 2000 });
+        this.snackBar.open('Banner guardado', 'Cerrar', { duration: 2000 });
       },
       error: () => {
         this.saving = false;
-        this.snackBar.open('Failed to save banner', 'Close', { duration: 3000 });
+        this.snackBar.open('Error al guardar el banner', 'Cerrar', { duration: 3000 });
       },
     });
   }
@@ -254,20 +254,20 @@ export class BannerManagementComponent implements OnInit {
       next: (res) => {
         const idx = this.banners.findIndex(b => b.id === banner.id);
         if (idx !== -1) this.banners[idx] = res.data;
-        this.snackBar.open(`Banner ${res.data.active ? 'activated' : 'deactivated'}`, 'Close', { duration: 2000 });
+        this.snackBar.open(`Banner ${res.data.active ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to toggle banner', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al cambiar estado del banner', 'Cerrar', { duration: 3000 }),
     });
   }
 
   delete(banner: PromoBanner): void {
-    if (!confirm('Delete this banner?')) return;
+    if (!confirm('¿Eliminar este banner?')) return;
     this.adminService.deleteBanner(banner.id).subscribe({
       next: () => {
         this.banners = this.banners.filter(b => b.id !== banner.id);
-        this.snackBar.open('Banner deleted', 'Close', { duration: 2000 });
+        this.snackBar.open('Banner eliminado', 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to delete banner', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al eliminar el banner', 'Cerrar', { duration: 3000 }),
     });
   }
 }

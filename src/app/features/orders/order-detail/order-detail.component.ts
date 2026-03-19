@@ -26,12 +26,12 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       <app-loading />
     } @else if (order) {
       <div class="container">
-        <a mat-button routerLink="/orders" class="back-link">&larr; Back to Orders</a>
-        <h1>Order {{ order.orderNumber }}</h1>
+        <a mat-button routerLink="/orders" class="back-link">&larr; Volver a pedidos</a>
+        <h1>Pedido {{ order.orderNumber }}</h1>
 
         <div class="order-grid">
           <mat-card>
-            <h3>Order Items</h3>
+            <h3>Artículos del pedido</h3>
             @for (item of order.items; track item.id) {
               <div class="order-item">
                 <div class="item-info">
@@ -40,10 +40,10 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                     <span class="item-variant">
                       @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
                       @if (item.selectedColorName && item.selectedSizeName) { &middot; }
-                      @if (item.selectedSizeName) { Size: {{ item.selectedSizeName }} }
+                      @if (item.selectedSizeName) { Talla: {{ item.selectedSizeName }} }
                     </span>
                   }
-                  <span>Qty: {{ item.quantity }} &times; {{ item.productPrice | currency }}</span>
+                  <span>Cant: {{ item.quantity }} &times; {{ item.productPrice | currency }}</span>
                 </div>
                 <span class="item-total">{{ item.subtotal | currency }}</span>
               </div>
@@ -56,13 +56,13 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               </div>
               @if (order.discountAmount) {
                 <div class="order-subtotal-row discount">
-                  <span>Coupon {{ order.couponCode ? '(' + order.couponCode + ')' : '' }}</span>
+                  <span>Cupón {{ order.couponCode ? '(' + order.couponCode + ')' : '' }}</span>
                   <span>-{{ order.discountAmount | currency }}</span>
                 </div>
               }
               @if (order.shippingCost) {
                 <div class="order-subtotal-row">
-                  <span>Shipping{{ order.shippingMethodName ? ' (' + order.shippingMethodName + ')' : '' }}</span>
+                  <span>Envío{{ order.shippingMethodName ? ' (' + order.shippingMethodName + ')' : '' }}</span>
                   <span>{{ order.shippingCost | currency }}</span>
                 </div>
               }
@@ -75,9 +75,9 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
           <div>
             <mat-card class="info-card">
-              <h3>Order Status</h3>
+              <h3>Estado del pedido</h3>
               <mat-chip [class]="'status-' + order.status.toLowerCase()">{{ order.status }}</mat-chip>
-              <p class="date">Placed on {{ order.createdAt | date:'medium' }}</p>
+              <p class="date">Realizado el {{ order.createdAt | date:'medium' }}</p>
             </mat-card>
 
             <mat-card class="info-card">
@@ -99,10 +99,10 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <mat-card class="info-card tracking-card">
                 <h3><mat-icon class="tracking-icon">local_shipping</mat-icon> Seguimiento</h3>
                 @if (order.carrierName) {
-                  <p class="tracking-row"><span class="tl">Carrier:</span> {{ order.carrierName }}</p>
+                  <p class="tracking-row"><span class="tl">Transportista:</span> {{ order.carrierName }}</p>
                 }
                 <p class="tracking-row">
-                  <span class="tl">Tracking:</span>
+                  <span class="tl">Rastreo:</span>
                   <span class="tracking-num">{{ order.trackingNumber }}</span>
                 </p>
                 @if (order.shipmentStatus) {
@@ -117,10 +117,10 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             }
 
             <mat-card class="info-card">
-              <h3>Payment</h3>
-              <p>Method: {{ order.paymentMethod | titlecase }}</p>
+              <h3>Pago</h3>
+              <p>Método: {{ order.paymentMethod | titlecase }}</p>
               @if (order.paymentId) {
-                <p class="payment-id">Transaction: {{ order.paymentId }}</p>
+                <p class="payment-id">Transacción: {{ order.paymentId }}</p>
               }
             </mat-card>
 
@@ -141,26 +141,26 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                     }
                   </div>
                 } @else if (showForm) {
-                  <h3>Report a Problem</h3>
+                  <h3>Reportar un problema</h3>
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Subject</mat-label>
-                    <input matInput [(ngModel)]="ticketSubject" placeholder="e.g. Product arrived damaged">
+                    <mat-label>Asunto</mat-label>
+                    <input matInput [(ngModel)]="ticketSubject" placeholder="ej. El producto llegó dañado">
                   </mat-form-field>
                   <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Description</mat-label>
+                    <mat-label>Descripción</mat-label>
                     <textarea matInput [(ngModel)]="ticketDescription" rows="4"
-                              placeholder="Describe the issue in detail..."></textarea>
+                              placeholder="Describe el problema con detalle..."></textarea>
                   </mat-form-field>
                   <div class="form-actions">
                     <button mat-raised-button color="warn" (click)="submitTicket()"
                             [disabled]="submitting || !ticketSubject.trim() || !ticketDescription.trim()">
-                      {{ submitting ? 'Sending...' : 'Submit Ticket' }}
+                      {{ submitting ? 'Enviando...' : 'Enviar ticket' }}
                     </button>
-                    <button mat-button (click)="showForm = false">Cancel</button>
+                    <button mat-button (click)="showForm = false">Cancelar</button>
                   </div>
                 } @else {
                   <button mat-stroked-button color="warn" (click)="showForm = true" class="report-btn">
-                    <mat-icon>report_problem</mat-icon> Report a Problem
+                    <mat-icon>report_problem</mat-icon> Reportar un problema
                   </button>
                 }
               </mat-card>
@@ -177,7 +177,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .order-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
     .item-info { display: flex; flex-direction: column; gap: 4px; }
     .item-info span { color: #666; font-size: 0.9rem; }
-    .item-variant { color: #3f51b5 !important; font-size: 0.85rem !important; }
+    .item-variant { color: var(--theme-primary) !important; font-size: 0.85rem !important; }
     .item-total { font-weight: 600; }
     .order-subtotal-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; color: #666; }
     .order-subtotal-row.discount { color: #2e7d32; }
@@ -190,11 +190,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .full-width { width: 100%; margin-top: 8px; }
     .form-actions { display: flex; gap: 8px; margin-top: 4px; }
     .ticket-sent { display: flex; flex-direction: column; gap: 6px; }
-    .ticket-icon { font-size: 32px; width: 32px; height: 32px; color: #3f51b5; }
+    .ticket-icon { font-size: 32px; width: 32px; height: 32px; color: var(--theme-primary); }
     .ticket-desc { color: #555; font-size: 0.9rem; }
     .admin-notes { display: flex; gap: 8px; align-items: flex-start; background: #e3f2fd; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.9rem; color: #1565c0; }
     .tracking-card { border: 1px solid #e3f2fd; }
-    .tracking-icon { vertical-align: middle; margin-right: 6px; font-size: 20px; width: 20px; height: 20px; color: #3f51b5; }
+    .tracking-icon { vertical-align: middle; margin-right: 6px; font-size: 20px; width: 20px; height: 20px; color: var(--theme-primary); }
     .tracking-row { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; margin: 4px 0; }
     .tl { font-weight: 600; color: #444; min-width: 60px; }
     .tracking-num { font-family: monospace; background: #f0f4ff; padding: 2px 8px; border-radius: 4px; font-size: 0.88rem; }
@@ -254,11 +254,11 @@ export class OrderDetailComponent implements OnInit {
         this.ticket = res.data;
         this.showForm = false;
         this.submitting = false;
-        this.snackBar.open('Ticket submitted. We\'ll review it shortly.', 'Close', { duration: 4000 });
+        this.snackBar.open('Ticket enviado. Lo revisaremos pronto.', 'Cerrar', { duration: 4000 });
       },
       error: (err) => {
         this.submitting = false;
-        this.snackBar.open(err.error?.message || 'Error submitting ticket', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.message || 'Error al enviar el ticket', 'Cerrar', { duration: 3000 });
       },
     });
   }

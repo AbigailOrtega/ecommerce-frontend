@@ -32,32 +32,32 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
   template: `
     <div class="container">
       <div class="header">
-        <h1>Product Management</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Gestión de Productos</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       <button mat-raised-button color="primary" (click)="showForm = !showForm; resetForm()">
-        <mat-icon>add</mat-icon> {{ showForm ? 'Cancel' : 'Add Product' }}
+        <mat-icon>add</mat-icon> {{ showForm ? 'Cancelar' : 'Agregar Producto' }}
       </button>
 
       @if (showForm) {
         <mat-card class="form-card">
-          <h2>{{ editingId ? 'Edit' : 'New' }} Product</h2>
+          <h2>{{ editingId ? 'Editar' : 'Nuevo' }} Producto</h2>
           <form [formGroup]="form" (ngSubmit)="saveProduct()">
 
             <div class="row">
-              <mat-form-field appearance="outline"><mat-label>Name</mat-label><input matInput formControlName="name"></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Nombre</mat-label><input matInput formControlName="name"></mat-form-field>
               <mat-form-field appearance="outline"><mat-label>SKU</mat-label><input matInput formControlName="sku"></mat-form-field>
             </div>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
+              <mat-label>Descripción</mat-label>
               <textarea matInput formControlName="description" rows="3"></textarea>
             </mat-form-field>
 
             <div class="row">
-              <mat-form-field appearance="outline"><mat-label>Price</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
-              <mat-form-field appearance="outline"><mat-label>Compare Price</mat-label><input matInput formControlName="compareAtPrice" type="number"></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Precio</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
+              <mat-form-field appearance="outline"><mat-label>Precio comparativo</mat-label><input matInput formControlName="compareAtPrice" type="number"></mat-form-field>
               @if (colorEntries.length === 0) {
                 <mat-form-field appearance="outline"><mat-label>Stock</mat-label><input matInput formControlName="stockQuantity" type="number"></mat-form-field>
               }
@@ -66,9 +66,9 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
             <!-- Colors Section -->
             <div class="colors-section">
               <div class="section-header">
-                <label class="section-label">Colors & Images (optional)</label>
+                <label class="section-label">Colores e imágenes (opcional)</label>
                 <button type="button" mat-stroked-button (click)="addColor()">
-                  <mat-icon>add</mat-icon> Add Color
+                  <mat-icon>add</mat-icon> Agregar color
                 </button>
               </div>
 
@@ -76,7 +76,7 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
                 <div class="color-card">
                   <div class="color-card-header">
                     <input class="color-name-input" [(ngModel)]="ce.name" [ngModelOptions]="{standalone: true}"
-                      placeholder="Color name (e.g. Red, Blue...)">
+                      placeholder="Nombre del color (ej. Rojo, Azul...)">
                     <button type="button" mat-icon-button color="warn" (click)="removeColor(ci)">
                       <mat-icon>delete</mat-icon>
                     </button>
@@ -87,7 +87,7 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
                     @for (img of ce.images; track img; let ii = $index) {
                       <div class="image-slot filled">
                         <img [src]="img" class="slot-img" [alt]="'Image ' + (ii + 1)">
-                        @if (ii === 0) { <span class="main-badge">Main</span> }
+                        @if (ii === 0) { <span class="main-badge">Principal</span> }
                         <button type="button" mat-icon-button class="slot-delete" (click)="removeColorImage(ci, ii)">
                           <mat-icon>close</mat-icon>
                         </button>
@@ -96,26 +96,26 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
                     @if (ce.images.length < maxColorImages) {
                       <div class="image-slot empty" (click)="triggerColorImageUpload(ci)">
                         @if (ce.uploading) { <mat-spinner diameter="28"></mat-spinner> }
-                        @else { <mat-icon>add_photo_alternate</mat-icon><span>Add Photo</span> }
+                        @else { <mat-icon>add_photo_alternate</mat-icon><span>Agregar foto</span> }
                       </div>
                     }
                   </div>
 
                   <!-- Per-color sizes -->
                   <div class="sizes-section">
-                    <span class="sizes-label">Sizes</span>
+                    <span class="sizes-label">Tallas</span>
                     <div class="sizes-list">
                       @for (se of ce.sizes; track se; let si = $index) {
                         <div class="size-row">
-                          <input class="size-name-input" [(ngModel)]="se.name" [ngModelOptions]="{standalone: true}" placeholder="Size">
+                          <input class="size-name-input" [(ngModel)]="se.name" [ngModelOptions]="{standalone: true}" placeholder="Talla">
                           <input class="size-stock-input" [(ngModel)]="se.stock" [ngModelOptions]="{standalone: true}" type="number" min="0" placeholder="Stock">
                           <button type="button" mat-icon-button (click)="removeSize(ci, si)"><mat-icon>close</mat-icon></button>
                         </div>
                       }
                       <div class="add-size-row">
                         <input class="size-name-input" [(ngModel)]="ce.newSizeName" [ngModelOptions]="{standalone: true}"
-                          placeholder="Add size..." (keydown.enter)="$event.preventDefault(); addSize(ci)">
-                        <button type="button" mat-stroked-button (click)="addSize(ci)">Add</button>
+                          placeholder="Agregar talla... " (keydown.enter)="$event.preventDefault(); addSize(ci)">
+                        <button type="button" mat-stroked-button (click)="addSize(ci)">Agregar</button>
                       </div>
                     </div>
                   </div>
@@ -127,7 +127,7 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
             <input #colorFileInput type="file" accept="image/*" hidden (change)="onColorFileSelected($event)">
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Categories</mat-label>
+              <mat-label>Categorías</mat-label>
               <mat-select formControlName="categoryIds" multiple>
                 @for (cat of categories; track cat.id) {
                   <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
@@ -136,12 +136,12 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
             </mat-form-field>
 
             <div class="toggles">
-              <mat-slide-toggle formControlName="featured">Featured</mat-slide-toggle>
-              <mat-slide-toggle formControlName="active">Active</mat-slide-toggle>
+              <mat-slide-toggle formControlName="featured">Destacado</mat-slide-toggle>
+              <mat-slide-toggle formControlName="active">Activo</mat-slide-toggle>
             </div>
 
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isAnyUploading()">
-              {{ editingId ? 'Update' : 'Create' }}
+              {{ editingId ? 'Actualizar' : 'Crear' }}
             </button>
           </form>
         </mat-card>
@@ -152,35 +152,35 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
       } @else {
         <table mat-table [dataSource]="products" class="product-table">
           <ng-container matColumnDef="image">
-            <th mat-header-cell *matHeaderCellDef>Image</th>
+            <th mat-header-cell *matHeaderCellDef>Imagen</th>
             <td mat-cell *matCellDef="let p">
               @if (p.imageUrl) { <img [src]="p.imageUrl" class="table-thumb" [alt]="p.name"> }
             </td>
           </ng-container>
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
             <td mat-cell *matCellDef="let p">{{ p.name }}</td>
           </ng-container>
           <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef>Price</th>
+            <th mat-header-cell *matHeaderCellDef>Precio</th>
             <td mat-cell *matCellDef="let p">{{ p.price | currency }}</td>
           </ng-container>
           <ng-container matColumnDef="stock">
             <th mat-header-cell *matHeaderCellDef>Stock</th>
             <td mat-cell *matCellDef="let p">
               @if (p.colors && p.colors.length > 0) {
-                {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 's' : '' }})
+                {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 'es' : '' }})
               } @else {
                 {{ p.stockQuantity }}
               }
             </td>
           </ng-container>
           <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Active</th>
-            <td mat-cell *matCellDef="let p">{{ p.active ? 'Yes' : 'No' }}</td>
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
+            <td mat-cell *matCellDef="let p">{{ p.active ? 'Sí' : 'No' }}</td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let p">
               <button mat-icon-button (click)="editProduct(p)"><mat-icon>edit</mat-icon></button>
               <button mat-icon-button color="warn" (click)="deleteProduct(p.id)"><mat-icon>delete</mat-icon></button>
@@ -211,16 +211,16 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
     .color-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fafafa; }
     .color-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .color-name-input { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px; font-size: 14px; outline: none; }
-    .color-name-input:focus { border-color: #3f51b5; }
+    .color-name-input:focus { border-color: var(--theme-primary); }
 
     /* Images */
     .images-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
     .image-slot { width: 100px; height: 100px; border-radius: 8px; overflow: hidden; position: relative; }
     .image-slot.filled { border: 1px solid #ddd; }
     .image-slot.empty { border: 2px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #999; font-size: 11px; }
-    .image-slot.empty:hover { border-color: #3f51b5; color: #3f51b5; }
+    .image-slot.empty:hover { border-color: var(--theme-primary); color: var(--theme-primary); }
     .slot-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .main-badge { position: absolute; top: 4px; left: 4px; background: #3f51b5; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+    .main-badge { position: absolute; top: 4px; left: 4px; background: var(--theme-primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
     .slot-delete { position: absolute; top: 2px; right: 2px; width: 28px; height: 28px; background: rgba(0,0,0,0.5) !important; color: white !important; }
     .slot-delete mat-icon { font-size: 16px; width: 16px; height: 16px; line-height: 16px; }
 
@@ -231,9 +231,9 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
     .size-row { display: flex; align-items: center; gap: 8px; }
     .add-size-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
     .size-name-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 13px; outline: none; width: 120px; }
-    .size-name-input:focus { border-color: #3f51b5; }
+    .size-name-input:focus { border-color: var(--theme-primary); }
     .size-stock-input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; font-size: 13px; outline: none; width: 80px; text-align: center; }
-    .size-stock-input:focus { border-color: #3f51b5; }
+    .size-stock-input:focus { border-color: var(--theme-primary); }
   `],
 })
 export class ProductManagementComponent implements OnInit {
@@ -351,14 +351,14 @@ export class ProductManagementComponent implements OnInit {
     if (ci < 0 || ci >= this.colorEntries.length) return;
     const ce = this.colorEntries[ci];
     if (ce.images.length >= MAX_COLOR_IMAGES) {
-      this.snackBar.open(`Maximum ${MAX_COLOR_IMAGES} images per color`, 'Close', { duration: 3000 });
+      this.snackBar.open(`Máximo ${MAX_COLOR_IMAGES} imágenes por color`, 'Cerrar', { duration: 3000 });
       return;
     }
     const file = input.files[0];
     ce.uploading = true;
     this.adminService.uploadImage(file).subscribe({
       next: (res) => { ce.images = [...ce.images, res.data.url]; ce.uploading = false; },
-      error: (err) => { this.snackBar.open(err.error?.message || 'Image upload failed', 'Close', { duration: 3000 }); ce.uploading = false; },
+      error: (err) => { this.snackBar.open(err.error?.message || 'Error al subir imagen', 'Cerrar', { duration: 3000 }); ce.uploading = false; },
     });
   }
 
@@ -401,20 +401,20 @@ export class ProductManagementComponent implements OnInit {
 
     obs.subscribe({
       next: () => {
-        this.snackBar.open(`Product ${this.editingId ? 'updated' : 'created'}`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Product ${this.editingId ? 'updated' : 'created'}`, 'Cerrar', { duration: 3000 });
         this.showForm = false;
         this.resetForm();
         this.loadProducts();
       },
-      error: (err) => this.snackBar.open(err.error?.message || 'Error saving product', 'Close', { duration: 3000 }),
+      error: (err) => this.snackBar.open(err.error?.message || 'Error saving product', 'Cerrar', { duration: 3000 }),
     });
   }
 
   deleteProduct(id: number): void {
     if (!confirm('Are you sure you want to delete this product?')) return;
     this.productService.deleteProduct(id).subscribe({
-      next: () => { this.snackBar.open('Product deleted', 'Close', { duration: 3000 }); this.loadProducts(); },
-      error: () => this.snackBar.open('Error deleting product', 'Close', { duration: 3000 }),
+      next: () => { this.snackBar.open('Product deleted', 'Cerrar', { duration: 3000 }); this.loadProducts(); },
+      error: () => this.snackBar.open('Error deleting product', 'Cerrar', { duration: 3000 }),
     });
   }
 

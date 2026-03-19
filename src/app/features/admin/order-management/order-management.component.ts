@@ -25,14 +25,14 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   template: `
     <div class="container">
       <div class="header">
-        <h1>Order Management</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Gestión de Pedidos</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       @if (loading) {
         <app-loading />
       } @else if (orders.length === 0) {
-        <p class="empty-state">No orders found.</p>
+        <p class="empty-state">Sin pedidos.</p>
       } @else {
         <table mat-table [dataSource]="orders" [multiTemplateDataRows]="true" class="order-table">
 
@@ -46,11 +46,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           </ng-container>
 
           <ng-container matColumnDef="orderNumber">
-            <th mat-header-cell *matHeaderCellDef>Order #</th>
+            <th mat-header-cell *matHeaderCellDef>Pedido #</th>
             <td mat-cell *matCellDef="let o">{{ o.orderNumber }}</td>
           </ng-container>
           <ng-container matColumnDef="customer">
-            <th mat-header-cell *matHeaderCellDef>Customer</th>
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
             <td mat-cell *matCellDef="let o">{{ o.user?.firstName }} {{ o.user?.lastName }}</td>
           </ng-container>
           <ng-container matColumnDef="total">
@@ -65,7 +65,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             </td>
           </ng-container>
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
             <td mat-cell *matCellDef="let o">
               <mat-select [value]="o.status" (selectionChange)="updateStatus(o.id, $event.value)" class="status-select">
                 @for (status of statuses; track status) {
@@ -75,11 +75,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             </td>
           </ng-container>
           <ng-container matColumnDef="payment">
-            <th mat-header-cell *matHeaderCellDef>Payment</th>
+            <th mat-header-cell *matHeaderCellDef>Pago</th>
             <td mat-cell *matCellDef="let o">{{ o.paymentMethod }}</td>
           </ng-container>
           <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <th mat-header-cell *matHeaderCellDef>Fecha</th>
             <td mat-cell *matCellDef="let o">{{ o.createdAt | date:'short' }}</td>
           </ng-container>
 
@@ -95,7 +95,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                         <span class="item-variant">
                           @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
                           @if (item.selectedColorName && item.selectedSizeName) { &middot; }
-                          @if (item.selectedSizeName) { Size: {{ item.selectedSizeName }} }
+                          @if (item.selectedSizeName) { Talla: {{ item.selectedSizeName }} }
                         </span>
                       }
                       <span class="item-qty">× {{ item.quantity }}</span>
@@ -296,7 +296,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       font-size: 0.9rem;
     }
     .item-name { font-weight: 500; color: #333; min-width: 160px; }
-    .item-variant { color: #3f51b5; font-size: 0.82rem; }
+    .item-variant { color: var(--theme-primary); font-size: 0.82rem; }
     .item-qty { color: #666; }
     .item-subtotal { font-weight: 600; margin-left: auto; }
     .totals-summary { border-top: 1px solid #e0e0e0; margin-top: 8px; padding-top: 8px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; min-width: 260px; align-self: flex-end; }
@@ -312,7 +312,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
     .skydropx-panel { display: flex; flex-direction: column; gap: 12px; }
     .panel-title { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.95rem; color: #1a1a2e; }
-    .panel-icon { font-size: 20px; width: 20px; height: 20px; color: #3f51b5; }
+    .panel-icon { font-size: 20px; width: 20px; height: 20px; color: var(--theme-primary); }
 
     .shipment-info { display: flex; flex-direction: column; gap: 8px; }
     .shipment-row { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
@@ -321,13 +321,13 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
     .rates-list { display: flex; flex-direction: column; gap: 6px; max-width: 600px; }
     .rate-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: border-color 0.15s; font-size: 0.88rem; }
-    .rate-item:hover { border-color: #3f51b5; }
-    .rate-item.rate-selected { border-color: #3f51b5; background: #e8eaf6; }
+    .rate-item:hover { border-color: var(--theme-primary); }
+    .rate-item.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
     .rate-info { display: flex; flex-direction: column; flex: 1; }
     .rate-carrier { font-weight: 600; color: #1a1a2e; }
     .rate-service { font-size: 0.8rem; color: #666; }
     .rate-days { color: #888; font-size: 0.82rem; white-space: nowrap; }
-    .rate-price { font-weight: 700; color: #3f51b5; white-space: nowrap; margin-left: auto; }
+    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; margin-left: auto; }
     .rates-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
     .rate-preselected { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: #2e7d32; margin: 0 0 4px; }
     .rate-preselected mat-icon { font-size: 16px; width: 16px; height: 16px; }
@@ -368,7 +368,7 @@ export class OrderManagementComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Failed to load orders', 'Close', { duration: 4000 });
+        this.snackBar.open('Error al cargar los pedidos', 'Cerrar', { duration: 4000 });
       },
     });
   }
@@ -379,8 +379,8 @@ export class OrderManagementComponent implements OnInit {
 
   updateStatus(orderId: number, status: string): void {
     this.adminService.updateOrderStatus(orderId, status).subscribe({
-      next: () => this.snackBar.open('Order status updated', 'Close', { duration: 3000 }),
-      error: () => this.snackBar.open('Failed to update status', 'Close', { duration: 3000 }),
+      next: () => this.snackBar.open('Estado del pedido actualizado', 'Cerrar', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al actualizar el estado', 'Cerrar', { duration: 3000 }),
     });
   }
 

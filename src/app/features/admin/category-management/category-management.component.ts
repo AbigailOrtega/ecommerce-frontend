@@ -20,34 +20,34 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   template: `
     <div class="container">
       <div class="header">
-        <h1>Category Management</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Gestión de Categorías</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       <button mat-raised-button color="primary" (click)="showForm = !showForm; resetForm()">
-        <mat-icon>add</mat-icon> {{ showForm ? 'Cancel' : 'Add Category' }}
+        <mat-icon>add</mat-icon> {{ showForm ? 'Cancelar' : 'Agregar Categoría' }}
       </button>
 
       @if (showForm) {
         <mat-card class="form-card">
-          <h2>{{ editingId ? 'Edit' : 'New' }} Category</h2>
+          <h2>{{ editingId ? 'Editar' : 'Nueva' }} Categoría</h2>
           <form [formGroup]="form" (ngSubmit)="saveCategory()">
             <div class="row">
               <mat-form-field appearance="outline">
-                <mat-label>Name</mat-label>
+                <mat-label>Nombre</mat-label>
                 <input matInput formControlName="name">
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Image URL</mat-label>
+                <mat-label>URL de imagen</mat-label>
                 <input matInput formControlName="imageUrl">
               </mat-form-field>
             </div>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
+              <mat-label>Descripción</mat-label>
               <textarea matInput formControlName="description" rows="3"></textarea>
             </mat-form-field>
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-              {{ editingId ? 'Update' : 'Create' }}
+              {{ editingId ? 'Actualizar' : 'Crear' }}
             </button>
           </form>
         </mat-card>
@@ -58,7 +58,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       } @else {
         <table mat-table [dataSource]="categories" class="category-table">
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
             <td mat-cell *matCellDef="let c">{{ c.name }}</td>
           </ng-container>
           <ng-container matColumnDef="slug">
@@ -66,11 +66,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <td mat-cell *matCellDef="let c">{{ c.slug }}</td>
           </ng-container>
           <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <th mat-header-cell *matHeaderCellDef>Descripción</th>
             <td mat-cell *matCellDef="let c">{{ c.description || '-' }}</td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let c">
               <button mat-icon-button (click)="editCategory(c)"><mat-icon>edit</mat-icon></button>
               <button mat-icon-button color="warn" (click)="deleteCategory(c.id)"><mat-icon>delete</mat-icon></button>
@@ -80,7 +80,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           <tr mat-row *matRowDef="let row; columns: columns;"></tr>
         </table>
         @if (categories.length === 0) {
-          <p class="no-data">No categories yet. Click "Add Category" to create one.</p>
+          <p class="no-data">Sin categorías aún. Haz clic en "Agregar Categoría" para crear una.</p>
         }
       }
     </div>
@@ -151,23 +151,23 @@ export class CategoryManagementComponent implements OnInit {
 
     obs.subscribe({
       next: () => {
-        this.snackBar.open(`Category ${this.editingId ? 'updated' : 'created'}`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Categoría ${this.editingId ? 'actualizada' : 'creada'}`, 'Cerrar', { duration: 3000 });
         this.showForm = false;
         this.resetForm();
         this.loadCategories();
       },
-      error: (err) => this.snackBar.open(err.error?.message || 'Error saving category', 'Close', { duration: 3000 }),
+      error: (err) => this.snackBar.open(err.error?.message || 'Error al guardar la categoría', 'Cerrar', { duration: 3000 }),
     });
   }
 
   deleteCategory(id: number): void {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+    if (!confirm('¿Estás seguro de que deseas eliminar esta categoría?')) return;
     this.productService.deleteCategory(id).subscribe({
       next: () => {
-        this.snackBar.open('Category deleted', 'Close', { duration: 3000 });
+        this.snackBar.open('Categoría eliminada', 'Cerrar', { duration: 3000 });
         this.loadCategories();
       },
-      error: () => this.snackBar.open('Error deleting category', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al eliminar la categoría', 'Cerrar', { duration: 3000 }),
     });
   }
 }

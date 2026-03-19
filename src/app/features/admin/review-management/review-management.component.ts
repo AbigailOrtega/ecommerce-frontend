@@ -17,32 +17,32 @@ import { Review } from '@shared/models';
     MatSnackBarModule, MatTooltipModule, MatChipsModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Review Moderation</h1>
-      <p class="subtitle">Reviews awaiting approval before being shown to customers.</p>
+      <h1>Moderación de Reseñas</h1>
+      <p class="subtitle">Reseñas pendientes de aprobación antes de mostrarse a los clientes.</p>
 
       <mat-card class="table-card">
         @if (loading) {
-          <p class="empty">Loading...</p>
+          <p class="empty">Cargando...</p>
         } @else if (reviews.length === 0) {
           <div class="empty-state">
             <mat-icon class="empty-icon">check_circle</mat-icon>
-            <p>No pending reviews. All caught up!</p>
+            <p>Sin reseñas pendientes. ¡Todo al día!</p>
           </div>
         } @else {
           <table mat-table [dataSource]="reviews" class="full-width">
 
             <ng-container matColumnDef="product">
-              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <th mat-header-cell *matHeaderCellDef>Producto</th>
               <td mat-cell *matCellDef="let r">{{ r.productName }}</td>
             </ng-container>
 
             <ng-container matColumnDef="user">
-              <th mat-header-cell *matHeaderCellDef>Customer</th>
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
               <td mat-cell *matCellDef="let r">{{ r.userName }}</td>
             </ng-container>
 
             <ng-container matColumnDef="rating">
-              <th mat-header-cell *matHeaderCellDef>Rating</th>
+              <th mat-header-cell *matHeaderCellDef>Calificación</th>
               <td mat-cell *matCellDef="let r">
                 <span class="stars">{{ starsFor(r.rating) }}</span>
                 <span class="rating-num">({{ r.rating }}/5)</span>
@@ -50,27 +50,27 @@ import { Review } from '@shared/models';
             </ng-container>
 
             <ng-container matColumnDef="title">
-              <th mat-header-cell *matHeaderCellDef>Title</th>
+              <th mat-header-cell *matHeaderCellDef>Título</th>
               <td mat-cell *matCellDef="let r"><strong>{{ r.title }}</strong></td>
             </ng-container>
 
             <ng-container matColumnDef="comment">
-              <th mat-header-cell *matHeaderCellDef>Comment</th>
+              <th mat-header-cell *matHeaderCellDef>Comentario</th>
               <td mat-cell *matCellDef="let r" class="comment-cell">{{ r.comment }}</td>
             </ng-container>
 
             <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
               <td mat-cell *matCellDef="let r">{{ r.createdAt | date:'mediumDate' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let r">
-                <button mat-icon-button color="primary" (click)="approve(r)" matTooltip="Approve & publish">
+                <button mat-icon-button color="primary" (click)="approve(r)" matTooltip="Aprobar y publicar">
                   <mat-icon>check_circle</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="reject(r)" matTooltip="Reject & delete">
+                <button mat-icon-button color="warn" (click)="reject(r)" matTooltip="Rechazar y eliminar">
                   <mat-icon>cancel</mat-icon>
                 </button>
               </td>
@@ -117,20 +117,20 @@ export class ReviewManagementComponent implements OnInit {
     this.admin.approveReview(r.id).subscribe({
       next: () => {
         this.reviews = this.reviews.filter(x => x.id !== r.id);
-        this.snackBar.open('Review approved and published', 'Close', { duration: 2000 });
+        this.snackBar.open('Reseña aprobada y publicada', 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Error approving review', 'Close', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al aprobar la reseña', 'Cerrar', { duration: 2000 }),
     });
   }
 
   reject(r: Review): void {
-    if (!confirm(`Delete review from "${r.userName}"?`)) return;
+    if (!confirm(`¿Eliminar reseña de "${r.userName}"?`)) return;
     this.admin.deleteReview(r.id).subscribe({
       next: () => {
         this.reviews = this.reviews.filter(x => x.id !== r.id);
-        this.snackBar.open('Review rejected and deleted', 'Close', { duration: 2000 });
+        this.snackBar.open('Reseña rechazada y eliminada', 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Error deleting review', 'Close', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al eliminar la reseña', 'Cerrar', { duration: 2000 }),
     });
   }
 

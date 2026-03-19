@@ -22,7 +22,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
     MatSnackBarModule, MatTooltipModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Support Tickets</h1>
+      <h1>Tickets de Soporte</h1>
 
       <!-- Detail panel -->
       @if (selected) {
@@ -30,10 +30,10 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
           <div class="detail-header">
             <div>
               <h2>Ticket #{{ selected.id }}</h2>
-              <p class="meta">Order <strong>{{ selected.orderNumber }}</strong> &mdash;
+              <p class="meta">Pedido <strong>{{ selected.orderNumber }}</strong> &mdash;
                 {{ selected.userName }} &mdash; {{ selected.createdAt | date:'medium' }}</p>
             </div>
-            <button mat-icon-button (click)="selected = null" matTooltip="Close">
+            <button mat-icon-button (click)="selected = null" matTooltip="Cerrar">
               <mat-icon>close</mat-icon>
             </button>
           </div>
@@ -43,22 +43,22 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
 
           <div class="update-row">
             <mat-form-field appearance="outline">
-              <mat-label>Status</mat-label>
+              <mat-label>Estado</mat-label>
               <mat-select [(ngModel)]="editStatus">
-                <mat-option value="OPEN">Open</mat-option>
-                <mat-option value="IN_PROGRESS">In Progress</mat-option>
-                <mat-option value="RESOLVED">Resolved</mat-option>
-                <mat-option value="CLOSED">Closed</mat-option>
+                <mat-option value="OPEN">Abierto</mat-option>
+                <mat-option value="IN_PROGRESS">En progreso</mat-option>
+                <mat-option value="RESOLVED">Resuelto</mat-option>
+                <mat-option value="CLOSED">Cerrado</mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="notes-field">
-              <mat-label>Admin Notes (visible to customer)</mat-label>
+              <mat-label>Notas del admin (visibles al cliente)</mat-label>
               <textarea matInput [(ngModel)]="editNotes" rows="2"></textarea>
             </mat-form-field>
 
             <button mat-raised-button color="primary" (click)="saveUpdate()" [disabled]="saving">
-              {{ saving ? 'Saving...' : 'Save' }}
+              {{ saving ? 'Guardando...' : 'Guardar' }}
             </button>
           </div>
         </mat-card>
@@ -66,11 +66,11 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
 
       <mat-card class="table-card">
         @if (loading) {
-          <p class="empty">Loading...</p>
+          <p class="empty">Cargando...</p>
         } @else if (tickets.length === 0) {
           <div class="empty-state">
             <mat-icon class="empty-icon">support_agent</mat-icon>
-            <p>No tickets yet.</p>
+            <p>Sin tickets aún.</p>
           </div>
         } @else {
           <table mat-table [dataSource]="tickets" class="full-width">
@@ -81,36 +81,36 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
             </ng-container>
 
             <ng-container matColumnDef="order">
-              <th mat-header-cell *matHeaderCellDef>Order</th>
+              <th mat-header-cell *matHeaderCellDef>Pedido</th>
               <td mat-cell *matCellDef="let t">{{ t.orderNumber }}</td>
             </ng-container>
 
             <ng-container matColumnDef="customer">
-              <th mat-header-cell *matHeaderCellDef>Customer</th>
+              <th mat-header-cell *matHeaderCellDef>Cliente</th>
               <td mat-cell *matCellDef="let t">{{ t.userName }}</td>
             </ng-container>
 
             <ng-container matColumnDef="subject">
-              <th mat-header-cell *matHeaderCellDef>Subject</th>
+              <th mat-header-cell *matHeaderCellDef>Asunto</th>
               <td mat-cell *matCellDef="let t" class="subject-cell">{{ t.subject }}</td>
             </ng-container>
 
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
               <td mat-cell *matCellDef="let t">
                 <mat-chip [class]="'status-' + t.status.toLowerCase()">{{ t.status }}</mat-chip>
               </td>
             </ng-container>
 
             <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
               <td mat-cell *matCellDef="let t">{{ t.createdAt | date:'mediumDate' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let t">
-                <button mat-icon-button color="primary" (click)="openDetail(t)" matTooltip="Manage ticket">
+                <button mat-icon-button color="primary" (click)="openDetail(t)" matTooltip="Gestionar ticket">
                   <mat-icon>open_in_new</mat-icon>
                 </button>
               </td>
@@ -125,7 +125,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
     </div>
   `,
   styles: [`
-    .detail-card { padding: 24px; margin-bottom: 24px; border-left: 4px solid #3f51b5; }
+    .detail-card { padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--theme-primary); }
     .detail-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .meta { color: #666; font-size: 0.9rem; margin: 4px 0 0; }
     .description { color: #444; margin: 8px 0 16px; white-space: pre-line; }
@@ -136,7 +136,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
     .subject-cell { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .empty-state { text-align: center; padding: 48px; color: #888; }
     .empty-icon { font-size: 48px; width: 48px; height: 48px; color: #ccc; display: block; margin: 0 auto 12px; }
-    .selected-row { background: #e8eaf6; }
+    .selected-row { background: rgba(0,0,0,0.06); }
     .status-open { background: #fff3e0 !important; color: #e65100 !important; }
     .status-in_progress { background: #e3f2fd !important; color: #1565c0 !important; }
     .status-resolved { background: #e8f5e9 !important; color: #2e7d32 !important; }
@@ -182,11 +182,11 @@ export class TicketManagementComponent implements OnInit {
         if (idx !== -1) this.tickets[idx] = res.data;
         this.selected = res.data;
         this.saving = false;
-        this.snackBar.open('Ticket updated', 'Close', { duration: 2000 });
+        this.snackBar.open('Ticket actualizado', 'Cerrar', { duration: 2000 });
       },
       error: () => {
         this.saving = false;
-        this.snackBar.open('Error updating ticket', 'Close', { duration: 2000 });
+        this.snackBar.open('Error al actualizar el ticket', 'Cerrar', { duration: 2000 });
       },
     });
   }

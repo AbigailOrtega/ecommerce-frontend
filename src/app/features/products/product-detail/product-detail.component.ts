@@ -71,7 +71,7 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
               <span class="price">{{ product.price | currency }}</span>
               @if (product.compareAtPrice) {
                 <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
-                <mat-chip class="sale-chip">Sale</mat-chip>
+                <mat-chip class="sale-chip">Oferta</mat-chip>
               }
             }
           </div>
@@ -80,9 +80,9 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
           <div class="stock-info">
             @if (colors.length === 0) {
               @if (product.stockQuantity > 0) {
-                <mat-chip class="in-stock"><mat-icon>check_circle</mat-icon> In Stock ({{ product.stockQuantity }})</mat-chip>
+                <mat-chip class="in-stock"><mat-icon>check_circle</mat-icon> En existencia ({{ product.stockQuantity }})</mat-chip>
               } @else {
-                <mat-chip class="out-of-stock"><mat-icon>cancel</mat-icon> Out of Stock</mat-chip>
+                <mat-chip class="out-of-stock"><mat-icon>cancel</mat-icon> Sin existencia</mat-chip>
               }
             }
           </div>
@@ -95,7 +95,7 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
           @if (colors.length > 0) {
             <div class="variants-section">
               <div class="variant-group">
-                <p class="variant-label">Color: <strong>{{ selectedColor?.name }}</strong></p>
+                <p class="variant-label">Color: <strong>{{ selectedColor?.name ?? '' }}</strong></p>
                 <div class="variant-options">
                   @for (c of colors; track c.id) {
                     <button class="variant-btn" [class.selected]="selectedColor === c" (click)="selectColor(c)">
@@ -107,7 +107,7 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
 
               @if (selectedColor && selectedColor.sizes.length > 0) {
                 <div class="variant-group">
-                  <p class="variant-label">Size: <strong>{{ selectedSize?.name }}</strong></p>
+                  <p class="variant-label">Talla: <strong>{{ selectedSize?.name ?? '' }}</strong></p>
                   <div class="variant-options">
                     @for (s of selectedColor.sizes; track s.id) {
                       <button class="variant-btn" [class.selected]="selectedSize === s"
@@ -122,9 +122,9 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
 
               @if (selectedColor && selectedSize) {
                 @if (selectedSize.stock > 0) {
-                  <p class="variant-stock in-stock-text">{{ selectedSize.stock }} in stock for {{ selectedColor.name }} / {{ selectedSize.name }}</p>
+                  <p class="variant-stock in-stock-text">{{ selectedSize.stock }} disponible(s) para {{ selectedColor.name }} / {{ selectedSize.name }}</p>
                 } @else {
-                  <p class="variant-stock out-of-stock-text">Out of stock for {{ selectedColor.name }} / {{ selectedSize.name }}</p>
+                  <p class="variant-stock out-of-stock-text">Sin existencia para {{ selectedColor.name }} / {{ selectedSize.name }}</p>
                 }
               }
             </div>
@@ -137,7 +137,7 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
           </div>
 
           @if (colors.length > 0 && (!selectedColor || (selectedColor.sizes.length > 0 && !selectedSize))) {
-            <p class="selection-warning">Please select a color and size before adding to cart.</p>
+            <p class="selection-warning">Por favor selecciona color y talla antes de agregar al carrito.</p>
           }
           <button mat-raised-button color="primary" class="add-btn" (click)="addToCart()" [disabled]="isAddToCartDisabled()">
             <mat-icon>add_shopping_cart</mat-icon>
@@ -166,13 +166,13 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
     .carousel-btn.next { right: 8px; }
     .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; cursor: pointer; transition: background 0.2s; }
-    .dot.active { background: #3f51b5; }
+    .dot.active { background: var(--theme-primary); }
 
     /* Thumbnails */
     .thumbnail-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .thumbnail { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
-    .thumbnail:hover { border-color: #3f51b5; }
-    .thumbnail.selected { border-color: #3f51b5; }
+    .thumbnail:hover { border-color: var(--theme-primary); }
+    .thumbnail.selected { border-color: var(--theme-primary); }
 
     /* Info */
     .breadcrumbs { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
@@ -180,7 +180,7 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
     .separator { color: #ccc; font-size: 0.9rem; }
     h1 { margin: 8px 0 16px; }
     .price-section { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .price { font-size: 1.8rem; font-weight: 700; color: #3f51b5; }
+    .price { font-size: 1.8rem; font-weight: 700; color: var(--theme-primary); }
     .price.promo-price { color: #e53935; }
     .compare-price { font-size: 1.2rem; color: #999; text-decoration: line-through; }
     .sale-chip { background: #ff5722 !important; color: white !important; }
@@ -201,8 +201,8 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
     .variant-label { margin: 0; font-size: 0.9rem; color: #555; }
     .variant-options { display: flex; flex-wrap: wrap; gap: 8px; }
     .variant-btn { padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
-    .variant-btn:hover { border-color: #3f51b5; color: #3f51b5; }
-    .variant-btn.selected { border-color: #3f51b5; background: #3f51b5; color: white; }
+    .variant-btn:hover { border-color: var(--theme-primary); color: var(--theme-primary); }
+    .variant-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: white; }
     .variant-btn.out-of-stock-btn { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
     .variant-stock { margin: 0; font-size: 0.875rem; }
     .in-stock-text { color: #2e7d32; }
@@ -295,24 +295,36 @@ export class ProductDetailComponent implements OnInit {
 
   addToCartLabel(): string {
     if (this.colors.length > 0) {
-      if (!this.selectedColor) return 'Select Color';
-      if (this.selectedColor.sizes.length > 0 && !this.selectedSize) return 'Select Size';
-      if (this.selectedSize && this.selectedSize.stock === 0) return 'Out of Stock';
+      if (!this.selectedColor) return 'Selecciona un color';
+      if (this.selectedColor.sizes.length > 0 && !this.selectedSize) return 'Selecciona una talla';
+      if (this.selectedSize && this.selectedSize.stock === 0) return 'Sin existencia';
     } else if (this.product?.stockQuantity === 0) {
-      return 'Out of Stock';
+      return 'Sin existencia';
     }
-    return 'Add to Cart';
+    return 'Agregar al carrito';
   }
 
   addToCart(): void {
+    if (!this.product) return;
     if (!this.authService.isLoggedIn()) {
-      this.snackBar.open('Please sign in first', 'Close', { duration: 3000 });
+      const price = this.product.discountedPrice ?? this.product.price;
+      this.cartService.addLocalItem({
+        productId: this.product.id,
+        productName: this.product.name,
+        imageUrl: this.selectedColor?.images?.[0] ?? this.product.imageUrl,
+        price,
+        quantity: this.quantity,
+        selectedSizeId: this.selectedSize?.id,
+        selectedSizeName: this.selectedSize?.name,
+        selectedColorName: this.selectedColor?.name,
+        subtotal: price * this.quantity,
+      });
+      this.snackBar.open('¡Agregado al carrito!', 'Cerrar', { duration: 2000 });
       return;
     }
-    if (!this.product) return;
     this.cartService.addToCart(this.product.id, this.quantity, this.selectedSize?.id).subscribe({
-      next: () => this.snackBar.open('Added to cart!', 'Close', { duration: 2000 }),
-      error: () => this.snackBar.open('Failed to add to cart', 'Close', { duration: 3000 }),
+      next: () => this.snackBar.open('¡Agregado al carrito!', 'Cerrar', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al agregar al carrito', 'Cerrar', { duration: 3000 }),
     });
   }
 }

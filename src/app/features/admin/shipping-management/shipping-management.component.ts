@@ -33,59 +33,7 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
         } @else if (configForm) {
           <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
 
-            <div class="toggle-row">
-              <mat-slide-toggle formControlName="nationalEnabled" color="primary">
-                Envío Nacional habilitado
-              </mat-slide-toggle>
-              <mat-slide-toggle formControlName="pickupEnabled" color="primary">
-                Pick Up habilitado
-              </mat-slide-toggle>
-            </div>
-
-            <mat-divider style="margin: 16px 0;"></mat-divider>
-            <h3 class="sub-title">Envío Nacional (Google Maps)</h3>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Dirección de origen (tienda)</mat-label>
-              <input matInput formControlName="originAddress" placeholder="Ej. Av. Insurgentes Sur 1234, CDMX, México">
-            </mat-form-field>
-
-            <div class="api-key-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Google Maps API Key</mat-label>
-                <input matInput [type]="showApiKey ? 'text' : 'password'" formControlName="googleMapsApiKey"
-                       placeholder="Ingresa tu API key">
-                <button mat-icon-button matSuffix type="button" (click)="showApiKey = !showApiKey"
-                        [matTooltip]="showApiKey ? 'Ocultar' : 'Mostrar'">
-                  <mat-icon>{{ showApiKey ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
-              </mat-form-field>
-              <span class="api-badge" [class.configured]="config?.hasApiKey">
-                <mat-icon>{{ config?.hasApiKey ? 'check_circle' : 'cancel' }}</mat-icon>
-                {{ config?.hasApiKey ? 'Configurada' : 'No configurada' }}
-              </span>
-            </div>
-
-            <div class="row">
-              <mat-form-field appearance="outline">
-                <mat-label>Precio base ($)</mat-label>
-                <input matInput type="number" min="0" step="0.01" formControlName="nationalBasePrice">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Precio por km ($)</mat-label>
-                <input matInput type="number" min="0" step="0.01" formControlName="nationalPricePerKm">
-              </mat-form-field>
-            </div>
-
-            <mat-divider style="margin: 16px 0;"></mat-divider>
-            <h3 class="sub-title">Pick Up</h3>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Costo de Pick Up ($)</mat-label>
-              <input matInput type="number" min="0" step="0.01" formControlName="pickupCost">
-            </mat-form-field>
-
-            <mat-divider style="margin: 16px 0;"></mat-divider>
+            <!-- ── 1. Skydropx ── -->
             <div class="section-header-row">
               <h3 class="sub-title">Skydropx (Guías de envío)</h3>
               <span class="api-badge" [class.configured]="config?.hasSkydropxCredentials">
@@ -179,6 +127,29 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
               </mat-form-field>
             </div>
 
+            <!-- ── 2. Pick Up ── -->
+            <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+            <div class="section-header-row">
+              <h3 class="sub-title">Pick Up</h3>
+              <mat-slide-toggle formControlName="pickupEnabled" color="primary">Habilitado</mat-slide-toggle>
+            </div>
+
+            @if (configForm.get('pickupEnabled')?.value) {
+              <mat-form-field appearance="outline">
+                <mat-label>Costo de Pick Up ($)</mat-label>
+                <input matInput type="number" min="0" step="0.01" formControlName="pickupCost">
+              </mat-form-field>
+            }
+
+            <!-- ── WhatsApp ── -->
+            <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+            <h3 class="sub-title">WhatsApp de contacto</h3>
+            <mat-form-field appearance="outline">
+              <mat-label>Número WhatsApp (con código de país)</mat-label>
+              <input matInput formControlName="whatsappNumber" placeholder="Ej. 5215512345678">
+              <mat-hint>Sin espacios ni "+". Se muestra como botón flotante en la tienda.</mat-hint>
+            </mat-form-field>
+
             <div class="form-actions">
               <button mat-raised-button color="primary" type="submit" [disabled]="savingConfig">
                 {{ savingConfig ? 'Guardando...' : 'Guardar configuración' }}
@@ -189,7 +160,7 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
       </mat-card>
 
       <!-- ── Sección 2: Puntos de Pick Up ── -->
-      @if (config?.pickupEnabled || true) {
+      @if (configForm?.get('pickupEnabled')?.value) {
         <mat-card class="locations-card">
           <div class="locations-header">
             <h2>Puntos de Pick Up</h2>
@@ -317,13 +288,13 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
     .empty { color: #666; margin-top: 16px; }
     .locations-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .inline-form { padding: 16px; margin-bottom: 16px; border: 1px solid #e3f2fd; }
-    .location-item { padding: 16px; margin-bottom: 12px; border-left: 4px solid #3f51b5; }
+    .location-item { padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--theme-primary); }
     .location-item.inactive { border-left-color: #bbb; opacity: 0.75; }
     .location-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .location-info { display: flex; flex-direction: column; gap: 2px; }
     .location-info strong { font-size: 1rem; }
     .location-meta { font-size: 0.85rem; color: #666; }
-    .slot-count { font-size: 0.8rem; color: #3f51b5; }
+    .slot-count { font-size: 0.8rem; color: var(--theme-primary); }
     .location-actions { display: flex; align-items: center; gap: 4px; }
     .slots-section { margin-top: 12px; }
     .slots-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
@@ -343,7 +314,6 @@ export class ShippingManagementComponent implements OnInit {
   config: ShippingConfig | null = null;
   configLoading = true;
   savingConfig = false;
-  showApiKey = false;
   showSkydropxId = false;
   showSkydropxSecret = false;
 
@@ -381,12 +351,7 @@ export class ShippingManagementComponent implements OnInit {
       next: (res) => {
         this.config = res.data;
         this.configForm = this.fb.group({
-          nationalEnabled: [res.data.nationalEnabled],
           pickupEnabled: [res.data.pickupEnabled],
-          originAddress: [res.data.originAddress ?? ''],
-          googleMapsApiKey: [''],
-          nationalBasePrice: [res.data.nationalBasePrice, [Validators.min(0)]],
-          nationalPricePerKm: [res.data.nationalPricePerKm, [Validators.min(0)]],
           pickupCost: [res.data.pickupCost, [Validators.min(0)]],
           skydropxClientId: [''],
           skydropxClientSecret: [''],
@@ -403,6 +368,7 @@ export class ShippingManagementComponent implements OnInit {
           skydropxDefaultWidth: [res.data.skydropxDefaultWidth ?? 20],
           skydropxDefaultHeight: [res.data.skydropxDefaultHeight ?? 10],
           skydropxSandbox: [res.data.skydropxSandbox ?? false],
+          whatsappNumber: [res.data.whatsappNumber ?? ''],
         });
         this.configLoading = false;
       },
@@ -415,11 +381,7 @@ export class ShippingManagementComponent implements OnInit {
     this.savingConfig = true;
     const val = this.configForm.value;
     const req: Partial<ShippingConfig> = {
-      nationalEnabled: val.nationalEnabled,
       pickupEnabled: val.pickupEnabled,
-      nationalBasePrice: val.nationalBasePrice,
-      nationalPricePerKm: val.nationalPricePerKm,
-      originAddress: val.originAddress,
       pickupCost: val.pickupCost,
       skydropxOriginStreet: val.skydropxOriginStreet,
       skydropxOriginPostalCode: val.skydropxOriginPostalCode,
@@ -434,10 +396,8 @@ export class ShippingManagementComponent implements OnInit {
       skydropxDefaultWidth: val.skydropxDefaultWidth,
       skydropxDefaultHeight: val.skydropxDefaultHeight,
       skydropxSandbox: val.skydropxSandbox,
+      whatsappNumber: val.whatsappNumber,
     };
-    if (val.googleMapsApiKey?.trim()) {
-      (req as any).googleMapsApiKey = val.googleMapsApiKey;
-    }
     if (val.skydropxClientId?.trim()) {
       (req as any).skydropxClientId = val.skydropxClientId;
     }
@@ -449,7 +409,7 @@ export class ShippingManagementComponent implements OnInit {
       next: (res) => {
         this.config = res.data;
         this.savingConfig = false;
-        this.configForm?.patchValue({ googleMapsApiKey: '', skydropxClientId: '', skydropxClientSecret: '' });
+        this.configForm?.patchValue({ skydropxClientId: '', skydropxClientSecret: '' });
         this.snackBar.open('Configuración guardada', 'Cerrar', { duration: 3000 });
       },
       error: (err) => {

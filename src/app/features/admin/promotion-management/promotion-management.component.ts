@@ -27,40 +27,40 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   template: `
     <div class="container">
       <div class="header">
-        <h1>Promotion Management</h1>
-        <a mat-button routerLink="/admin">&larr; Dashboard</a>
+        <h1>Gestión de Promociones</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
       <button mat-raised-button color="primary" (click)="toggleForm()">
-        <mat-icon>add</mat-icon> {{ showForm ? 'Cancel' : 'Add Promotion' }}
+        <mat-icon>add</mat-icon> {{ showForm ? 'Cancelar' : 'Agregar Promoción' }}
       </button>
 
       @if (showForm) {
         <mat-card class="form-card">
-          <h2>{{ editingId ? 'Edit' : 'New' }} Promotion</h2>
+          <h2>{{ editingId ? 'Editar' : 'Nueva' }} Promotion</h2>
           <form [formGroup]="form" (ngSubmit)="save()">
             <div class="row">
               <mat-form-field appearance="outline">
-                <mat-label>Name</mat-label>
+                <mat-label>Nombre</mat-label>
                 <input matInput formControlName="name">
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Discount %</mat-label>
+                <mat-label>Descuento %</mat-label>
                 <input matInput type="number" formControlName="discountPercent" min="0.01" max="100">
               </mat-form-field>
             </div>
             <div class="row">
               <mat-form-field appearance="outline">
-                <mat-label>Start Date</mat-label>
+                <mat-label>Fecha de inicio</mat-label>
                 <input matInput type="date" formControlName="startDate">
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>End Date</mat-label>
+                <mat-label>Fecha de fin</mat-label>
                 <input matInput type="date" formControlName="endDate">
               </mat-form-field>
             </div>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Products</mat-label>
+              <mat-label>Productos</mat-label>
               <mat-select formControlName="productIds" multiple>
                 @for (product of allProducts; track product.id) {
                   <mat-option [value]="product.id">{{ product.name }} ({{ product.price | currency }})</mat-option>
@@ -68,9 +68,9 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               </mat-select>
             </mat-form-field>
             <div class="form-actions">
-              <button mat-button type="button" (click)="toggleForm()">Cancel</button>
+              <button mat-button type="button" (click)="toggleForm()">Cancelar</button>
               <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
-                {{ saving ? 'Saving...' : 'Save' }}
+                {{ saving ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
           </form>
@@ -82,46 +82,46 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       } @else {
         <table mat-table [dataSource]="promotions" class="promo-table">
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
             <td mat-cell *matCellDef="let p">{{ p.name }}</td>
           </ng-container>
           <ng-container matColumnDef="discount">
-            <th mat-header-cell *matHeaderCellDef>Discount %</th>
+            <th mat-header-cell *matHeaderCellDef>Descuento %</th>
             <td mat-cell *matCellDef="let p">{{ p.discountPercent }}%</td>
           </ng-container>
           <ng-container matColumnDef="startDate">
-            <th mat-header-cell *matHeaderCellDef>Start</th>
+            <th mat-header-cell *matHeaderCellDef>Inicio</th>
             <td mat-cell *matCellDef="let p">{{ p.startDate | date:'mediumDate' }}</td>
           </ng-container>
           <ng-container matColumnDef="endDate">
-            <th mat-header-cell *matHeaderCellDef>End</th>
+            <th mat-header-cell *matHeaderCellDef>Fin</th>
             <td mat-cell *matCellDef="let p">{{ p.endDate | date:'mediumDate' }}</td>
           </ng-container>
           <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Active</th>
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
             <td mat-cell *matCellDef="let p">
-              <span [class]="p.active ? 'badge-active' : 'badge-inactive'">{{ p.active ? 'Active' : 'Inactive' }}</span>
+              <span [class]="p.active ? 'badge-active' : 'badge-inactive'">{{ p.active ? 'Activo' : 'Inactivo' }}</span>
             </td>
           </ng-container>
           <ng-container matColumnDef="products">
-            <th mat-header-cell *matHeaderCellDef>Products</th>
+            <th mat-header-cell *matHeaderCellDef>Productos</th>
             <td mat-cell *matCellDef="let p">{{ p.products.length }} product(s)</td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let p">
-              <button mat-icon-button (click)="edit(p)" title="Edit"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button (click)="toggle(p)" [title]="p.active ? 'Deactivate' : 'Activate'">
+              <button mat-icon-button (click)="edit(p)" title="Editar"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button (click)="toggle(p)" [title]="p.active ? 'Desactivar' : 'Activar'">
                 <mat-icon>{{ p.active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="delete(p)" title="Delete"><mat-icon>delete</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="delete(p)" title="Eliminar"><mat-icon>delete</mat-icon></button>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
         @if (promotions.length === 0) {
-          <p class="no-data">No promotions found. Create one above.</p>
+          <p class="no-data">Sin promociones. Crea una arriba.</p>
         }
       }
     </div>
@@ -174,7 +174,7 @@ export class PromotionManagementComponent implements OnInit {
     this.loading = true;
     this.adminService.getPromotions().subscribe({
       next: (res) => { this.promotions = res.data; this.loading = false; },
-      error: () => { this.loading = false; this.snackBar.open('Failed to load promotions', 'Close', { duration: 3000 }); },
+      error: () => { this.loading = false; this.snackBar.open('Error al cargar las promociones', 'Cerrar', { duration: 3000 }); },
     });
   }
 
@@ -221,12 +221,12 @@ export class PromotionManagementComponent implements OnInit {
         this.showForm = false;
         this.resetForm();
         this.loadPromotions();
-        this.snackBar.open('Promotion saved', 'Close', { duration: 2000 });
+        this.snackBar.open('Promoción guardada', 'Cerrar', { duration: 2000 });
       },
       error: (err) => {
         this.saving = false;
-        const msg = err?.error?.message || 'Failed to save promotion';
-        this.snackBar.open(msg, 'Close', { duration: 3000 });
+        const msg = err?.error?.message || 'Error al guardar la promoción';
+        this.snackBar.open(msg, 'Cerrar', { duration: 3000 });
       },
     });
   }
@@ -236,20 +236,20 @@ export class PromotionManagementComponent implements OnInit {
       next: (res) => {
         const idx = this.promotions.findIndex(p => p.id === promotion.id);
         if (idx !== -1) this.promotions[idx] = res.data;
-        this.snackBar.open(`Promotion ${res.data.active ? 'activated' : 'deactivated'}`, 'Close', { duration: 2000 });
+        this.snackBar.open(`Promoción ${res.data.active ? 'activada' : 'desactivada'}`, 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to toggle promotion', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al cambiar estado de la promoción', 'Cerrar', { duration: 3000 }),
     });
   }
 
   delete(promotion: Promotion): void {
-    if (!confirm(`Delete promotion "${promotion.name}"?`)) return;
+    if (!confirm(`¿Eliminar promoción "${promotion.name}"?`)) return;
     this.adminService.deletePromotion(promotion.id).subscribe({
       next: () => {
         this.promotions = this.promotions.filter(p => p.id !== promotion.id);
-        this.snackBar.open('Promotion deleted', 'Close', { duration: 2000 });
+        this.snackBar.open('Promoción eliminada', 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to delete promotion', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al eliminar la promoción', 'Cerrar', { duration: 3000 }),
     });
   }
 }

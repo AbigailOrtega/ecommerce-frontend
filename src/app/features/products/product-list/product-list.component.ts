@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -21,7 +20,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   selector: 'app-product-list',
   standalone: true,
   imports: [FormsModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatPaginatorModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent],
+    MatInputModule, MatPaginatorModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent],
   template: `
     @if (banners.length > 0) {
       <div class="carousel-root">
@@ -56,27 +55,32 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     }
 
     <div class="container">
-      <h1>Our Products</h1>
+      <h1>Nuestros Productos</h1>
 
       <div class="filters">
         <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search products...</mat-label>
+          <mat-label>Buscar productos...</mat-label>
           <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
           <button mat-icon-button matSuffix (click)="onSearch()">
             <mat-icon>search</mat-icon>
           </button>
         </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Category</mat-label>
-          <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryChange()">
-            <mat-option [value]="0">All Categories</mat-option>
-            @for (cat of categories; track cat.id) {
-              <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
       </div>
+
+      @if (categories.length > 0) {
+        <nav class="category-nav">
+          <button class="cat-chip" [class.active]="selectedCategory === 0"
+                  (click)="selectCategory(0)">
+            Todos
+          </button>
+          @for (cat of categories; track cat.id) {
+            <button class="cat-chip" [class.active]="selectedCategory === cat.id"
+                    (click)="selectCategory(cat.id)">
+              {{ cat.name }}
+            </button>
+          }
+        </nav>
+      }
 
       @if (loading) {
         <app-loading />
@@ -117,7 +121,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               </mat-card-actions>
             </mat-card>
           } @empty {
-            <p class="no-results">No products found.</p>
+            <p class="no-results">No se encontraron productos.</p>
           }
         </div>
 
@@ -131,7 +135,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       <div class="popup-backdrop" (click)="closePopup()">
         <div class="popup-panel" (click)="$event.stopPropagation()">
           <div class="popup-header">
-            <h3>Select Options</h3>
+            <h3>Seleccionar opciones</h3>
             <button mat-icon-button (click)="closePopup()"><mat-icon>close</mat-icon></button>
           </div>
 
@@ -144,7 +148,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
           <!-- Color selection -->
           <div class="popup-group">
-            <p class="popup-label">Color: <strong>{{ popupSelectedColor?.name || 'Select a color' }}</strong></p>
+            <p class="popup-label">Color: <strong>{{ popupSelectedColor?.name || 'Selecciona un color' }}</strong></p>
             <div class="popup-options">
               @for (c of popupProduct.colors; track c.id) {
                 <button class="opt-btn" [class.selected]="popupSelectedColor === c"
@@ -159,7 +163,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           <!-- Size selection (only if selected color has sizes) -->
           @if (popupSelectedColor && popupSelectedColor.sizes.length > 0) {
             <div class="popup-group">
-              <p class="popup-label">Size: <strong>{{ popupSelectedSize?.name || 'Select a size' }}</strong></p>
+              <p class="popup-label">Talla: <strong>{{ popupSelectedSize?.name || 'Selecciona una talla' }}</strong></p>
               <div class="popup-options">
                 @for (s of popupSelectedColor.sizes; track s.id) {
                   <button class="opt-btn" [class.selected]="popupSelectedSize === s"
@@ -174,14 +178,14 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
           <!-- Stock info -->
           @if (popupSelectedColor && popupSelectedSize) {
-            <p class="popup-stock">{{ popupSelectedSize.stock }} available</p>
+            <p class="popup-stock">{{ popupSelectedSize.stock }} disponible(s)</p>
           }
 
           <div class="popup-actions">
-            <button mat-button (click)="closePopup()">Cancel</button>
+            <button mat-button (click)="closePopup()">Cancelar</button>
             <button mat-raised-button color="primary" [disabled]="!canConfirmPopup() || addingToCart"
               (click)="confirmAddToCart()">
-              {{ addingToCart ? 'Adding...' : 'Add to Cart' }}
+              {{ addingToCart ? 'Agregando...' : 'Agregar al carrito' }}
             </button>
           </div>
         </div>
@@ -220,15 +224,44 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     }
     .dot.active { background: white; transform: scale(1.2); }
 
-    .filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
     .search-field { flex: 1; min-width: 250px; }
+
+    .category-nav {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 24px; padding: 4px 0;
+    }
+    .cat-chip {
+      padding: 7px 18px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 999px;
+      background: white;
+      color: #444;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+      line-height: 1.4;
+    }
+    .cat-chip:hover:not(.active) {
+      border-color: var(--theme-primary);
+      color: var(--theme-primary);
+      background: rgba(0,0,0,0.06);
+    }
+    .cat-chip.active {
+      background: var(--theme-primary);
+      border-color: var(--theme-primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
     .product-card { cursor: pointer; transition: transform 0.2s; }
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
     .product-image { height: 200px; object-fit: cover; }
     .product-name h3 { margin: 8px 0 4px; font-size: 1.1rem; color: #333; }
     .category-tag { color: #666; font-size: 0.85rem; margin: 0 0 8px; }
     .price-row { display: flex; align-items: center; gap: 8px; }
-    .price { font-size: 1.25rem; font-weight: 700; color: #3f51b5; }
+    .price { font-size: 1.25rem; font-weight: 700; color: var(--theme-primary); }
     .price.discounted { color: #e53935; }
     .compare-price { font-size: 0.95rem; color: #999; text-decoration: line-through; }
     .promo-badge { background: #ff5722; color: white; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
@@ -249,7 +282,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
     .popup-header h3 { margin: 0; font-size: 1.1rem; }
     .popup-product-name { font-weight: 600; font-size: 1rem; margin: 0 0 2px; color: #333; }
-    .popup-price { color: #3f51b5; font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
+    .popup-price { color: var(--theme-primary); font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
     .discounted-popup { color: #e53935; }
     .original-popup { font-size: 0.9rem; color: #999; text-decoration: line-through; margin-left: 4px; }
     .popup-group { margin-bottom: 16px; }
@@ -259,8 +292,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px;
       background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
     }
-    .opt-btn:hover:not(.oos) { border-color: #3f51b5; color: #3f51b5; }
-    .opt-btn.selected { border-color: #3f51b5; background: #3f51b5; color: white; }
+    .opt-btn:hover:not(.oos) { border-color: var(--theme-primary); color: var(--theme-primary); }
+    .opt-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: white; }
     .opt-btn.oos { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
     .popup-stock { font-size: 0.85rem; color: #2e7d32; margin: -8px 0 8px; }
     .popup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
@@ -362,31 +395,39 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   cartBtnLabel(product: Product): string {
-    if (!this.hasAnyStock(product)) return 'Out of Stock';
-    if (product.colors && product.colors.length > 0) return 'Select Options';
-    return 'Add to Cart';
+    if (!this.hasAnyStock(product)) return 'Sin existencia';
+    if (product.colors && product.colors.length > 0) return 'Ver opciones';
+    return 'Agregar al carrito';
   }
 
   // Add to cart flow
   onAddToCartClick(product: Product): void {
-    if (!this.authService.isLoggedIn()) {
-      this.snackBar.open('Please sign in to add items to cart', 'Sign In', { duration: 3000 })
-        .onAction().subscribe(() => window.location.href = '/login');
-      return;
-    }
-
     if (product.colors && product.colors.length > 0) {
       // Open popup for variant selection
       this.popupProduct = product;
       this.popupSelectedColor = null;
       this.popupSelectedSize = null;
-    } else {
-      // No variants — add directly
-      this.cartService.addToCart(product.id).subscribe({
-        next: () => this.snackBar.open(`${product.name} added to cart`, 'Close', { duration: 2000 }),
-        error: () => this.snackBar.open('Failed to add to cart', 'Close', { duration: 3000 }),
-      });
+      return;
     }
+
+    if (!this.authService.isLoggedIn()) {
+      const price = product.discountedPrice ?? product.price;
+      this.cartService.addLocalItem({
+        productId: product.id,
+        productName: product.name,
+        imageUrl: product.imageUrl,
+        price,
+        quantity: 1,
+        subtotal: price,
+      });
+      this.snackBar.open(`${product.name} agregado al carrito`, 'Cerrar', { duration: 2000 });
+      return;
+    }
+
+    this.cartService.addToCart(product.id).subscribe({
+      next: () => this.snackBar.open(`${product.name} agregado al carrito`, 'Cerrar', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al agregar al carrito', 'Cerrar', { duration: 3000 }),
+    });
   }
 
   // Popup methods
@@ -409,15 +450,34 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   confirmAddToCart(): void {
     if (!this.popupProduct || !this.canConfirmPopup()) return;
+
+    if (!this.authService.isLoggedIn()) {
+      const price = this.popupProduct.discountedPrice ?? this.popupProduct.price;
+      this.cartService.addLocalItem({
+        productId: this.popupProduct.id,
+        productName: this.popupProduct.name,
+        imageUrl: this.popupSelectedColor?.images?.[0] ?? this.popupProduct.imageUrl,
+        price,
+        quantity: 1,
+        selectedSizeId: this.popupSelectedSize?.id,
+        selectedSizeName: this.popupSelectedSize?.name,
+        selectedColorName: this.popupSelectedColor?.name,
+        subtotal: price,
+      });
+      this.snackBar.open(`${this.popupProduct.name} agregado al carrito`, 'Cerrar', { duration: 2000 });
+      this.closePopup();
+      return;
+    }
+
     this.addingToCart = true;
     this.cartService.addToCart(this.popupProduct.id, 1, this.popupSelectedSize?.id).subscribe({
       next: () => {
-        this.snackBar.open(`${this.popupProduct!.name} added to cart`, 'Close', { duration: 2000 });
+        this.snackBar.open(`${this.popupProduct!.name} agregado al carrito`, 'Cerrar', { duration: 2000 });
         this.addingToCart = false;
         this.closePopup();
       },
       error: () => {
-        this.snackBar.open('Failed to add to cart', 'Close', { duration: 3000 });
+        this.snackBar.open('Error al agregar al carrito', 'Cerrar', { duration: 3000 });
         this.addingToCart = false;
       },
     });
@@ -432,6 +492,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   onSearch(): void {
     this.currentPage = 0;
     this.selectedCategory = 0;
+    this.loadProducts();
+  }
+
+  selectCategory(id: number): void {
+    this.selectedCategory = id;
+    this.currentPage = 0;
+    this.searchQuery = '';
     this.loadProducts();
   }
 

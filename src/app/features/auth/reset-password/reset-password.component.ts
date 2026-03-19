@@ -24,47 +24,47 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Reset Password</mat-card-title>
-          <mat-card-subtitle>Enter your new password below.</mat-card-subtitle>
+          <mat-card-title>Restablecer contraseña</mat-card-title>
+          <mat-card-subtitle>Ingresa tu nueva contraseña.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           @if (!token) {
-            <p class="error-message">Invalid or missing reset token. Please request a new reset link.</p>
+            <p class="error-message">Token inválido o faltante. Por favor solicita un nuevo enlace.</p>
           } @else {
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>New Password</mat-label>
+                <mat-label>Nueva contraseña</mat-label>
                 <input matInput formControlName="newPassword" [type]="hidePassword ? 'password' : 'text'">
                 <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
                   <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 @if (form.get('newPassword')?.hasError('required') && form.get('newPassword')?.touched) {
-                  <mat-error>Password is required</mat-error>
+                  <mat-error>La contraseña es requerida</mat-error>
                 }
                 @if (form.get('newPassword')?.hasError('minlength') && form.get('newPassword')?.touched) {
-                  <mat-error>Password must be at least 8 characters</mat-error>
+                  <mat-error>La contraseña debe tener al menos 8 caracteres</mat-error>
                 }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Confirm Password</mat-label>
+                <mat-label>Confirmar contraseña</mat-label>
                 <input matInput formControlName="confirmPassword" [type]="hideConfirm ? 'password' : 'text'">
                 <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm">
                   <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
                 @if (form.get('confirmPassword')?.touched && form.hasError('passwordsMismatch')) {
-                  <mat-error>Passwords do not match</mat-error>
+                  <mat-error>Las contraseñas no coinciden</mat-error>
                 }
               </mat-form-field>
 
               <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
-                {{ loading ? 'Updating...' : 'Reset Password' }}
+                {{ loading ? 'Updating...' : 'Restablecer contraseña' }}
               </button>
             </form>
           }
         </mat-card-content>
         <mat-card-actions align="end">
-          <p><a routerLink="/login">Back to Sign In</a></p>
+          <p><a routerLink="/login">Volver a iniciar sesión</a></p>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -84,7 +84,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     }
     .full-width { width: 100%; }
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
-    mat-card-actions a { color: #3f51b5; font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
     .error-message { color: #c62828; font-size: 0.95rem; }
   `],
 })
@@ -120,12 +120,12 @@ export class ResetPasswordComponent implements OnInit {
     this.loading = true;
     this.auth.resetPassword(this.token, this.form.value.newPassword).subscribe({
       next: () => {
-        this.snackBar.open('Password updated successfully.', 'Close', { duration: 4000 });
+        this.snackBar.open('Contraseña actualizada exitosamente.', 'Cerrar', { duration: 4000 });
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
-        this.snackBar.open(err.error?.message || 'Invalid or expired token.', 'Close', { duration: 5000 });
+        this.snackBar.open(err.error?.message || 'Token inválido o expirado.', 'Cerrar', { duration: 5000 });
       },
     });
   }

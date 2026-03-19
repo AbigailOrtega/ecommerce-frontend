@@ -23,7 +23,7 @@ import { Review, ReviewSummary } from '@shared/models';
   ],
   template: `
     <div class="reviews-section">
-      <h2 class="section-title">Customer Reviews</h2>
+      <h2 class="section-title">Reseñas de clientes</h2>
 
       <!-- Summary -->
       @if (summary) {
@@ -37,7 +37,7 @@ import { Review, ReviewSummary } from '@shared/models';
                 </mat-icon>
               }
             </div>
-            <span class="total-label">{{ summary.totalReviews }} {{ summary.totalReviews === 1 ? 'review' : 'reviews' }}</span>
+            <span class="total-label">{{ summary.totalReviews }} {{ summary.totalReviews === 1 ? 'reseña' : 'reseñas' }}</span>
           </div>
           <div class="distribution">
             @for (star of [5,4,3,2,1]; track star) {
@@ -58,12 +58,12 @@ import { Review, ReviewSummary } from '@shared/models';
       @if (isLoggedIn && !alreadyReviewed && canReview) {
         <mat-card class="review-form-card">
           <mat-card-header>
-            <mat-card-title>Write a Review</mat-card-title>
+            <mat-card-title>Escribir una reseña</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
               <div class="star-selector">
-                <span class="form-label">Rating *</span>
+                <span class="form-label">Calificación *</span>
                 <div class="star-row">
                   @for (star of [1,2,3,4,5]; track star) {
                     <mat-icon class="star-select" [class.selected]="star <= selectedRating"
@@ -76,28 +76,28 @@ import { Review, ReviewSummary } from '@shared/models';
                 </div>
               </div>
               <mat-form-field class="full-width">
-                <mat-label>Title</mat-label>
-                <input matInput formControlName="title" placeholder="Summarize your experience">
+                <mat-label>Título</mat-label>
+                <input matInput formControlName="title" placeholder="Resume tu experiencia">
               </mat-form-field>
               <mat-form-field class="full-width">
-                <mat-label>Comment</mat-label>
-                <textarea matInput formControlName="comment" rows="4" placeholder="Share your thoughts..."></textarea>
+                <mat-label>Comentario</mat-label>
+                <textarea matInput formControlName="comment" rows="4" placeholder="Comparte tu opinión..."></textarea>
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit" [disabled]="reviewForm.invalid || selectedRating === 0 || submitting">
-                {{ submitting ? 'Submitting...' : 'Submit Review' }}
+                {{ submitting ? 'Enviando...' : 'Publicar reseña' }}
               </button>
             </form>
           </mat-card-content>
         </mat-card>
       } @else if (isLoggedIn && alreadyReviewed) {
-        <p class="already-reviewed">You have already reviewed this product.</p>
+        <p class="already-reviewed">Ya has publicado una reseña para este producto.</p>
       }
 
       <mat-divider class="section-divider"></mat-divider>
 
       <!-- Reviews List -->
       @if (reviews.length === 0 && !loading) {
-        <p class="no-reviews">No reviews yet. Be the first to review this product!</p>
+        <p class="no-reviews">Sin reseñas aún. ¡Sé el primero en opinar!</p>
       }
       @for (review of reviews; track review.id) {
         <div class="review-item">
@@ -105,7 +105,7 @@ import { Review, ReviewSummary } from '@shared/models';
             <div class="reviewer-info">
               <span class="reviewer-name">{{ review.userName }}</span>
               @if (review.verified) {
-                <span class="verified-badge"><mat-icon class="verified-icon">verified</mat-icon> Verified Purchase</span>
+                <span class="verified-badge"><mat-icon class="verified-icon">verified</mat-icon> Compra verificada</span>
               }
             </div>
             <span class="review-date">{{ review.createdAt | date:'mediumDate' }}</span>
@@ -120,7 +120,7 @@ import { Review, ReviewSummary } from '@shared/models';
           <p class="review-title">{{ review.title }}</p>
           <p class="review-comment">{{ review.comment }}</p>
           @if (canDeleteReview(review)) {
-            <button mat-button color="warn" (click)="deleteReview(review.id)">Delete</button>
+            <button mat-button color="warn" (click)="deleteReview(review.id)">Eliminar</button>
           }
           <mat-divider></mat-divider>
         </div>
@@ -129,7 +129,7 @@ import { Review, ReviewSummary } from '@shared/models';
       @if (!isLastPage && reviews.length > 0) {
         <div class="load-more">
           <button mat-stroked-button (click)="loadMore()" [disabled]="loading">
-            {{ loading ? 'Loading...' : 'Load More' }}
+            {{ loading ? 'Cargando...' : 'Ver más' }}
           </button>
         </div>
       }
@@ -140,7 +140,7 @@ import { Review, ReviewSummary } from '@shared/models';
     .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 24px; }
     .summary-card { display: flex; gap: 40px; align-items: flex-start; margin-bottom: 32px; background: #f9f9f9; padding: 24px; border-radius: 8px; flex-wrap: wrap; }
     .avg-block { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 100px; }
-    .avg-number { font-size: 3rem; font-weight: 700; color: #3f51b5; line-height: 1; }
+    .avg-number { font-size: 3rem; font-weight: 700; color: var(--theme-primary); line-height: 1; }
     .stars-row { display: flex; }
     .star-icon { color: #ccc; font-size: 20px; width: 20px; height: 20px; }
     .star-icon.filled { color: #f5a623; }
@@ -274,12 +274,12 @@ export class ProductReviewsComponent implements OnInit {
         this.selectedRating = 0;
         this.submitting = false;
         this.loadSummary();
-        this.snackBar.open('Review submitted!', 'Close', { duration: 3000 });
+        this.snackBar.open('¡Reseña publicada!', 'Cerrar', { duration: 3000 });
       },
       error: (err) => {
         this.submitting = false;
-        const msg = err?.error?.message || 'Failed to submit review';
-        this.snackBar.open(msg, 'Close', { duration: 4000 });
+        const msg = err?.error?.message || 'Error al publicar la reseña';
+        this.snackBar.open(msg, 'Cerrar', { duration: 4000 });
       },
     });
   }
@@ -292,9 +292,9 @@ export class ProductReviewsComponent implements OnInit {
           this.alreadyReviewed = this.reviews.some(r => r.userId === this.currentUserId);
         }
         this.loadSummary();
-        this.snackBar.open('Review deleted', 'Close', { duration: 2000 });
+        this.snackBar.open('Reseña eliminada', 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Failed to delete review', 'Close', { duration: 3000 }),
+      error: () => this.snackBar.open('Error al eliminar la reseña', 'Cerrar', { duration: 3000 }),
     });
   }
 }

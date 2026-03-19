@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '@core/services/cart.service';
-import { CartItem } from '@shared/models';
+import { AuthService } from '@core/services/auth.service';
+import { CartItem, LocalCartItem } from '@shared/models';
 
 @Component({
   selector: 'app-cart',
@@ -18,106 +19,148 @@ import { CartItem } from '@shared/models';
     MatFormFieldModule, MatInputModule, MatSnackBarModule, CurrencyPipe],
   template: `
     <div class="container">
-      <h1>Shopping Cart</h1>
+      <h1>Mi Carrito</h1>
 
-      @if (cart.items().length === 0) {
+      @if (isEmpty()) {
         <mat-card class="empty-cart">
           <mat-icon class="empty-icon">shopping_cart</mat-icon>
-          <h2>Your cart is empty</h2>
-          <p>Looks like you haven't added anything to your cart yet.</p>
-          <a mat-raised-button color="primary" routerLink="/">Continue Shopping</a>
+          <h2>Tu carrito está vacío</h2>
+          <p>Aún no has agregado productos a tu carrito.</p>
+          <a mat-raised-button color="primary" routerLink="/">Seguir comprando</a>
         </mat-card>
       } @else {
         <div class="cart-layout">
           <div class="cart-items">
-            @for (item of cart.items(); track item.id) {
-              <mat-card class="cart-item">
-                <div class="item-content">
-                  <img [src]="item.product.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.product.name">
-                  <div class="item-info">
-                    <a [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
-                    @if (item.selectedColorName || item.selectedSizeName) {
-                      <p class="item-variant">
-                        @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
-                        @if (item.selectedColorName && item.selectedSizeName) { &middot; }
-                        @if (item.selectedSizeName) { Size: {{ item.selectedSizeName }} }
-                      </p>
-                    }
-                    @if (item.product.discountedPrice) {
-                      <p class="item-price">
-                        <span class="original-price">{{ item.product.price | currency }}</span>
-                        <span class="discounted-price">{{ item.product.discountedPrice | currency }}</span>
-                        <span class="promo-badge">{{ item.product.activePromotionDiscount }}% off</span>
-                      </p>
-                    } @else {
-                      <p class="item-price">{{ item.product.price | currency }}</p>
-                    }
-                  </div>
-                  <div class="quantity-controls">
-                    <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)">
-                      <mat-icon>remove</mat-icon>
+
+            @if (auth.isLoggedIn()) {
+              @for (item of cart.items(); track item.id) {
+                <mat-card class="cart-item">
+                  <div class="item-content">
+                    <img [src]="item.product.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.product.name">
+                    <div class="item-info">
+                      <a [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
+                      @if (item.selectedColorName || item.selectedSizeName) {
+                        <p class="item-variant">
+                          @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
+                          @if (item.selectedColorName && item.selectedSizeName) { &middot; }
+                          @if (item.selectedSizeName) { Talla: {{ item.selectedSizeName }} }
+                        </p>
+                      }
+                      @if (item.product.discountedPrice) {
+                        <p class="item-price">
+                          <span class="original-price">{{ item.product.price | currency }}</span>
+                          <span class="discounted-price">{{ item.product.discountedPrice | currency }}</span>
+                          <span class="promo-badge">{{ item.product.activePromotionDiscount }}% off</span>
+                        </p>
+                      } @else {
+                        <p class="item-price">{{ item.product.price | currency }}</p>
+                      }
+                    </div>
+                    <div class="quantity-controls">
+                      <button mat-icon-button (click)="updateQuantity(item, item.quantity - 1)">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <span>{{ item.quantity }}</span>
+                      <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                    <span class="item-subtotal">{{ item.subtotal | currency }}</span>
+                    <button mat-icon-button color="warn" (click)="removeItem(item)">
+                      <mat-icon>delete</mat-icon>
                     </button>
-                    <span>{{ item.quantity }}</span>
-                    <button mat-icon-button (click)="updateQuantity(item, item.quantity + 1)">
-                      <mat-icon>add</mat-icon>
+                  </div>
+                </mat-card>
+              }
+            } @else {
+              @for (item of cart.localItems(); track item.tempId) {
+                <mat-card class="cart-item">
+                  <div class="item-content">
+                    <img [src]="item.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.productName">
+                    <div class="item-info">
+                      <span class="item-name">{{ item.productName }}</span>
+                      @if (item.selectedColorName || item.selectedSizeName) {
+                        <p class="item-variant">
+                          @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
+                          @if (item.selectedColorName && item.selectedSizeName) { &middot; }
+                          @if (item.selectedSizeName) { Talla: {{ item.selectedSizeName }} }
+                        </p>
+                      }
+                      <p class="item-price">{{ item.price | currency }}</p>
+                    </div>
+                    <div class="quantity-controls">
+                      <button mat-icon-button (click)="cart.updateLocalQuantity(item.tempId, item.quantity - 1)">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <span>{{ item.quantity }}</span>
+                      <button mat-icon-button (click)="cart.updateLocalQuantity(item.tempId, item.quantity + 1)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                    <span class="item-subtotal">{{ item.subtotal | currency }}</span>
+                    <button mat-icon-button color="warn" (click)="cart.removeLocalItem(item.tempId)">
+                      <mat-icon>delete</mat-icon>
                     </button>
                   </div>
-                  <span class="item-subtotal">{{ item.subtotal | currency }}</span>
-                  <button mat-icon-button color="warn" (click)="removeItem(item)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </mat-card>
+                </mat-card>
+              }
             }
+
           </div>
 
           <mat-card class="cart-summary">
-            <h2>Order Summary</h2>
+            <h2>Resumen del pedido</h2>
             <div class="summary-row">
-              <span>Items ({{ cart.itemCount() }})</span>
+              <span>Productos ({{ cart.itemCount() }})</span>
               <span>{{ cart.subtotal() | currency }}</span>
             </div>
 
-            <!-- Coupon input -->
-            @if (!cart.coupon()) {
-              <div class="coupon-row">
-                <mat-form-field appearance="outline" class="coupon-field">
-                  <mat-label>Coupon code</mat-label>
-                  <input matInput [(ngModel)]="couponCode" (keyup.enter)="applyCoupon()"
-                         placeholder="e.g. BUENFIN10" [disabled]="applyingCoupon">
-                  <mat-icon matSuffix>local_offer</mat-icon>
-                </mat-form-field>
-                <button mat-stroked-button (click)="applyCoupon()" [disabled]="!couponCode || applyingCoupon">
-                  {{ applyingCoupon ? '...' : 'Apply' }}
-                </button>
-              </div>
-            } @else {
-              <div class="coupon-applied">
-                <mat-icon class="coupon-icon">check_circle</mat-icon>
-                <span><strong>{{ cart.coupon()!.code }}</strong> — {{ cart.coupon()!.discountPercent }}% off</span>
-                <button mat-icon-button (click)="removeCoupon()" title="Remove coupon">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-              <div class="summary-row discount-row">
-                <span>Discount</span>
-                <span class="discount-value">-{{ cart.discount() | currency }}</span>
-              </div>
+            @if (auth.isLoggedIn()) {
+              <!-- Coupon input (auth only) -->
+              @if (!cart.coupon()) {
+                <div class="coupon-row">
+                  <mat-form-field appearance="outline" class="coupon-field">
+                    <mat-label>Código de cupón</mat-label>
+                    <input matInput [(ngModel)]="couponCode" (keyup.enter)="applyCoupon()"
+                           placeholder="ej. BUENFIN10" [disabled]="applyingCoupon">
+                    <mat-icon matSuffix>local_offer</mat-icon>
+                  </mat-form-field>
+                  <button mat-stroked-button (click)="applyCoupon()" [disabled]="!couponCode || applyingCoupon">
+                    {{ applyingCoupon ? '...' : 'Aplicar' }}
+                  </button>
+                </div>
+              } @else {
+                <div class="coupon-applied">
+                  <mat-icon class="coupon-icon">check_circle</mat-icon>
+                  <span><strong>{{ cart.coupon()!.code }}</strong> — {{ cart.coupon()!.discountPercent }}% off</span>
+                  <button mat-icon-button (click)="removeCoupon()" title="Remove coupon">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+                <div class="summary-row discount-row">
+                  <span>Descuento</span>
+                  <span class="discount-value">-{{ cart.discount() | currency }}</span>
+                </div>
+              }
             }
 
             <div class="summary-row">
-              <span>Shipping</span>
-              <span>Free</span>
+              <span>Envío</span>
+              <span>Calculado en checkout</span>
             </div>
             <hr>
             <div class="summary-row total">
-              <span>Total</span>
+              <span>Subtotal</span>
               <span>{{ cart.total() | currency }}</span>
             </div>
             <a mat-raised-button color="primary" routerLink="/checkout" class="checkout-btn">
-              Proceed to Checkout
+              Ir al pago
             </a>
-            <button mat-button color="warn" (click)="clearCart()" class="clear-btn">Clear Cart</button>
+            @if (auth.isLoggedIn()) {
+              <button mat-button color="warn" (click)="clearCart()" class="clear-btn">Vaciar carrito</button>
+            } @else {
+              <button mat-button color="warn" (click)="cart.clearLocalCart()" class="clear-btn">Vaciar carrito</button>
+            }
           </mat-card>
         </div>
       }
@@ -132,7 +175,7 @@ import { CartItem } from '@shared/models';
     .item-content img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
     .item-info { flex: 1; }
     .item-name { font-weight: 500; color: #333; }
-    .item-variant { color: #3f51b5; font-size: 0.82rem; margin: 2px 0 0; }
+    .item-variant { color: var(--theme-primary); font-size: 0.82rem; margin: 2px 0 0; }
     .item-price { color: #666; margin: 2px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .original-price { text-decoration: line-through; color: #aaa; font-size: 0.85rem; }
     .discounted-price { color: #d32f2f; font-weight: 600; }
@@ -162,10 +205,20 @@ export class CartComponent implements OnInit {
   couponCode = '';
   applyingCoupon = false;
 
-  constructor(public cart: CartService, private snackBar: MatSnackBar) {}
+  constructor(
+    public cart: CartService,
+    public auth: AuthService,
+    private snackBar: MatSnackBar,
+  ) {}
 
   ngOnInit(): void {
     this.cart.loadCart();
+  }
+
+  isEmpty(): boolean {
+    return this.auth.isLoggedIn()
+      ? this.cart.items().length === 0
+      : this.cart.localItems().length === 0;
   }
 
   applyCoupon(): void {
@@ -175,18 +228,18 @@ export class CartComponent implements OnInit {
       next: (res) => {
         this.applyingCoupon = false;
         this.couponCode = '';
-        this.snackBar.open(`Coupon applied: ${res.data.discountPercent}% off!`, 'Close', { duration: 3000 });
+        this.snackBar.open(`Cupón aplicado: ${res.data.discountPercent}% de descuento`, 'Cerrar', { duration: 3000 });
       },
       error: (err) => {
         this.applyingCoupon = false;
-        this.snackBar.open(err.error?.message || 'Invalid coupon code', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.message || 'Código de cupón inválido', 'Cerrar', { duration: 3000 });
       },
     });
   }
 
   removeCoupon(): void {
     this.cart.removeCoupon();
-    this.snackBar.open('Coupon removed', 'Close', { duration: 2000 });
+    this.snackBar.open('Cupón eliminado', 'Cerrar', { duration: 2000 });
   }
 
   updateQuantity(item: CartItem, quantity: number): void {
@@ -196,13 +249,13 @@ export class CartComponent implements OnInit {
 
   removeItem(item: CartItem): void {
     this.cart.removeItem(item.id).subscribe({
-      next: () => this.snackBar.open('Item removed', 'Close', { duration: 2000 }),
+      next: () => this.snackBar.open('Producto eliminado', 'Cerrar', { duration: 2000 }),
     });
   }
 
   clearCart(): void {
     this.cart.clearCart().subscribe({
-      next: () => this.snackBar.open('Cart cleared', 'Close', { duration: 2000 }),
+      next: () => this.snackBar.open('Carrito vaciado', 'Cerrar', { duration: 2000 }),
     });
   }
 }

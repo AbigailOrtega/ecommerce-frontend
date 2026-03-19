@@ -20,34 +20,34 @@ import { Coupon, CouponRequest } from '@shared/models';
     MatFormFieldModule, MatInputModule, MatSlideToggleModule, MatSnackBarModule, MatTooltipModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Coupon Management</h1>
+      <h1>Gestión de Cupones</h1>
 
       <mat-card class="form-card">
-        <h2>{{ editingId ? 'Edit Coupon' : 'New Coupon' }}</h2>
+        <h2>{{ editingId ? 'Editar Cupón' : 'Nuevo Cupón' }}</h2>
         <div class="form-grid">
           <mat-form-field appearance="outline">
-            <mat-label>Code (e.g. BUENFIN10)</mat-label>
+            <mat-label>Código (ej. BUENFIN10)</mat-label>
             <input matInput [(ngModel)]="form.code" placeholder="MYCODE20" style="text-transform:uppercase">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Discount %</mat-label>
+            <mat-label>Descuento %</mat-label>
             <input matInput type="number" [(ngModel)]="form.discountPercent" min="1" max="100">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Expires At</mat-label>
+            <mat-label>Expira el</mat-label>
             <input matInput type="date" [(ngModel)]="form.expiresAt">
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Usage Limit (blank = unlimited)</mat-label>
+            <mat-label>Límite de uso (vacío = ilimitado)</mat-label>
             <input matInput type="number" [(ngModel)]="form.usageLimit" min="1">
           </mat-form-field>
         </div>
         <div class="form-actions">
           <button mat-raised-button color="primary" (click)="save()" [disabled]="saving || !isValid()">
-            {{ saving ? 'Saving...' : (editingId ? 'Update' : 'Create') }}
+            {{ saving ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear') }}
           </button>
           @if (editingId) {
-            <button mat-button (click)="cancelEdit()">Cancel</button>
+            <button mat-button (click)="cancelEdit()">Cancelar</button>
           }
         </div>
       </mat-card>
@@ -56,41 +56,41 @@ import { Coupon, CouponRequest } from '@shared/models';
         <table mat-table [dataSource]="coupons" class="full-width">
 
           <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef>Code</th>
+            <th mat-header-cell *matHeaderCellDef>Código</th>
             <td mat-cell *matCellDef="let c"><strong>{{ c.code }}</strong></td>
           </ng-container>
 
           <ng-container matColumnDef="discount">
-            <th mat-header-cell *matHeaderCellDef>Discount</th>
+            <th mat-header-cell *matHeaderCellDef>Descuento</th>
             <td mat-cell *matCellDef="let c">{{ c.discountPercent }}%</td>
           </ng-container>
 
           <ng-container matColumnDef="expires">
-            <th mat-header-cell *matHeaderCellDef>Expires</th>
+            <th mat-header-cell *matHeaderCellDef>Expira</th>
             <td mat-cell *matCellDef="let c">{{ c.expiresAt | date:'mediumDate' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="usage">
-            <th mat-header-cell *matHeaderCellDef>Usage</th>
+            <th mat-header-cell *matHeaderCellDef>Uso</th>
             <td mat-cell *matCellDef="let c">
               {{ c.usageCount }}{{ c.usageLimit ? ' / ' + c.usageLimit : '' }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Active</th>
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
             <td mat-cell *matCellDef="let c">
-              <mat-slide-toggle [checked]="c.active" (change)="toggle(c)" matTooltip="Toggle active status"></mat-slide-toggle>
+              <mat-slide-toggle [checked]="c.active" (change)="toggle(c)" matTooltip="Activar/desactivar"></mat-slide-toggle>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let c">
-              <button mat-icon-button color="primary" (click)="edit(c)" matTooltip="Edit">
+              <button mat-icon-button color="primary" (click)="edit(c)" matTooltip="Editar">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="delete(c)" matTooltip="Delete">
+              <button mat-icon-button color="warn" (click)="delete(c)" matTooltip="Eliminar">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -101,7 +101,7 @@ import { Coupon, CouponRequest } from '@shared/models';
         </table>
 
         @if (coupons.length === 0) {
-          <p class="empty">No coupons yet. Create one above.</p>
+          <p class="empty">Sin cupones aún. Crea uno arriba.</p>
         }
       </mat-card>
     </div>
@@ -159,13 +159,13 @@ export class CouponManagementComponent implements OnInit {
     obs.subscribe({
       next: () => {
         this.saving = false;
-        this.snackBar.open(this.editingId ? 'Coupon updated' : 'Coupon created', 'Close', { duration: 2000 });
+        this.snackBar.open(this.editingId ? 'Cupón actualizado' : 'Cupón creado', 'Cerrar', { duration: 2000 });
         this.resetForm();
         this.load();
       },
       error: (err) => {
         this.saving = false;
-        this.snackBar.open(err.error?.message || 'Error saving coupon', 'Close', { duration: 3000 });
+        this.snackBar.open(err.error?.message || 'Error al guardar el cupón', 'Cerrar', { duration: 3000 });
       },
     });
   }
@@ -188,20 +188,20 @@ export class CouponManagementComponent implements OnInit {
     this.admin.toggleCoupon(c.id).subscribe({
       next: (res) => {
         c.active = res.data.active;
-        this.snackBar.open(`Coupon ${c.active ? 'activated' : 'deactivated'}`, 'Close', { duration: 2000 });
+        this.snackBar.open(`Cupón ${c.active ? 'activado' : 'desactivado'}`, 'Cerrar', { duration: 2000 });
       },
-      error: () => this.snackBar.open('Error toggling coupon', 'Close', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al cambiar estado del cupón', 'Cerrar', { duration: 2000 }),
     });
   }
 
   delete(c: Coupon): void {
-    if (!confirm(`Delete coupon "${c.code}"?`)) return;
+    if (!confirm(`¿Eliminar cupón "${c.code}"?`)) return;
     this.admin.deleteCoupon(c.id).subscribe({
       next: () => {
-        this.snackBar.open('Coupon deleted', 'Close', { duration: 2000 });
+        this.snackBar.open('Cupón eliminado', 'Cerrar', { duration: 2000 });
         this.load();
       },
-      error: () => this.snackBar.open('Error deleting coupon', 'Close', { duration: 2000 }),
+      error: () => this.snackBar.open('Error al eliminar el cupón', 'Cerrar', { duration: 2000 }),
     });
   }
 

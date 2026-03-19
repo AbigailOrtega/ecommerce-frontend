@@ -16,32 +16,32 @@ import { AuthService } from '@core/services/auth.service';
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Forgot Password</mat-card-title>
-          <mat-card-subtitle>Enter your email to receive a reset link.</mat-card-subtitle>
+          <mat-card-title>Olvidé mi contraseña</mat-card-title>
+          <mat-card-subtitle>Ingresa tu correo para recibir un enlace de recuperación.</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           @if (!submitted) {
             <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Email</mat-label>
+                <mat-label>Correo electrónico</mat-label>
                 <input matInput formControlName="email" type="email">
                 @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-                  <mat-error>Email is required</mat-error>
+                  <mat-error>El correo es requerido</mat-error>
                 }
                 @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-                  <mat-error>Invalid email</mat-error>
+                  <mat-error>Correo inválido</mat-error>
                 }
               </mat-form-field>
               <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
-                {{ loading ? 'Sending...' : 'Send Reset Link' }}
+                {{ loading ? 'Enviando...' : 'Enviar enlace' }}
               </button>
             </form>
           } @else {
-            <p class="success-message">If an account with that email exists, a reset link has been sent.</p>
+            <p class="success-message">Si existe una cuenta con ese correo, recibirás un enlace de recuperación.</p>
           }
         </mat-card-content>
         <mat-card-actions align="end">
-          <p><a routerLink="/login">Back to Sign In</a></p>
+          <p><a routerLink="/login">Volver a iniciar sesión</a></p>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -61,7 +61,7 @@ import { AuthService } from '@core/services/auth.service';
     }
     .full-width { width: 100%; }
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
-    mat-card-actions a { color: #3f51b5; font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
     .success-message { color: #388e3c; font-size: 0.95rem; }
   `],
 })
@@ -86,7 +86,7 @@ export class ForgotPasswordComponent {
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Something went wrong. Please try again.', 'Close', { duration: 5000 });
+        this.snackBar.open('Algo salió mal. Por favor intenta de nuevo.', 'Cerrar', { duration: 5000 });
       },
     });
   }

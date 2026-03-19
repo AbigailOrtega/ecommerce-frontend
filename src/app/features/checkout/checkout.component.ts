@@ -16,7 +16,8 @@ import { CartService } from '@core/services/cart.service';
 import { OrderService } from '@core/services/order.service';
 import { PaymentService } from '@core/services/payment.service';
 import { ShippingService } from '@core/services/shipping.service';
-import { PickupLocation, PickupTimeSlot, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
+import { AuthService } from '@core/services/auth.service';
+import { GuestOrderItemRequest, GuestOrderRequest, PickupLocation, PickupTimeSlot, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
 import { Stripe, StripeElements } from '@stripe/stripe-js';
 import { switchMap } from 'rxjs';
 
@@ -29,6 +30,35 @@ import { switchMap } from 'rxjs';
   template: `
     <div class="container checkout-container">
       <h1>Checkout</h1>
+
+      <!-- Guest info card (shown only when not logged in) -->
+      @if (!authService.isLoggedIn()) {
+        <mat-card class="guest-card">
+          <h3 class="section-label">Tus datos de contacto</h3>
+          <form [formGroup]="guestForm">
+            <div class="row">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="guestFirstName">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Apellido</mat-label>
+                <input matInput formControlName="guestLastName">
+              </mat-form-field>
+            </div>
+            <div class="row">
+              <mat-form-field appearance="outline">
+                <mat-label>Correo electrónico</mat-label>
+                <input matInput formControlName="guestEmail" type="email">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Teléfono (opcional)</mat-label>
+                <input matInput formControlName="guestPhone">
+              </mat-form-field>
+            </div>
+          </form>
+        </mat-card>
+      }
 
       <mat-stepper linear #stepper>
 
@@ -191,11 +221,20 @@ import { switchMap } from 'rxjs';
         <mat-step label="Revisar y Confirmar">
           <mat-card class="order-summary">
             <h3>Resumen del pedido</h3>
-            @for (item of cart.items(); track item.id) {
-              <div class="summary-item">
-                <span>{{ item.product.name }} x {{ item.quantity }}</span>
-                <span>{{ item.subtotal | currency }}</span>
-              </div>
+            @if (authService.isLoggedIn()) {
+              @for (item of cart.items(); track item.id) {
+                <div class="summary-item">
+                  <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                  <span>{{ item.subtotal | currency }}</span>
+                </div>
+              }
+            } @else {
+              @for (item of cart.localItems(); track item.tempId) {
+                <div class="summary-item">
+                  <span>{{ item.productName }} x {{ item.quantity }}</span>
+                  <span>{{ item.subtotal | currency }}</span>
+                </div>
+              }
             }
             <hr>
             <div class="summary-item">
@@ -233,7 +272,6 @@ import { switchMap } from 'rxjs';
             <mat-radio-group formControlName="paymentMethod" class="payment-options">
               <mat-radio-button value="stripe">Tarjeta de crédito/débito (Stripe)</mat-radio-button>
               <mat-radio-button value="paypal">PayPal</mat-radio-button>
-              <mat-radio-button value="cod">Pago contra entrega</mat-radio-button>
             </mat-radio-group>
 
             @if (paymentForm.get('paymentMethod')?.value === 'stripe') {
@@ -300,10 +338,11 @@ import { switchMap } from 'rxjs';
     .row mat-form-field { flex: 1; }
     .section-label { margin: 16px 0 12px; font-size: 1rem; color: #333; }
     .hint { color: #888; font-size: 0.9rem; margin: 8px 0 16px; }
+    .guest-card { margin-bottom: 24px; padding: 16px 24px; }
     .type-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
     .type-card { display: flex; align-items: center; gap: 16px; padding: 16px; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-    .type-card:hover { border-color: #3f51b5; background: #f8f9ff; }
-    .type-card.selected { border-color: #3f51b5; background: #f0f2ff; }
+    .type-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
+    .type-card.selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
     .type-icon { font-size: 2rem; }
     .type-info { display: flex; flex-direction: column; }
     .type-info strong { font-size: 1rem; }
@@ -311,12 +350,12 @@ import { switchMap } from 'rxjs';
     .calc-result { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; color: #2e7d32; font-size: 0.95rem; }
     .rates-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
     .rate-card { display: grid; grid-template-columns: 1fr 1fr auto auto; align-items: center; gap: 8px; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: border-color 0.15s; font-size: 0.9rem; }
-    .rate-card:hover { border-color: #3f51b5; background: #f8f9ff; }
-    .rate-card.rate-selected { border-color: #3f51b5; background: #e8eaf6; }
+    .rate-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
+    .rate-card.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
     .rate-carrier { font-weight: 600; color: #1a1a2e; }
     .rate-service { color: #555; font-size: 0.85rem; }
     .rate-days { color: #888; font-size: 0.82rem; white-space: nowrap; }
-    .rate-price { font-weight: 700; color: #3f51b5; white-space: nowrap; text-align: right; }
+    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; text-align: right; }
     .calc-error { color: #d32f2f; font-size: 0.875rem; margin-top: 8px; }
     .payment-options { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
     .step-actions { display: flex; gap: 12px; margin-top: 16px; }
@@ -335,6 +374,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('stripeElement') stripeElementRef!: ElementRef;
   @ViewChild('paypalButtonContainer') paypalButtonContainerRef!: ElementRef;
 
+  guestForm: FormGroup;
   typeForm: FormGroup;
   deliveryForm: FormGroup;
   paymentForm: FormGroup;
@@ -402,12 +442,20 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor(
     private fb: FormBuilder,
     public cart: CartService,
+    public authService: AuthService,
     private orderService: OrderService,
     private paymentService: PaymentService,
     private shippingService: ShippingService,
     private router: Router,
     private snackBar: MatSnackBar,
   ) {
+    this.guestForm = this.fb.group({
+      guestFirstName: ['', Validators.required],
+      guestLastName: ['', Validators.required],
+      guestEmail: ['', [Validators.required, Validators.email]],
+      guestPhone: [''],
+    });
+
     this.typeForm = this.fb.group({
       shippingType: [null, Validators.required],
     });
@@ -477,7 +525,6 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
     }
 
-    // Reset delivery form validators based on type
     const addressFields = ['shippingAddress', 'shippingCity', 'shippingCountry'];
     const pickupFields = ['pickupLocationId', 'pickupTimeSlotId'];
 
@@ -515,7 +562,6 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       next: (res) => {
         this.shippingRates = res.data;
         this.calculatingShipping = false;
-        // Auto-select if only one rate
         if (res.data.skydropxAvailable && res.data.rates.length === 1) {
           this.selectedSkydropxRate = res.data.rates[0];
         }
@@ -652,15 +698,11 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
               this.paymentService.confirmPayPalPayment(orderNumber, captureId).subscribe({
                 next: () => {
                   this.processingPayment = false;
-                  this.cart.resetLocalCart();
-                  this.snackBar.open('¡Pedido realizado con éxito!', 'Cerrar', { duration: 5000 });
-                  this.router.navigate(['/orders', orderNumber]);
+                  this.onOrderSuccess(orderNumber);
                 },
                 error: () => {
                   this.processingPayment = false;
-                  this.cart.resetLocalCart();
-                  this.snackBar.open('¡Pedido realizado con éxito!', 'Cerrar', { duration: 5000 });
-                  this.router.navigate(['/orders', orderNumber]);
+                  this.onOrderSuccess(orderNumber);
                 },
               });
             });
@@ -695,8 +737,6 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.processStripePayment();
     } else if (method === 'paypal') {
       this.loading = false;
-    } else {
-      this.submitOrder();
     }
   }
 
@@ -719,17 +759,15 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.processingPayment = false;
     if (error) {
       this.loading = false;
-      this.cart.resetLocalCart();
+      this.onOrderSuccess(this.savedOrderNumber!);
       this.snackBar.open(error.message || 'Pago fallido. Tu pedido se actualizará automáticamente.', 'Cerrar', { duration: 5000 });
-      this.router.navigate(['/orders', this.savedOrderNumber]);
     } else if (paymentIntent) {
       if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing' || paymentIntent.status === 'requires_capture') {
         const msg = paymentIntent.status === 'succeeded'
           ? '¡Pedido realizado con éxito!'
           : 'El pago está siendo procesado. Tu pedido se confirmará en breve.';
-        this.cart.resetLocalCart();
         this.snackBar.open(msg, 'Cerrar', { duration: 5000 });
-        this.router.navigate(['/orders', this.savedOrderNumber]);
+        this.onOrderSuccess(this.savedOrderNumber!);
       } else {
         this.loading = false;
         this.snackBar.open('El pago no se completó. Intenta de nuevo.', 'Cerrar', { duration: 5000 });
@@ -740,11 +778,28 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  private onOrderSuccess(orderNumber: string): void {
+    if (this.authService.isLoggedIn()) {
+      this.cart.resetLocalCart();
+      this.router.navigate(['/orders', orderNumber]);
+    } else {
+      const email = this.guestForm.get('guestEmail')?.value;
+      const total = this.totalWithShipping;
+      this.cart.clearLocalCart();
+      this.router.navigate(['/confirmacion'], { state: { orderNumber, email, total } });
+    }
+  }
+
   private submitOrder(paymentId?: string, onOrderCreated?: () => void): void {
     const type = this.typeForm.get('shippingType')?.value;
-    const couponCode = this.cart.coupon()?.code;
     const v = this.deliveryForm.value;
 
+    if (!this.authService.isLoggedIn()) {
+      this.submitGuestOrder(paymentId, onOrderCreated);
+      return;
+    }
+
+    const couponCode = this.cart.coupon()?.code;
     let request: any = {
       paymentMethod: this.paymentForm.get('paymentMethod')?.value,
       notes: this.paymentForm.get('notes')?.value,
@@ -780,6 +835,72 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.cart.resetLocalCart();
           this.snackBar.open('¡Pedido realizado con éxito!', 'Cerrar', { duration: 5000 });
           this.router.navigate(['/orders', res.data.orderNumber]);
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.snackBar.open(err.error?.message || 'Error al realizar el pedido', 'Cerrar', { duration: 5000 });
+      },
+    });
+  }
+
+  private submitGuestOrder(paymentId?: string, onOrderCreated?: () => void): void {
+    if (this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      this.loading = false;
+      this.snackBar.open('Por favor completa tus datos de contacto', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    const type = this.typeForm.get('shippingType')?.value;
+    const v = this.deliveryForm.value;
+    const g = this.guestForm.value;
+
+    const items: GuestOrderItemRequest[] = this.cart.localItems().map(item => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      sizeId: item.selectedSizeId,
+      colorName: item.selectedColorName,
+    }));
+
+    let request: GuestOrderRequest = {
+      guestFirstName: g.guestFirstName,
+      guestLastName: g.guestLastName,
+      guestEmail: g.guestEmail,
+      guestPhone: g.guestPhone || undefined,
+      items,
+      paymentMethod: this.paymentForm.get('paymentMethod')?.value,
+      notes: this.paymentForm.get('notes')?.value || undefined,
+      shippingType: type,
+      ...(paymentId && { paymentId }),
+    };
+
+    if (type === 'NATIONAL') {
+      request = {
+        ...request,
+        shippingAddress: v.shippingAddress,
+        shippingCity: v.shippingCity,
+        shippingState: v.shippingState,
+        shippingZipCode: v.shippingZipCode,
+        shippingCountry: v.shippingCountry,
+        ...(this.selectedSkydropxRate && { skydropxRateId: this.selectedSkydropxRate.id }),
+      };
+    } else if (type === 'PICKUP') {
+      request = {
+        ...request,
+        pickupLocationId: v.pickupLocationId,
+        pickupTimeSlotId: v.pickupTimeSlotId,
+      };
+    }
+
+    this.orderService.createGuestOrder(request).subscribe({
+      next: (res) => {
+        if (onOrderCreated) {
+          this.savedOrderNumber = res.data.orderNumber;
+          onOrderCreated();
+        } else {
+          this.snackBar.open('¡Pedido realizado con éxito!', 'Cerrar', { duration: 5000 });
+          this.onOrderSuccess(res.data.orderNumber);
         }
       },
       error: (err) => {

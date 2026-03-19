@@ -16,23 +16,23 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   imports: [RouterLink, MatTableModule, MatButtonModule, MatChipsModule, MatCardModule, MatIconModule, CurrencyPipe, DatePipe, LoadingComponent],
   template: `
     <div class="container">
-      <h1>My Orders</h1>
+      <h1>Mis Pedidos</h1>
 
       @if (loading) {
         <app-loading />
       } @else if (orders.length === 0) {
         <mat-card class="empty">
           <mat-icon class="empty-icon">receipt_long</mat-icon>
-          <h2>No orders yet</h2>
-          <p>Start shopping to see your orders here.</p>
-          <a mat-raised-button color="primary" routerLink="/">Browse Products</a>
+          <h2>Sin pedidos aún</h2>
+          <p>Empieza a comprar para ver tus pedidos aquí.</p>
+          <a mat-raised-button color="primary" routerLink="/">Ver productos</a>
         </mat-card>
       } @else {
         @for (order of orders; track order.id) {
           <mat-card class="order-card">
             <div class="order-header">
               <div>
-                <strong>Order {{ order.orderNumber }}</strong>
+                <strong>Pedido {{ order.orderNumber }}</strong>
                 <span class="date">{{ order.createdAt | date:'medium' }}</span>
               </div>
               <mat-chip [class]="'status-' + order.status.toLowerCase()">{{ order.status }}</mat-chip>
@@ -44,7 +44,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             </div>
             <div class="order-footer">
               <span class="total">{{ order.totalAmount | currency }}</span>
-              <a mat-button color="primary" [routerLink]="['/orders', order.orderNumber]">View Details</a>
+              <a mat-button color="primary" [routerLink]="['/orders', order.orderNumber]">Ver detalles</a>
             </div>
           </mat-card>
         }
@@ -63,7 +63,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .total { font-size: 1.2rem; font-weight: 600; }
     .status-pending { background: #fff3e0 !important; color: #e65100 !important; }
     .status-confirmed { background: #e3f2fd !important; color: #1565c0 !important; }
-    .status-processing { background: #e8eaf6 !important; color: #283593 !important; }
+    .status-processing { background: rgba(0,0,0,0.06) !important; color: #283593 !important; }
     .status-shipped { background: #e0f2f1 !important; color: #00695c !important; }
     .status-delivered { background: #e8f5e9 !important; color: #2e7d32 !important; }
     .status-cancelled { background: #ffebee !important; color: #c62828 !important; }

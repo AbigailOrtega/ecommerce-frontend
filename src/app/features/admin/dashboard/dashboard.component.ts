@@ -15,19 +15,20 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatTableModule, CurrencyPipe, DatePipe, KeyValuePipe, LoadingComponent],
   template: `
     <div class="container">
-      <h1>Admin Dashboard</h1>
+      <h1>Panel de Administración</h1>
 
       <div class="admin-nav">
-        <a mat-raised-button routerLink="/admin/categories"><mat-icon>category</mat-icon> Categories</a>
-        <a mat-raised-button routerLink="/admin/products"><mat-icon>inventory_2</mat-icon> Products</a>
-        <a mat-raised-button routerLink="/admin/orders"><mat-icon>receipt_long</mat-icon> Orders</a>
-        <a mat-raised-button routerLink="/admin/users"><mat-icon>people</mat-icon> Users</a>
-        <a mat-raised-button routerLink="/admin/promotions"><mat-icon>local_offer</mat-icon> Promotions</a>
+        <a mat-raised-button routerLink="/admin/categories"><mat-icon>category</mat-icon> Categorías</a>
+        <a mat-raised-button routerLink="/admin/products"><mat-icon>inventory_2</mat-icon> Productos</a>
+        <a mat-raised-button routerLink="/admin/orders"><mat-icon>receipt_long</mat-icon> Pedidos</a>
+        <a mat-raised-button routerLink="/admin/users"><mat-icon>people</mat-icon> Usuarios</a>
+        <a mat-raised-button routerLink="/admin/promotions"><mat-icon>local_offer</mat-icon> Promociones</a>
         <a mat-raised-button routerLink="/admin/banners"><mat-icon>image</mat-icon> Banners</a>
-        <a mat-raised-button routerLink="/admin/coupons"><mat-icon>confirmation_number</mat-icon> Coupons</a>
-        <a mat-raised-button routerLink="/admin/reviews"><mat-icon>rate_review</mat-icon> Reviews</a>
+        <a mat-raised-button routerLink="/admin/coupons"><mat-icon>confirmation_number</mat-icon> Cupones</a>
+        <a mat-raised-button routerLink="/admin/reviews"><mat-icon>rate_review</mat-icon> Reseñas</a>
         <a mat-raised-button routerLink="/admin/tickets"><mat-icon>support_agent</mat-icon> Tickets</a>
-        <a mat-raised-button routerLink="/admin/shipping"><mat-icon>local_shipping</mat-icon> Shipping</a>
+        <a mat-raised-button routerLink="/admin/shipping"><mat-icon>local_shipping</mat-icon> Envíos</a>
+        <a mat-raised-button routerLink="/admin/store-info"><mat-icon>storefront</mat-icon> Info General</a>
       </div>
 
       @if (loading) {
@@ -38,42 +39,42 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <mat-icon>shopping_bag</mat-icon>
             <div>
               <h3>{{ stats.totalOrders }}</h3>
-              <p>Total Orders</p>
+              <p>Pedidos totales</p>
             </div>
           </mat-card>
           <mat-card class="stat-card">
             <mat-icon>inventory_2</mat-icon>
             <div>
               <h3>{{ stats.totalProducts }}</h3>
-              <p>Products</p>
+              <p>Productos</p>
             </div>
           </mat-card>
           <mat-card class="stat-card">
             <mat-icon>people</mat-icon>
             <div>
               <h3>{{ stats.totalUsers }}</h3>
-              <p>Users</p>
+              <p>Usuarios</p>
             </div>
           </mat-card>
           <mat-card class="stat-card revenue">
             <mat-icon>attach_money</mat-icon>
             <div>
               <h3>{{ stats.totalRevenue | currency }}</h3>
-              <p>Revenue</p>
+              <p>Ingresos</p>
             </div>
           </mat-card>
         </div>
 
         <div class="dashboard-grid">
           <mat-card class="recent-orders">
-            <h2>Recent Orders</h2>
+            <h2>Pedidos recientes</h2>
             <table mat-table [dataSource]="stats.recentOrders">
               <ng-container matColumnDef="orderNumber">
-                <th mat-header-cell *matHeaderCellDef>Order</th>
+                <th mat-header-cell *matHeaderCellDef>Pedido</th>
                 <td mat-cell *matCellDef="let o">{{ o.orderNumber }}</td>
               </ng-container>
               <ng-container matColumnDef="customer">
-                <th mat-header-cell *matHeaderCellDef>Customer</th>
+                <th mat-header-cell *matHeaderCellDef>Cliente</th>
                 <td mat-cell *matCellDef="let o">{{ o.user?.firstName }} {{ o.user?.lastName }}</td>
               </ng-container>
               <ng-container matColumnDef="total">
@@ -81,11 +82,11 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                 <td mat-cell *matCellDef="let o">{{ o.totalAmount | currency }}</td>
               </ng-container>
               <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
                 <td mat-cell *matCellDef="let o">{{ o.status }}</td>
               </ng-container>
               <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
                 <td mat-cell *matCellDef="let o">{{ o.createdAt | date:'short' }}</td>
               </ng-container>
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -94,7 +95,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           </mat-card>
 
           <mat-card class="status-breakdown">
-            <h2>Orders by Status</h2>
+            <h2>Pedidos por estado</h2>
             @for (entry of stats.ordersByStatus | keyvalue; track entry.key) {
               <div class="status-row">
                 <span>{{ entry.key }}</span>
@@ -110,7 +111,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .admin-nav { display: flex; gap: 12px; margin-bottom: 24px; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .stat-card { display: flex; align-items: center; gap: 16px; padding: 20px; }
-    .stat-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: #3f51b5; }
+    .stat-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--theme-primary); }
     .stat-card h3 { margin: 0; font-size: 1.6rem; }
     .stat-card p { margin: 0; color: #666; }
     .stat-card.revenue mat-icon { color: #4caf50; }

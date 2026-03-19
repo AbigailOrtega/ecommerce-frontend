@@ -22,12 +22,14 @@ export const routes: Routes = [
   {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'checkout',
     loadComponent: () => import('./features/checkout/checkout.component').then(m => m.CheckoutComponent),
-    canActivate: [authGuard],
+  },
+  {
+    path: 'confirmacion',
+    loadComponent: () => import('./features/checkout/order-confirmation/order-confirmation.component').then(m => m.OrderConfirmationComponent),
   },
   {
     path: 'orders',
@@ -92,7 +94,15 @@ export const routes: Routes = [
         path: 'shipping',
         loadComponent: () => import('./features/admin/shipping-management/shipping-management.component').then(m => m.ShippingManagementComponent),
       },
+      {
+        path: 'store-info',
+        loadComponent: () => import('./features/admin/store-info/store-info.component').then(m => m.StoreInfoComponent),
+      },
     ],
+  },
+  {
+    path: 'sobre-nosotros',
+    loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent),
   },
   {
     path: 'forgot-password',

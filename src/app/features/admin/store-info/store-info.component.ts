@@ -1,0 +1,371 @@
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgIf, NgFor } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { StoreInfoService } from '@core/services/store-info.service';
+import { AdminService } from '@core/services/admin.service';
+import { ThemeService } from '@core/services/theme.service';
+import { StoreInfo, StoreImage } from '@shared/models';
+import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
+
+@Component({
+  selector: 'app-admin-store-info',
+  standalone: true,
+  imports: [
+    FormsModule, MatCardModule, MatButtonModule, MatIconModule,
+    MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatTooltipModule,
+    NgIf, NgFor, RouterLink,
+  ],
+  template: `
+    <div class="container">
+      <div class="header">
+        <a mat-button routerLink="/admin"><mat-icon>arrow_back</mat-icon> Dashboard</a>
+        <h1>Información General</h1>
+      </div>
+
+      <!-- Text form -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Datos de la tienda</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Nombre de la tienda</mat-label>
+              <input matInput [(ngModel)]="form.name" placeholder="Ej. Mi Tienda" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Teléfono</mat-label>
+              <input matInput [(ngModel)]="form.phone" placeholder="+52 55 1234 5678" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Descripción (Sobre nosotros)</mat-label>
+              <textarea matInput [(ngModel)]="form.aboutText" rows="4"
+                        placeholder="Cuéntanos sobre tu tienda..."></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Misión</mat-label>
+              <textarea matInput [(ngModel)]="form.mission" rows="3"
+                        placeholder="¿Cuál es la misión de tu tienda?"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Visión</mat-label>
+              <textarea matInput [(ngModel)]="form.vision" rows="3"
+                        placeholder="¿Cuál es la visión de tu tienda?"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
+            @if (saving) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>save</mat-icon> }
+            Guardar información
+          </button>
+          @if (saveSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Redes sociales -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Redes sociales</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p class="social-hint">Solo se mostrarán las redes que tengan URL configurada.</p>
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Instagram</mat-label>
+              <mat-icon matPrefix class="social-prefix instagram-icon">photo_camera</mat-icon>
+              <input matInput [(ngModel)]="form.instagramUrl" placeholder="https://instagram.com/tutienda" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Facebook</mat-label>
+              <mat-icon matPrefix class="social-prefix facebook-icon">facebook</mat-icon>
+              <input matInput [(ngModel)]="form.facebookUrl" placeholder="https://facebook.com/tutienda" />
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveSocial()" [disabled]="savingSocial">
+            @if (savingSocial) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>save</mat-icon> }
+            Guardar redes sociales
+          </button>
+          @if (saveSocialSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Logo -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Logo de la tienda</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="logo-section">
+            @if (logoPreview) {
+              <div class="logo-preview">
+                <img [src]="logoPreview" alt="Logo" />
+                <button mat-icon-button color="warn" (click)="removeLogo()" title="Eliminar logo">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <p class="empty-msg">Sin logo. Se mostrará en la barra de navegación.</p>
+            }
+            <button mat-raised-button color="accent" (click)="logoInput.click()" [disabled]="uploadingLogo">
+              @if (uploadingLogo) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>upload</mat-icon> }
+              {{ logoPreview ? 'Cambiar logo' : 'Subir logo' }}
+            </button>
+            <input #logoInput type="file" accept="image/*" hidden (change)="onLogoChange($event)" />
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Theme -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Color de la tienda</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p class="theme-hint">Elige la paleta de colores principal del sitio.</p>
+          <div class="theme-swatches">
+            @for (entry of themeEntries; track entry.key) {
+              <button class="swatch-btn"
+                      [style.background]="entry.primary"
+                      [class.selected]="selectedTheme === entry.key"
+                      [matTooltip]="entry.label"
+                      (click)="selectTheme(entry.key)">
+                @if (selectedTheme === entry.key) {
+                  <mat-icon style="color:white;font-size:18px;line-height:18px;">check</mat-icon>
+                }
+              </button>
+            }
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="saveTheme()" [disabled]="saving">
+            @if (saving) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>palette</mat-icon> }
+            Guardar tema
+          </button>
+          @if (saveSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Image management -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Imágenes del carrusel</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="upload-row">
+            <button mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="uploading">
+              @if (uploading) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>upload</mat-icon> }
+              Subir imagen
+            </button>
+            <input #fileInput type="file" accept="image/*" hidden (change)="onFileChange($event)" />
+          </div>
+
+          @if (images.length === 0) {
+            <p class="empty-msg">No hay imágenes. Sube la primera para el carrusel.</p>
+          } @else {
+            <div class="image-grid">
+              @for (img of images; track img.id; let i = $index) {
+                <div class="image-item">
+                  <img [src]="img.url" [alt]="'Imagen ' + (i + 1)" />
+                  <div class="image-actions">
+                    <button mat-icon-button (click)="moveUp(i)" [disabled]="i === 0" title="Subir">
+                      <mat-icon>arrow_upward</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="moveDown(i)" [disabled]="i === images.length - 1" title="Bajar">
+                      <mat-icon>arrow_downward</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="removeImage(img.id)" title="Eliminar">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  `,
+  styles: [`
+    .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+    .header { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+    .header h1 { margin: 0; }
+    .section-card { margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; }
+    .full-width { grid-column: 1 / -1; }
+    mat-card-actions { padding: 16px; display: flex; align-items: center; gap: 12px; }
+    .success-msg { display: flex; align-items: center; gap: 4px; color: #4caf50; font-weight: 500; }
+    .success-msg mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    .logo-section { display: flex; align-items: center; gap: 16px; padding-top: 8px; flex-wrap: wrap; }
+    .logo-preview { position: relative; display: inline-flex; align-items: center; gap: 8px; }
+    .logo-preview img { height: 64px; max-width: 200px; object-fit: contain; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; }
+    .upload-row { margin-bottom: 16px; padding-top: 8px; }
+    .empty-msg { color: #999; font-style: italic; }
+    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .image-item { position: relative; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+    .image-item img { width: 100%; height: 130px; object-fit: cover; display: block; }
+    .image-actions {
+      display: flex; justify-content: center; gap: 4px; padding: 4px;
+      background: rgba(255,255,255,0.95);
+    }
+    .theme-hint { color: #666; margin: 8px 0 16px; }
+    .theme-swatches { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
+    .swatch-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .swatch-btn:hover { transform: scale(1.12); }
+    .swatch-btn.selected { border-color: rgba(0,0,0,0.35); transform: scale(1.12); }
+    .social-hint { color: #666; font-size: 0.9rem; margin: 8px 0 16px; }
+    .social-prefix { margin-right: 4px; font-size: 20px; }
+    .instagram-icon { color: #E1306C; }
+    .facebook-icon { color: #1877F2; }
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  `],
+})
+export class StoreInfoComponent implements OnInit {
+  form: Partial<StoreInfo> = {};
+  images: StoreImage[] = [];
+  saving = false;
+  saveSuccess = false;
+  savingSocial = false;
+  saveSocialSuccess = false;
+  uploading = false;
+  logoPreview: string | null = null;
+  uploadingLogo = false;
+  selectedTheme = DEFAULT_THEME_KEY;
+
+  readonly themeEntries = Object.entries(THEMES).map(([key, val]) => ({ key, label: val.label, primary: val.primary }));
+
+  constructor(
+    private storeInfoService: StoreInfoService,
+    private adminService: AdminService,
+    private themeService: ThemeService,
+  ) {}
+
+  ngOnInit(): void {
+    this.storeInfoService.getPublic().subscribe({
+      next: (res) => {
+        const d = res.data;
+        this.form = { name: d.name, aboutText: d.aboutText, mission: d.mission, vision: d.vision, phone: d.phone, instagramUrl: d.instagramUrl, facebookUrl: d.facebookUrl };
+        this.images = d.images ?? [];
+        this.logoPreview = d.logoUrl ?? null;
+        if (d.themeKey) this.selectedTheme = d.themeKey;
+      },
+    });
+  }
+
+  selectTheme(key: string): void {
+    this.selectedTheme = key;
+    this.themeService.apply(key);
+  }
+
+  saveTheme(): void {
+    this.saving = true;
+    this.saveSuccess = false;
+    this.storeInfoService.update({ themeKey: this.selectedTheme }).subscribe({
+      next: () => { this.saving = false; this.saveSuccess = true; setTimeout(() => this.saveSuccess = false, 3000); },
+      error: () => { this.saving = false; },
+    });
+  }
+
+  save(): void {
+    this.saving = true;
+    this.saveSuccess = false;
+    this.storeInfoService.update(this.form).subscribe({
+      next: () => { this.saving = false; this.saveSuccess = true; setTimeout(() => this.saveSuccess = false, 3000); },
+      error: () => { this.saving = false; },
+    });
+  }
+
+  saveSocial(): void {
+    this.savingSocial = true;
+    this.saveSocialSuccess = false;
+    this.storeInfoService.update({
+      instagramUrl: this.form.instagramUrl ?? '',
+      facebookUrl: this.form.facebookUrl ?? '',
+    }).subscribe({
+      next: () => { this.savingSocial = false; this.saveSocialSuccess = true; setTimeout(() => this.saveSocialSuccess = false, 3000); },
+      error: () => { this.savingSocial = false; },
+    });
+  }
+
+  onLogoChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.uploadingLogo = true;
+    this.adminService.uploadImage(file).subscribe({
+      next: (res) => {
+        const url = res.data.url;
+        this.storeInfoService.update({ logoUrl: url }).subscribe({
+          next: () => {
+            this.logoPreview = url;
+            this.uploadingLogo = false;
+          },
+          error: () => { this.uploadingLogo = false; },
+        });
+      },
+      error: () => { this.uploadingLogo = false; },
+    });
+    input.value = '';
+  }
+
+  removeLogo(): void {
+    this.storeInfoService.update({ logoUrl: '' }).subscribe({
+      next: () => { this.logoPreview = null; },
+    });
+  }
+
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.uploading = true;
+    this.adminService.uploadImage(file).subscribe({
+      next: (res) => {
+        const url = res.data.url;
+        this.storeInfoService.addImage(url).subscribe({
+          next: (imgRes) => {
+            this.images.push(imgRes.data);
+            this.uploading = false;
+          },
+          error: () => { this.uploading = false; },
+        });
+      },
+      error: () => { this.uploading = false; },
+    });
+    input.value = '';
+  }
+
+  removeImage(id: number): void {
+    this.storeInfoService.deleteImage(id).subscribe({
+      next: () => { this.images = this.images.filter(img => img.id !== id); },
+    });
+  }
+
+  moveUp(index: number): void {
+    if (index === 0) return;
+    [this.images[index - 1], this.images[index]] = [this.images[index], this.images[index - 1]];
+    this.sendReorder();
+  }
+
+  moveDown(index: number): void {
+    if (index === this.images.length - 1) return;
+    [this.images[index], this.images[index + 1]] = [this.images[index + 1], this.images[index]];
+    this.sendReorder();
+  }
+
+  private sendReorder(): void {
+    const ids = this.images.map(img => img.id);
+    this.storeInfoService.reorder(ids).subscribe();
+  }
+}

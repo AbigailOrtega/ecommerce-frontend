@@ -250,6 +250,8 @@ export interface ShippingConfig {
   skydropxDefaultWidth?: number;
   skydropxDefaultHeight?: number;
   skydropxSandbox?: boolean;
+  // General
+  whatsappNumber?: string;
 }
 
 export interface SkydropxRate {
@@ -327,6 +329,67 @@ export interface TicketRequest {
 export interface TicketUpdateRequest {
   status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
   adminNotes?: string;
+}
+
+export interface StoreImage {
+  id: number;
+  url: string;
+  displayOrder: number;
+  active: boolean;
+}
+
+export interface StoreInfo {
+  name?: string;
+  aboutText?: string;
+  mission?: string;
+  vision?: string;
+  phone?: string;
+  logoUrl?: string;
+  themeKey?: string;
+  images: StoreImage[];
+  instagramUrl?: string;
+  facebookUrl?: string;
+}
+
+export interface LocalCartItem {
+  tempId: string;
+  productId: number;
+  productName: string;
+  imageUrl?: string;
+  price: number;
+  quantity: number;
+  selectedSizeId?: number;
+  selectedSizeName?: string;
+  selectedColorName?: string;
+  subtotal: number;
+}
+
+export interface GuestOrderItemRequest {
+  productId: number;
+  quantity: number;
+  sizeId?: number;
+  colorName?: string;
+}
+
+export interface GuestOrderRequest {
+  guestFirstName: string;
+  guestLastName: string;
+  guestEmail: string;
+  guestPhone?: string;
+  items: GuestOrderItemRequest[];
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingZipCode?: string;
+  shippingCountry?: string;
+  paymentMethod: string;
+  paymentId?: string;
+  notes?: string;
+  couponCode?: string;
+  shippingType: string;
+  pickupLocationId?: number;
+  pickupTimeSlotId?: number;
+  skydropxRateId?: string;
 }
 
 export interface OrderRequest {

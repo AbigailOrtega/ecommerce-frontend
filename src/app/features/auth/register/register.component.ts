@@ -17,50 +17,50 @@ import { AuthService } from '@core/services/auth.service';
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Create Account</mat-card-title>
-          <mat-card-subtitle>Join us today!</mat-card-subtitle>
+          <mat-card-title>Crear cuenta</mat-card-title>
+          <mat-card-subtitle>¡Únete hoy!</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <div class="row">
               <mat-form-field appearance="outline">
-                <mat-label>First Name</mat-label>
+                <mat-label>Nombre</mat-label>
                 <input matInput formControlName="firstName">
               </mat-form-field>
               <mat-form-field appearance="outline">
-                <mat-label>Last Name</mat-label>
+                <mat-label>Apellido</mat-label>
                 <input matInput formControlName="lastName">
               </mat-form-field>
             </div>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email</mat-label>
+              <mat-label>Correo electrónico</mat-label>
               <input matInput formControlName="email" type="email">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Phone (optional)</mat-label>
+              <mat-label>Teléfono (opcional)</mat-label>
               <input matInput formControlName="phone">
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
+              <mat-label>Contraseña</mat-label>
               <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
               <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
                 <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
               @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-                <mat-error>Password must be at least 8 characters</mat-error>
+                <mat-error>La contraseña debe tener al menos 8 caracteres</mat-error>
               }
             </mat-form-field>
 
             <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
-              {{ loading ? 'Creating account...' : 'Create Account' }}
+              {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
             </button>
           </form>
         </mat-card-content>
         <mat-card-actions align="end">
-          <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+          <p>¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a></p>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -77,7 +77,7 @@ import { AuthService } from '@core/services/auth.service';
     .full-width { width: 100%; }
     .row { display: flex; gap: 16px; }
     .row mat-form-field { flex: 1; }
-    mat-card-actions a { color: #3f51b5; font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
   `],
 })
 export class RegisterComponent {
@@ -100,12 +100,12 @@ export class RegisterComponent {
     this.loading = true;
     this.auth.register(this.form.value).subscribe({
       next: () => {
-        this.snackBar.open('Account created successfully!', 'Close', { duration: 3000 });
+        this.snackBar.open('¡Cuenta creada exitosamente!', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/']);
       },
       error: (err) => {
         this.loading = false;
-        this.snackBar.open(err.error?.message || 'Registration failed', 'Close', { duration: 5000 });
+        this.snackBar.open(err.error?.message || 'Error al registrarse', 'Cerrar', { duration: 5000 });
       },
     });
   }
