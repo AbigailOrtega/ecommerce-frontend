@@ -10,17 +10,21 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { Coupon, CouponRequest } from '@shared/models';
 
 @Component({
   selector: 'app-coupon-management',
   standalone: true,
-  imports: [FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatSlideToggleModule, MatSnackBarModule, MatTooltipModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Gestión de Cupones</h1>
+      <div class="header">
+        <h1>Gestión de Cupones</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
+      </div>
 
       <mat-card class="form-card">
         <h2>{{ editingId ? 'Editar Cupón' : 'Nuevo Cupón' }}</h2>
@@ -107,6 +111,7 @@ import { Coupon, CouponRequest } from '@shared/models';
     </div>
   `,
   styles: [`
+    .header { display: flex; justify-content: space-between; align-items: center; }
     .form-card { padding: 24px; margin-bottom: 24px; }
     .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
     .form-actions { display: flex; gap: 12px; margin-top: 8px; }

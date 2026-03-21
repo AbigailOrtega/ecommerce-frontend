@@ -125,14 +125,67 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                     </div>
                   </div>
 
-                  <!-- Shipping address / pickup info -->
-                  <div class="shipping-info">
+                  <!-- Customer info -->
+                  <div class="detail-block">
+                    <span class="block-title">Cliente</span>
+                    <div class="detail-row">
+                      <mat-icon>person</mat-icon>
+                      <span>
+                        @if (o.user) { {{ o.user.firstName }} {{ o.user.lastName }} }
+                        @else { {{ o.guestFirstName }} {{ o.guestLastName }} <em class="guest-tag">invitado</em> }
+                      </span>
+                    </div>
+                    <div class="detail-row">
+                      <mat-icon>email</mat-icon>
+                      <span>{{ o.user?.email ?? o.guestEmail }}</span>
+                    </div>
+                    @if (o.guestPhone) {
+                      <div class="detail-row">
+                        <mat-icon>phone</mat-icon>
+                        <span>{{ o.guestPhone }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Shipping / pickup info -->
+                  <div class="detail-block">
                     @if (o.shippingType === 'PICKUP') {
-                      <span class="info-label">Punto de retiro:</span>
-                      <span>{{ o.pickupLocationName }} · {{ o.pickupTimeSlotLabel }}</span>
+                      <span class="block-title">
+                        Punto de retiro
+                        @if (o.pickupCancelled) {
+                          <span class="cancelled-badge">RECOLECCIÓN CANCELADA</span>
+                        }
+                      </span>
+                      <div class="detail-row">
+                        <mat-icon>store</mat-icon>
+                        <span>{{ o.pickupLocationName }}</span>
+                      </div>
+                      @if (o.pickupDate) {
+                        <div class="detail-row">
+                          <mat-icon>event</mat-icon>
+                          <span>{{ o.pickupDate | date:'dd/MM/yyyy':'UTC' }}</span>
+                        </div>
+                      }
+                      @if (o.pickupTimeSlotLabel && !o.pickupCancelled) {
+                        <div class="detail-row">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{ o.pickupTimeSlotLabel }}</span>
+                        </div>
+                      }
+                      @if (!o.pickupCancelled && o.status !== 'CANCELLED' && o.status !== 'DELIVERED' && o.status !== 'REFUNDED') {
+                        <button mat-stroked-button color="warn" class="cancel-pickup-btn"
+                                (click)="cancelPickup(o); $event.stopPropagation()"
+                                [disabled]="cancellingPickupSet.has(o.id)">
+                          <mat-icon>event_busy</mat-icon>
+                          {{ cancellingPickupSet.has(o.id) ? 'Cancelando...' : 'Cancelar recolección' }}
+                        </button>
+                      }
                     } @else {
-                      <span class="info-label">Dirección:</span>
-                      <span>{{ o.shippingAddress }}, {{ o.shippingCity }}, {{ o.shippingState }} {{ o.shippingZipCode }}, {{ o.shippingCountry }}</span>
+                      <span class="block-title">Dirección de envío</span>
+                      <div class="detail-row">
+                        <mat-icon>location_on</mat-icon>
+                        <span>{{ o.shippingAddress }}, {{ o.shippingCity }}, {{ o.shippingState }} {{ o.shippingZipCode }}, {{ o.shippingCountry }}</span>
+                      </div>
                     }
                   </div>
 
@@ -307,7 +360,12 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .discount-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.72rem; padding: 1px 6px; border-radius: 8px; margin-left: 6px; font-weight: 600; cursor: help; }
     .empty-state { margin-top: 32px; text-align: center; color: #888; font-size: 1rem; }
 
-    .shipping-info { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #555; margin-top: 4px; }
+    .detail-block { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: #555; margin-top: 8px; padding: 10px 14px; background: #fff; border-radius: 8px; border: 1px solid #e8e8e8; }
+    .block-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .detail-row { display: flex; align-items: center; gap: 8px; }
+    .detail-row mat-icon { font-size: 16px; width: 16px; height: 16px; color: #90a4ae; flex-shrink: 0; }
+    .guest-tag { background: #fce4ec; color: #c62828; font-size: 0.72rem; padding: 1px 6px; border-radius: 6px; margin-left: 4px; }
+    .cancelled-badge { background: #ff5722; color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; letter-spacing: 0.04em; }
     .info-label { font-weight: 600; color: #333; }
 
     .skydropx-panel { display: flex; flex-direction: column; gap: 12px; }
@@ -331,6 +389,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .rates-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
     .rate-preselected { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: #2e7d32; margin: 0 0 4px; }
     .rate-preselected mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    .cancel-pickup-btn { margin-top: 8px; font-size: 0.82rem; }
   `],
 })
 export class OrderManagementComponent implements OnInit {
@@ -351,6 +410,7 @@ export class OrderManagementComponent implements OnInit {
   cancellingSet = new Set<number>();
   refreshingSet = new Set<number>();
   downloadingSet = new Set<number>();
+  cancellingPickupSet = new Set<number>();
 
   constructor(private adminService: AdminService, private snackBar: MatSnackBar) {}
 
@@ -480,6 +540,24 @@ export class OrderManagementComponent implements OnInit {
       error: (err) => {
         this.refreshingSet.delete(order.id);
         this.snackBar.open(err.error?.message || 'Error al obtener guía', 'Cerrar', { duration: 5000 });
+      },
+    });
+  }
+
+  cancelPickup(order: Order): void {
+    const reason = prompt('Motivo de cancelación (opcional):') ?? undefined;
+    this.cancellingPickupSet.add(order.id);
+    this.adminService.cancelPickup(order.id, reason || undefined).subscribe({
+      next: (res) => {
+        this.cancellingPickupSet.delete(order.id);
+        const idx = this.orders.findIndex(o => o.id === order.id);
+        if (idx !== -1) this.orders[idx] = res.data;
+        this.orders = [...this.orders];
+        this.snackBar.open('Recolección cancelada — el cliente podrá reagendar', 'Cerrar', { duration: 5000 });
+      },
+      error: (err) => {
+        this.cancellingPickupSet.delete(order.id);
+        this.snackBar.open(err.error?.message || 'Error al cancelar recolección', 'Cerrar', { duration: 4000 });
       },
     });
   }

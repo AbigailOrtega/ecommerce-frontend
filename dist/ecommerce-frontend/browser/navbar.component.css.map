@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;b68cd6aee31083229f3416c0422cfbecdf1a430d21ed5b681a0dbf08defc39d0;/Users/abigailortega/ecommerce/frontend/src/app/shared/components/navbar/navbar.component.ts"],
-  "sourcesContent": ["\n    .brand {\n      font-size: 1.4rem;\n      font-weight: 700;\n      letter-spacing: 1px;\n      text-decoration: none;\n      color: white;\n    }\n    .spacer { flex: 1 1 auto; }\n    .menu-header {\n      padding: 8px 16px;\n      font-weight: 500;\n      border-bottom: 1px solid #eee;\n      margin-bottom: 4px;\n    }\n    .active { opacity: 1; }\n    mat-toolbar a, mat-toolbar button { color: white; }\n  "],
-  "mappings": ";AACI,CAAC;AACC,aAAW;AACX,eAAa;AACb,kBAAgB;AAChB,mBAAiB;AACjB,SAAO;AACT;AACA,CAAC;AAAS,QAAM,EAAE,EAAE;AAAM;AAC1B,CAAC;AACC,WAAS,IAAI;AACb,eAAa;AACb,iBAAe,IAAI,MAAM;AACzB,iBAAe;AACjB;AACA,CAAC;AAAS,WAAS;AAAG;AACtB,YAAY;AAAG,YAAY;AAAS,SAAO;AAAO;",
+  "sources": ["angular:styles/component:css;f41e3ac6a99ea243b4879097f3469eb06a29bfb3aefe2118f76ac2f3133d6f81;/Users/abigailortega/ecommerce/frontend/src/app/shared/components/navbar/navbar.component.ts"],
+  "sourcesContent": ["\n    .brand {\n      display: flex;\n      align-items: center;\n      gap: 8px;\n      font-size: 1.4rem;\n      font-weight: 700;\n      letter-spacing: 1px;\n      text-decoration: none;\n      color: white;\n    }\n    .brand-logo {\n      height: 36px;\n      width: auto;\n      object-fit: contain;\n      border-radius: 4px;\n    }\n    .spacer { flex: 1 1 auto; }\n    .menu-header {\n      padding: 8px 16px;\n      font-weight: 500;\n      border-bottom: 1px solid #eee;\n      margin-bottom: 4px;\n    }\n    .active { opacity: 1; }\n    mat-toolbar a, mat-toolbar button { color: white; }\n  "],
+  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,eAAa;AACb,OAAK;AACL,aAAW;AACX,eAAa;AACb,kBAAgB;AAChB,mBAAiB;AACjB,SAAO;AACT;AACA,CAAC;AACC,UAAQ;AACR,SAAO;AACP,cAAY;AACZ,iBAAe;AACjB;AACA,CAAC;AAAS,QAAM,EAAE,EAAE;AAAM;AAC1B,CAAC;AACC,WAAS,IAAI;AACb,eAAa;AACb,iBAAe,IAAI,MAAM;AACzB,iBAAe;AACjB;AACA,CAAC;AAAS,WAAS;AAAG;AACtB,YAAY;AAAG,YAAY;AAAS,SAAO;AAAO;",
   "names": []
 }

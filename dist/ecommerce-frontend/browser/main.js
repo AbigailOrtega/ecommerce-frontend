@@ -1,26 +1,48 @@
 import {
-  AuthService
-} from "./chunk-KYTBZJSG.js";
+  MatBadge,
+  MatBadgeModule
+} from "./chunk-TSQHWRK4.js";
+import {
+  ThemeService
+} from "./chunk-T3IDVL5T.js";
+import {
+  StoreInfoService
+} from "./chunk-CBRWNEVA.js";
+import {
+  ShippingService
+} from "./chunk-L5O6LSS5.js";
 import {
   CartService
-} from "./chunk-L245GHPG.js";
+} from "./chunk-UDBIOAEY.js";
 import {
-  DomPortalOutlet,
+  AuthService
+} from "./chunk-UCCDLCX6.js";
+import {
   Overlay,
   OverlayConfig,
-  OverlayModule,
+  OverlayModule
+} from "./chunk-W6S7N6HL.js";
+import {
+  DomPortalOutlet,
   TemplatePortal
-} from "./chunk-25XTNFPS.js";
+} from "./chunk-VTPZX5UP.js";
 import {
   CdkScrollableModule
-} from "./chunk-CH3NEX64.js";
+} from "./chunk-J25CCJ4O.js";
+import "./chunk-SAONJULU.js";
+import "./chunk-FQ2SHJAF.js";
 import {
   MatIcon,
   MatIconModule
-} from "./chunk-766SFS74.js";
+} from "./chunk-R7V3ES2J.js";
 import {
-  A11yModule,
-  AriaDescriber,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+  provideRouter
+} from "./chunk-ZS3NQH2Z.js";
+import {
   DOWN_ARROW,
   Directionality,
   DomRendererFactory2,
@@ -28,7 +50,6 @@ import {
   ESCAPE,
   FocusKeyManager,
   FocusMonitor,
-  InteractivityChecker,
   LEFT_ARROW,
   MatAnchor,
   MatButtonModule,
@@ -39,10 +60,6 @@ import {
   MatRippleModule,
   Platform,
   RIGHT_ARROW,
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
   SPACE,
   UP_ARROW,
   bootstrapApplication,
@@ -51,16 +68,16 @@ import {
   isFakeTouchstartFromScreenReader,
   normalizePassiveListenerOptions,
   provideHttpClient,
-  provideRouter,
+  provideNativeDateAdapter,
   withInterceptors
-} from "./chunk-7NMHCVKZ.js";
+} from "./chunk-TPU3W7C5.js";
 import {
   animate,
   state,
   style,
   transition,
   trigger
-} from "./chunk-2SZ2QW3D.js";
+} from "./chunk-UIRNOPT5.js";
 import {
   ANIMATION_MODULE_TYPE,
   ApplicationRef,
@@ -72,22 +89,22 @@ import {
   ComponentFactoryResolver$1,
   ContentChild,
   ContentChildren,
+  DEFAULT_CURRENCY_CODE,
   DOCUMENT,
   Directive,
   ElementRef,
-  EnvironmentInjector,
   EventEmitter,
   Inject,
   Injectable,
   InjectionToken,
   Injector,
   Input,
+  LOCALE_ID,
   NgModule,
   NgZone,
   Optional,
   Output,
   QueryList,
-  Renderer2,
   RendererFactory2,
   RuntimeError,
   Self,
@@ -103,7 +120,6 @@ import {
   asapScheduler,
   booleanAttribute,
   catchError,
-  createComponent,
   delay,
   filter,
   inject,
@@ -112,7 +128,9 @@ import {
   of,
   performanceMarkFeature,
   provideZoneChangeDetection,
+  registerLocaleData,
   setClassMetadata,
+  signal,
   startWith,
   switchMap,
   take,
@@ -151,11 +169,13 @@ import {
   ɵɵreference,
   ɵɵresetView,
   ɵɵrestoreView,
+  ɵɵsanitizeUrl,
   ɵɵtemplate,
   ɵɵtext,
+  ɵɵtextInterpolate1,
   ɵɵtextInterpolate2,
   ɵɵviewQuery
-} from "./chunk-RP6JOKCW.js";
+} from "./chunk-N3527UH3.js";
 
 // node_modules/@angular/material/fesm2022/toolbar.mjs
 var _c0 = ["*", [["mat-toolbar-row"]]];
@@ -326,361 +346,6 @@ var MatToolbarModule = class _MatToolbarModule {
     args: [{
       imports: [MatCommonModule, MatToolbar, MatToolbarRow],
       exports: [MatToolbar, MatToolbarRow, MatCommonModule]
-    }]
-  }], null, null);
-})();
-
-// node_modules/@angular/material/fesm2022/badge.mjs
-var nextId = 0;
-var BADGE_CONTENT_CLASS = "mat-badge-content";
-var badgeApps = /* @__PURE__ */ new Set();
-var _MatBadgeStyleLoader = class __MatBadgeStyleLoader {
-  static {
-    this.\u0275fac = function _MatBadgeStyleLoader_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || __MatBadgeStyleLoader)();
-    };
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-      type: __MatBadgeStyleLoader,
-      selectors: [["ng-component"]],
-      standalone: true,
-      features: [\u0275\u0275StandaloneFeature],
-      decls: 0,
-      vars: 0,
-      template: function _MatBadgeStyleLoader_Template(rf, ctx) {
-      },
-      styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color, var(--mat-app-error));color:var(--mat-badge-text-color, var(--mat-app-on-error));font-family:var(--mat-badge-text-font, var(--mat-app-label-small-font));font-weight:var(--mat-badge-text-weight, var(--mat-app-label-small-weight));border-radius:var(--mat-badge-container-shape, var(--mat-app-corner-full))}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color, var(--mat-app-on-error))}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size);height:var(--mat-badge-legacy-small-size-container-size);min-width:var(--mat-badge-small-size-container-size);min-height:var(--mat-badge-small-size-container-size);line-height:var(--mat-badge-small-size-line-height);padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size);height:var(--mat-badge-legacy-container-size);min-width:var(--mat-badge-container-size);min-height:var(--mat-badge-container-size);line-height:var(--mat-badge-line-height);padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size, var(--mat-app-label-small-size));margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size);height:var(--mat-badge-legacy-large-size-container-size);min-width:var(--mat-badge-large-size-container-size);min-height:var(--mat-badge-large-size-container-size);line-height:var(--mat-badge-large-size-line-height);padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size, var(--mat-app-label-small-size));margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"],
-      encapsulation: 2,
-      changeDetection: 0
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatBadgeStyleLoader, [{
-    type: Component,
-    args: [{
-      standalone: true,
-      encapsulation: ViewEncapsulation$1.None,
-      template: "",
-      changeDetection: ChangeDetectionStrategy.OnPush,
-      styles: [".mat-badge{position:relative}.mat-badge.mat-badge{overflow:visible}.mat-badge-content{position:absolute;text-align:center;display:inline-block;transition:transform 200ms ease-in-out;transform:scale(0.6);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;box-sizing:border-box;pointer-events:none;background-color:var(--mat-badge-background-color, var(--mat-app-error));color:var(--mat-badge-text-color, var(--mat-app-on-error));font-family:var(--mat-badge-text-font, var(--mat-app-label-small-font));font-weight:var(--mat-badge-text-weight, var(--mat-app-label-small-weight));border-radius:var(--mat-badge-container-shape, var(--mat-app-corner-full))}.cdk-high-contrast-active .mat-badge-content{outline:solid 1px;border-radius:0}.mat-badge-above .mat-badge-content{bottom:100%}.mat-badge-below .mat-badge-content{top:100%}.mat-badge-before .mat-badge-content{right:100%}[dir=rtl] .mat-badge-before .mat-badge-content{right:auto;left:100%}.mat-badge-after .mat-badge-content{left:100%}[dir=rtl] .mat-badge-after .mat-badge-content{left:auto;right:100%}.mat-badge-disabled .mat-badge-content{background-color:var(--mat-badge-disabled-state-background-color);color:var(--mat-badge-disabled-state-text-color, var(--mat-app-on-error))}.mat-badge-hidden .mat-badge-content{display:none}.ng-animate-disabled .mat-badge-content,.mat-badge-content._mat-animation-noopable{transition:none}.mat-badge-content.mat-badge-active{transform:none}.mat-badge-small .mat-badge-content{width:var(--mat-badge-legacy-small-size-container-size);height:var(--mat-badge-legacy-small-size-container-size);min-width:var(--mat-badge-small-size-container-size);min-height:var(--mat-badge-small-size-container-size);line-height:var(--mat-badge-small-size-line-height);padding:var(--mat-badge-small-size-container-padding);font-size:var(--mat-badge-small-size-text-size);margin:var(--mat-badge-small-size-container-offset)}.mat-badge-small.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-small-size-container-overlap-offset)}.mat-badge-medium .mat-badge-content{width:var(--mat-badge-legacy-container-size);height:var(--mat-badge-legacy-container-size);min-width:var(--mat-badge-container-size);min-height:var(--mat-badge-container-size);line-height:var(--mat-badge-line-height);padding:var(--mat-badge-container-padding);font-size:var(--mat-badge-text-size, var(--mat-app-label-small-size));margin:var(--mat-badge-container-offset)}.mat-badge-medium.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-container-overlap-offset)}.mat-badge-large .mat-badge-content{width:var(--mat-badge-legacy-large-size-container-size);height:var(--mat-badge-legacy-large-size-container-size);min-width:var(--mat-badge-large-size-container-size);min-height:var(--mat-badge-large-size-container-size);line-height:var(--mat-badge-large-size-line-height);padding:var(--mat-badge-large-size-container-padding);font-size:var(--mat-badge-large-size-text-size, var(--mat-app-label-small-size));margin:var(--mat-badge-large-size-container-offset)}.mat-badge-large.mat-badge-overlap .mat-badge-content{margin:var(--mat-badge-large-size-container-overlap-offset)}"]
-    }]
-  }], null, null);
-})();
-var MatBadge = class _MatBadge {
-  /**
-   * Theme color of the badge. This API is supported in M2 themes only, it
-   * has no effect in M3 themes.
-   *
-   * For information on applying color variants in M3, see
-   * https://material.angular.io/guide/theming#using-component-color-variants.
-   */
-  get color() {
-    return this._color;
-  }
-  set color(value) {
-    this._setColor(value);
-    this._color = value;
-  }
-  /** The content for the badge */
-  get content() {
-    return this._content;
-  }
-  set content(newContent) {
-    this._updateRenderedContent(newContent);
-  }
-  /** Message used to describe the decorated element via aria-describedby */
-  get description() {
-    return this._description;
-  }
-  set description(newDescription) {
-    this._updateDescription(newDescription);
-  }
-  constructor(_ngZone, _elementRef, _ariaDescriber, _renderer, _animationMode) {
-    this._ngZone = _ngZone;
-    this._elementRef = _elementRef;
-    this._ariaDescriber = _ariaDescriber;
-    this._renderer = _renderer;
-    this._animationMode = _animationMode;
-    this._color = "primary";
-    this.overlap = true;
-    this.position = "above after";
-    this.size = "medium";
-    this._id = nextId++;
-    this._isInitialized = false;
-    this._interactivityChecker = inject(InteractivityChecker);
-    this._document = inject(DOCUMENT);
-    const appRef = inject(ApplicationRef);
-    if (!badgeApps.has(appRef)) {
-      badgeApps.add(appRef);
-      const componentRef = createComponent(_MatBadgeStyleLoader, {
-        environmentInjector: inject(EnvironmentInjector)
-      });
-      appRef.onDestroy(() => {
-        badgeApps.delete(appRef);
-        componentRef.destroy();
-      });
-    }
-    if (typeof ngDevMode === "undefined" || ngDevMode) {
-      const nativeElement = _elementRef.nativeElement;
-      if (nativeElement.nodeType !== nativeElement.ELEMENT_NODE) {
-        throw Error("matBadge must be attached to an element node.");
-      }
-      const matIconTagName = "mat-icon";
-      if (nativeElement.tagName.toLowerCase() === matIconTagName && nativeElement.getAttribute("aria-hidden") === "true") {
-        console.warn(`Detected a matBadge on an "aria-hidden" "<mat-icon>". Consider setting aria-hidden="false" in order to surface the information assistive technology.
-${nativeElement.outerHTML}`);
-      }
-    }
-  }
-  /** Whether the badge is above the host or not */
-  isAbove() {
-    return this.position.indexOf("below") === -1;
-  }
-  /** Whether the badge is after the host or not */
-  isAfter() {
-    return this.position.indexOf("before") === -1;
-  }
-  /**
-   * Gets the element into which the badge's content is being rendered. Undefined if the element
-   * hasn't been created (e.g. if the badge doesn't have content).
-   */
-  getBadgeElement() {
-    return this._badgeElement;
-  }
-  ngOnInit() {
-    this._clearExistingBadges();
-    if (this.content && !this._badgeElement) {
-      this._badgeElement = this._createBadgeElement();
-      this._updateRenderedContent(this.content);
-    }
-    this._isInitialized = true;
-  }
-  ngOnDestroy() {
-    if (this._renderer.destroyNode) {
-      this._renderer.destroyNode(this._badgeElement);
-      this._inlineBadgeDescription?.remove();
-    }
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
-  }
-  /** Gets whether the badge's host element is interactive. */
-  _isHostInteractive() {
-    return this._interactivityChecker.isFocusable(this._elementRef.nativeElement, {
-      ignoreVisibility: true
-    });
-  }
-  /** Creates the badge element */
-  _createBadgeElement() {
-    const badgeElement = this._renderer.createElement("span");
-    const activeClass = "mat-badge-active";
-    badgeElement.setAttribute("id", `mat-badge-content-${this._id}`);
-    badgeElement.setAttribute("aria-hidden", "true");
-    badgeElement.classList.add(BADGE_CONTENT_CLASS);
-    if (this._animationMode === "NoopAnimations") {
-      badgeElement.classList.add("_mat-animation-noopable");
-    }
-    this._elementRef.nativeElement.appendChild(badgeElement);
-    if (typeof requestAnimationFrame === "function" && this._animationMode !== "NoopAnimations") {
-      this._ngZone.runOutsideAngular(() => {
-        requestAnimationFrame(() => {
-          badgeElement.classList.add(activeClass);
-        });
-      });
-    } else {
-      badgeElement.classList.add(activeClass);
-    }
-    return badgeElement;
-  }
-  /** Update the text content of the badge element in the DOM, creating the element if necessary. */
-  _updateRenderedContent(newContent) {
-    const newContentNormalized = `${newContent ?? ""}`.trim();
-    if (this._isInitialized && newContentNormalized && !this._badgeElement) {
-      this._badgeElement = this._createBadgeElement();
-    }
-    if (this._badgeElement) {
-      this._badgeElement.textContent = newContentNormalized;
-    }
-    this._content = newContentNormalized;
-  }
-  /** Updates the host element's aria description via AriaDescriber. */
-  _updateDescription(newDescription) {
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, this.description);
-    if (!newDescription || this._isHostInteractive()) {
-      this._removeInlineDescription();
-    }
-    this._description = newDescription;
-    if (this._isHostInteractive()) {
-      this._ariaDescriber.describe(this._elementRef.nativeElement, newDescription);
-    } else {
-      this._updateInlineDescription();
-    }
-  }
-  _updateInlineDescription() {
-    if (!this._inlineBadgeDescription) {
-      this._inlineBadgeDescription = this._document.createElement("span");
-      this._inlineBadgeDescription.classList.add("cdk-visually-hidden");
-    }
-    this._inlineBadgeDescription.textContent = this.description;
-    this._badgeElement?.appendChild(this._inlineBadgeDescription);
-  }
-  _removeInlineDescription() {
-    this._inlineBadgeDescription?.remove();
-    this._inlineBadgeDescription = void 0;
-  }
-  /** Adds css theme class given the color to the component host */
-  _setColor(colorPalette) {
-    const classList = this._elementRef.nativeElement.classList;
-    classList.remove(`mat-badge-${this._color}`);
-    if (colorPalette) {
-      classList.add(`mat-badge-${colorPalette}`);
-    }
-  }
-  /** Clears any existing badges that might be left over from server-side rendering. */
-  _clearExistingBadges() {
-    const badges = this._elementRef.nativeElement.querySelectorAll(`:scope > .${BADGE_CONTENT_CLASS}`);
-    for (const badgeElement of Array.from(badges)) {
-      if (badgeElement !== this._badgeElement) {
-        badgeElement.remove();
-      }
-    }
-  }
-  static {
-    this.\u0275fac = function MatBadge_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _MatBadge)(\u0275\u0275directiveInject(NgZone), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(AriaDescriber), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ANIMATION_MODULE_TYPE, 8));
-    };
-  }
-  static {
-    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-      type: _MatBadge,
-      selectors: [["", "matBadge", ""]],
-      hostAttrs: [1, "mat-badge"],
-      hostVars: 20,
-      hostBindings: function MatBadge_HostBindings(rf, ctx) {
-        if (rf & 2) {
-          \u0275\u0275classProp("mat-badge-overlap", ctx.overlap)("mat-badge-above", ctx.isAbove())("mat-badge-below", !ctx.isAbove())("mat-badge-before", !ctx.isAfter())("mat-badge-after", ctx.isAfter())("mat-badge-small", ctx.size === "small")("mat-badge-medium", ctx.size === "medium")("mat-badge-large", ctx.size === "large")("mat-badge-hidden", ctx.hidden || !ctx.content)("mat-badge-disabled", ctx.disabled);
-        }
-      },
-      inputs: {
-        color: [0, "matBadgeColor", "color"],
-        overlap: [2, "matBadgeOverlap", "overlap", booleanAttribute],
-        disabled: [2, "matBadgeDisabled", "disabled", booleanAttribute],
-        position: [0, "matBadgePosition", "position"],
-        content: [0, "matBadge", "content"],
-        description: [0, "matBadgeDescription", "description"],
-        size: [0, "matBadgeSize", "size"],
-        hidden: [2, "matBadgeHidden", "hidden", booleanAttribute]
-      },
-      standalone: true,
-      features: [\u0275\u0275InputTransformsFeature]
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadge, [{
-    type: Directive,
-    args: [{
-      selector: "[matBadge]",
-      host: {
-        "class": "mat-badge",
-        "[class.mat-badge-overlap]": "overlap",
-        "[class.mat-badge-above]": "isAbove()",
-        "[class.mat-badge-below]": "!isAbove()",
-        "[class.mat-badge-before]": "!isAfter()",
-        "[class.mat-badge-after]": "isAfter()",
-        "[class.mat-badge-small]": 'size === "small"',
-        "[class.mat-badge-medium]": 'size === "medium"',
-        "[class.mat-badge-large]": 'size === "large"',
-        "[class.mat-badge-hidden]": "hidden || !content",
-        "[class.mat-badge-disabled]": "disabled"
-      },
-      standalone: true
-    }]
-  }], () => [{
-    type: NgZone
-  }, {
-    type: ElementRef
-  }, {
-    type: AriaDescriber
-  }, {
-    type: Renderer2
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [ANIMATION_MODULE_TYPE]
-    }]
-  }], {
-    color: [{
-      type: Input,
-      args: ["matBadgeColor"]
-    }],
-    overlap: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeOverlap",
-        transform: booleanAttribute
-      }]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeDisabled",
-        transform: booleanAttribute
-      }]
-    }],
-    position: [{
-      type: Input,
-      args: ["matBadgePosition"]
-    }],
-    content: [{
-      type: Input,
-      args: ["matBadge"]
-    }],
-    description: [{
-      type: Input,
-      args: ["matBadgeDescription"]
-    }],
-    size: [{
-      type: Input,
-      args: ["matBadgeSize"]
-    }],
-    hidden: [{
-      type: Input,
-      args: [{
-        alias: "matBadgeHidden",
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-var MatBadgeModule = class _MatBadgeModule {
-  static {
-    this.\u0275fac = function MatBadgeModule_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _MatBadgeModule)();
-    };
-  }
-  static {
-    this.\u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-      type: _MatBadgeModule
-    });
-  }
-  static {
-    this.\u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-      imports: [A11yModule, MatCommonModule, MatCommonModule]
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatBadgeModule, [{
-    type: NgModule,
-    args: [{
-      // Note: we _shouldn't_ have to import `_MatBadgeStyleLoader`,
-      // but it seems to be necessary for tests.
-      imports: [A11yModule, MatCommonModule, MatBadge, _MatBadgeStyleLoader],
-      exports: [MatBadge, MatCommonModule]
     }]
   }], null, null);
 })();
@@ -2074,109 +1739,138 @@ var MatMenuModule = class _MatMenuModule {
 
 // src/app/shared/components/navbar/navbar.component.ts
 var _c03 = () => ({ exact: true });
-function NavbarComponent_Conditional_8_Conditional_18_Template(rf, ctx) {
+function NavbarComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 11)(1, "mat-icon");
+    \u0275\u0275element(0, "img", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("src", ctx_r0.logoUrl(), \u0275\u0275sanitizeUrl);
+  }
+}
+function NavbarComponent_Conditional_14_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 13)(1, "mat-icon");
     \u0275\u0275text(2, "dashboard");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(3, " Admin Panel");
+    \u0275\u0275text(3, " Panel Admin");
     \u0275\u0275elementEnd();
   }
 }
-function NavbarComponent_Conditional_8_Template(rf, ctx) {
+function NavbarComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "a", 5)(1, "mat-icon", 6);
-    \u0275\u0275text(2, "shopping_cart");
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 9)(1, "mat-icon");
+    \u0275\u0275text(2, "account_circle");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 7)(4, "mat-icon");
-    \u0275\u0275text(5, "account_circle");
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "mat-menu", null, 0)(8, "div", 8);
-    \u0275\u0275text(9);
+    \u0275\u0275elementStart(3, "mat-menu", null, 0)(5, "div", 10);
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "a", 9)(11, "mat-icon");
-    \u0275\u0275text(12, "receipt_long");
+    \u0275\u0275elementStart(7, "a", 11)(8, "mat-icon");
+    \u0275\u0275text(9, "receipt_long");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(13, " My Orders");
+    \u0275\u0275text(10, " Mis Pedidos");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "a", 10)(15, "mat-icon");
-    \u0275\u0275text(16, "person");
+    \u0275\u0275elementStart(11, "a", 12)(12, "mat-icon");
+    \u0275\u0275text(13, "person");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(17, " Profile");
+    \u0275\u0275text(14, " Mi Perfil");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(18, NavbarComponent_Conditional_8_Conditional_18_Template, 4, 0, "a", 11);
-    \u0275\u0275elementStart(19, "button", 12);
-    \u0275\u0275listener("click", function NavbarComponent_Conditional_8_Template_button_click_19_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.auth.logout());
+    \u0275\u0275template(15, NavbarComponent_Conditional_14_Conditional_15_Template, 4, 0, "a", 13);
+    \u0275\u0275elementStart(16, "button", 14);
+    \u0275\u0275listener("click", function NavbarComponent_Conditional_14_Template_button_click_16_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.auth.logout());
     });
-    \u0275\u0275elementStart(20, "mat-icon");
-    \u0275\u0275text(21, "logout");
+    \u0275\u0275elementStart(17, "mat-icon");
+    \u0275\u0275text(18, "logout");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(22, " Logout");
+    \u0275\u0275text(19, " Cerrar sesi\xF3n");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    let tmp_5_0;
-    const userMenu_r3 = \u0275\u0275reference(7);
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("matBadge", ctx_r1.cart.itemCount())("matBadgeHidden", ctx_r1.cart.itemCount() === 0);
-    \u0275\u0275advance(2);
+    let tmp_3_0;
+    const userMenu_r3 = \u0275\u0275reference(4);
+    const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275property("matMenuTriggerFor", userMenu_r3);
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate2("", (tmp_5_0 = ctx_r1.auth.user()) == null ? null : tmp_5_0.firstName, " ", (tmp_5_0 = ctx_r1.auth.user()) == null ? null : tmp_5_0.lastName, "");
+    \u0275\u0275textInterpolate2("", (tmp_3_0 = ctx_r0.auth.user()) == null ? null : tmp_3_0.firstName, " ", (tmp_3_0 = ctx_r0.auth.user()) == null ? null : tmp_3_0.lastName, "");
     \u0275\u0275advance(9);
-    \u0275\u0275conditional(ctx_r1.auth.isAdmin() ? 18 : -1);
+    \u0275\u0275conditional(ctx_r0.auth.isAdmin() ? 15 : -1);
   }
 }
-function NavbarComponent_Conditional_9_Template(rf, ctx) {
+function NavbarComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 13);
-    \u0275\u0275text(1, "Login");
+    \u0275\u0275elementStart(0, "a", 15);
+    \u0275\u0275text(1, "Iniciar sesi\xF3n");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "a", 14);
-    \u0275\u0275text(3, "Sign Up");
+    \u0275\u0275elementStart(2, "a", 16);
+    \u0275\u0275text(3, "Registrarse");
     \u0275\u0275elementEnd();
   }
 }
 var NavbarComponent = class _NavbarComponent {
-  constructor(auth, cart) {
+  constructor(auth, cart, storeInfoService) {
     this.auth = auth;
     this.cart = cart;
+    this.storeInfoService = storeInfoService;
+    this.storeName = signal("ShopHub");
+    this.logoUrl = signal(null);
     if (auth.isLoggedIn()) {
       cart.loadCart();
     }
   }
+  ngOnInit() {
+    this.storeInfoService.getPublic().subscribe({
+      next: (res) => {
+        if (res.data?.name)
+          this.storeName.set(res.data.name);
+        if (res.data?.logoUrl)
+          this.logoUrl.set(res.data.logoUrl);
+      }
+    });
+  }
   static {
     this.\u0275fac = function NavbarComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _NavbarComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(CartService));
+      return new (__ngFactoryType__ || _NavbarComponent)(\u0275\u0275directiveInject(AuthService), \u0275\u0275directiveInject(CartService), \u0275\u0275directiveInject(StoreInfoService));
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 10, vars: 3, consts: [["userMenu", "matMenu"], ["color", "primary"], ["routerLink", "/", 1, "brand"], [1, "spacer"], ["mat-button", "", "routerLink", "/", "routerLinkActive", "active", 3, "routerLinkActiveOptions"], ["mat-icon-button", "", "routerLink", "/cart"], ["matBadgeColor", "accent", 3, "matBadge", "matBadgeHidden"], ["mat-icon-button", "", 3, "matMenuTriggerFor"], [1, "menu-header"], ["mat-menu-item", "", "routerLink", "/orders"], ["mat-menu-item", "", "routerLink", "/profile"], ["mat-menu-item", "", "routerLink", "/admin"], ["mat-menu-item", "", 3, "click"], ["mat-button", "", "routerLink", "/login"], ["mat-raised-button", "", "color", "accent", "routerLink", "/register"]], template: function NavbarComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 16, vars: 7, consts: [["userMenu", "matMenu"], ["color", "primary"], ["routerLink", "/", 1, "brand"], ["alt", "Logo", 1, "brand-logo", 3, "src"], [1, "spacer"], ["mat-button", "", "routerLink", "/", "routerLinkActive", "active", 3, "routerLinkActiveOptions"], ["mat-button", "", "routerLink", "/sobre-nosotros", "routerLinkActive", "active"], ["mat-icon-button", "", "routerLink", "/cart"], ["matBadgeColor", "accent", 3, "matBadge", "matBadgeHidden"], ["mat-icon-button", "", 3, "matMenuTriggerFor"], [1, "menu-header"], ["mat-menu-item", "", "routerLink", "/orders"], ["mat-menu-item", "", "routerLink", "/profile"], ["mat-menu-item", "", "routerLink", "/admin"], ["mat-menu-item", "", 3, "click"], ["mat-button", "", "routerLink", "/login"], ["mat-raised-button", "", "color", "accent", "routerLink", "/register"]], template: function NavbarComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "mat-toolbar", 1)(1, "a", 2);
-        \u0275\u0275text(2, "ShopHub");
+        \u0275\u0275template(2, NavbarComponent_Conditional_2_Template, 1, 1, "img", 3);
+        \u0275\u0275text(3);
         \u0275\u0275elementEnd();
-        \u0275\u0275element(3, "span", 3);
-        \u0275\u0275elementStart(4, "a", 4)(5, "mat-icon");
-        \u0275\u0275text(6, "store");
+        \u0275\u0275element(4, "span", 4);
+        \u0275\u0275elementStart(5, "a", 5)(6, "mat-icon");
+        \u0275\u0275text(7, "store");
         \u0275\u0275elementEnd();
-        \u0275\u0275text(7, " Shop ");
+        \u0275\u0275text(8, " Tienda ");
         \u0275\u0275elementEnd();
-        \u0275\u0275template(8, NavbarComponent_Conditional_8_Template, 23, 6)(9, NavbarComponent_Conditional_9_Template, 4, 0);
+        \u0275\u0275elementStart(9, "a", 6);
+        \u0275\u0275text(10, "Nosotros");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(11, "a", 7)(12, "mat-icon", 8);
+        \u0275\u0275text(13, "shopping_cart");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275template(14, NavbarComponent_Conditional_14_Template, 20, 4)(15, NavbarComponent_Conditional_15_Template, 4, 0);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
-        \u0275\u0275property("routerLinkActiveOptions", \u0275\u0275pureFunction0(2, _c03));
-        \u0275\u0275advance(4);
-        \u0275\u0275conditional(ctx.auth.isLoggedIn() ? 8 : 9);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.logoUrl() ? 2 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275textInterpolate1(" ", ctx.storeName(), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("routerLinkActiveOptions", \u0275\u0275pureFunction0(6, _c03));
+        \u0275\u0275advance(7);
+        \u0275\u0275property("matBadge", ctx.cart.itemCount())("matBadgeHidden", ctx.cart.itemCount() === 0);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.auth.isLoggedIn() ? 14 : 15);
       }
-    }, dependencies: [RouterLink, RouterLinkActive, MatToolbarModule, MatToolbar, MatButtonModule, MatAnchor, MatIconAnchor, MatIconButton, MatIconModule, MatIcon, MatBadgeModule, MatBadge, MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger], styles: ["\n\n.brand[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 700;\n  letter-spacing: 1px;\n  text-decoration: none;\n  color: white;\n}\n.spacer[_ngcontent-%COMP%] {\n  flex: 1 1 auto;\n}\n.menu-header[_ngcontent-%COMP%] {\n  padding: 8px 16px;\n  font-weight: 500;\n  border-bottom: 1px solid #eee;\n  margin-bottom: 4px;\n}\n.active[_ngcontent-%COMP%] {\n  opacity: 1;\n}\nmat-toolbar[_ngcontent-%COMP%]   a[_ngcontent-%COMP%], \nmat-toolbar[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: white;\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
+    }, dependencies: [RouterLink, RouterLinkActive, MatToolbarModule, MatToolbar, MatButtonModule, MatAnchor, MatIconAnchor, MatIconButton, MatIconModule, MatIcon, MatBadgeModule, MatBadge, MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger], styles: ["\n\n.brand[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  font-size: 1.4rem;\n  font-weight: 700;\n  letter-spacing: 1px;\n  text-decoration: none;\n  color: white;\n}\n.brand-logo[_ngcontent-%COMP%] {\n  height: 36px;\n  width: auto;\n  object-fit: contain;\n  border-radius: 4px;\n}\n.spacer[_ngcontent-%COMP%] {\n  flex: 1 1 auto;\n}\n.menu-header[_ngcontent-%COMP%] {\n  padding: 8px 16px;\n  font-weight: 500;\n  border-bottom: 1px solid #eee;\n  margin-bottom: 4px;\n}\n.active[_ngcontent-%COMP%] {\n  opacity: 1;\n}\nmat-toolbar[_ngcontent-%COMP%]   a[_ngcontent-%COMP%], \nmat-toolbar[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  color: white;\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
   }
 };
 (() => {
@@ -2194,7 +1888,7 @@ var FooterComponent = class _FooterComponent {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FooterComponent, selectors: [["app-footer"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 0, consts: [[1, "container"]], template: function FooterComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "footer")(1, "div", 0)(2, "p");
-        \u0275\u0275text(3, "\xA9 2025 ShopHub. All rights reserved.");
+        \u0275\u0275text(3, "\xA9 2025 ShopHub. Todos los derechos reservados.");
         \u0275\u0275elementEnd()()();
       }
     }, styles: ["\n\nfooter[_ngcontent-%COMP%] {\n  background: #333;\n  color: #aaa;\n  padding: 16px 0;\n  text-align: center;\n  font-size: 0.9rem;\n}\n/*# sourceMappingURL=footer.component.css.map */"] });
@@ -2205,22 +1899,65 @@ var FooterComponent = class _FooterComponent {
 })();
 
 // src/app/app.component.ts
+function AppComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "a", 1);
+    \u0275\u0275namespaceSVG();
+    \u0275\u0275elementStart(1, "svg", 2);
+    \u0275\u0275element(2, "path", 3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("href", "https://wa.me/" + ctx_r0.whatsappNumber(), \u0275\u0275sanitizeUrl);
+  }
+}
 var AppComponent = class _AppComponent {
+  constructor(shippingService, storeInfoService, themeService) {
+    this.shippingService = shippingService;
+    this.storeInfoService = storeInfoService;
+    this.themeService = themeService;
+    this.whatsappNumber = signal(null);
+  }
+  ngOnInit() {
+    this.themeService.apply(null);
+    this.storeInfoService.getPublic().subscribe({
+      next: (res) => {
+        this.themeService.apply(res.data?.themeKey);
+      },
+      error: () => {
+      }
+    });
+    this.shippingService.getConfig().subscribe({
+      next: (res) => {
+        if (res.data?.whatsappNumber) {
+          this.whatsappNumber.set(res.data.whatsappNumber);
+        }
+      },
+      error: () => {
+      }
+    });
+  }
   static {
     this.\u0275fac = function AppComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AppComponent)();
+      return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(ShippingService), \u0275\u0275directiveInject(StoreInfoService), \u0275\u0275directiveInject(ThemeService));
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 4, vars: 0, consts: [[1, "page-container"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 5, vars: 1, consts: [[1, "page-container"], ["target", "_blank", "rel", "noopener noreferrer", "aria-label", "Contactar por WhatsApp", 1, "whatsapp-bubble", 3, "href"], ["xmlns", "http://www.w3.org/2000/svg", "viewBox", "0 0 32 32", "width", "32", "height", "32"], ["fill", "#fff", "d", "M16 2C8.268 2 2 8.268 2 16c0 2.478.675 4.797 1.849 6.784L2 30l7.47-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.83-1.594l-.418-.248-4.432 1.08 1.115-4.303-.272-.44A11.46 11.46 0 0 1 4.5 16C4.5 9.596 9.596 4.5 16 4.5S27.5 9.596 27.5 16 22.404 27.5 16 27.5zm6.29-8.618c-.344-.172-2.037-1.005-2.352-1.119-.315-.115-.545-.172-.775.172-.23.344-.888 1.119-1.089 1.35-.2.23-.4.258-.745.086-.344-.172-1.455-.536-2.771-1.71-1.024-.914-1.715-2.042-1.916-2.386-.2-.344-.021-.530.151-.701.155-.154.344-.402.516-.603.172-.2.23-.344.344-.573.115-.23.057-.431-.029-.603-.086-.172-.775-1.868-1.062-2.558-.28-.672-.564-.58-.775-.59l-.66-.012c-.23 0-.603.086-.918.431-.315.344-1.204 1.177-1.204 2.872 0 1.695 1.232 3.333 1.404 3.563.172.23 2.425 3.703 5.876 5.193.822.355 1.463.567 1.963.726.824.263 1.574.226 2.167.137.66-.099 2.037-.832 2.323-1.636.287-.804.287-1.493.2-1.636-.086-.143-.315-.23-.66-.402z"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "app-navbar");
         \u0275\u0275elementStart(1, "main", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275element(3, "app-footer");
+        \u0275\u0275template(4, AppComponent_Conditional_4_Template, 3, 1, "a", 1);
       }
-    }, dependencies: [RouterOutlet, NavbarComponent, FooterComponent], styles: ["\n\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  min-height: 100vh;\n}\nmain[_ngcontent-%COMP%] {\n  flex: 1;\n}\n/*# sourceMappingURL=app.component.css.map */"] });
+      if (rf & 2) {
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.whatsappNumber() ? 4 : -1);
+      }
+    }, dependencies: [RouterOutlet, NavbarComponent, FooterComponent], styles: ["\n\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  min-height: 100vh;\n}\nmain[_ngcontent-%COMP%] {\n  flex: 1;\n}\n.whatsapp-bubble[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 24px;\n  right: 24px;\n  width: 56px;\n  height: 56px;\n  background: #25D366;\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);\n  z-index: 1000;\n  transition: transform 0.2s, box-shadow 0.2s;\n}\n.whatsapp-bubble[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);\n}\n/*# sourceMappingURL=app.component.css.map */"] });
   }
 };
 (() => {
@@ -2256,7 +1993,7 @@ var AsyncAnimationRendererFactory = class _AsyncAnimationRendererFactory {
    * @internal
    */
   loadImpl() {
-    const loadFn = () => this.moduleImpl ?? import("./chunk-BNULCG63.js").then((m) => m);
+    const loadFn = () => this.moduleImpl ?? import("./chunk-ZEXG5NYD.js").then((m) => m);
     let moduleImplPromise;
     if (this.loadingSchedulerFn) {
       moduleImplPromise = this.loadingSchedulerFn(loadFn);
@@ -2473,43 +2210,45 @@ var adminGuard = () => {
 var routes = [
   {
     path: "",
-    loadComponent: () => import("./chunk-F2YEDXNO.js").then((m) => m.ProductListComponent)
+    loadComponent: () => import("./chunk-34R4WJAA.js").then((m) => m.ProductListComponent)
   },
   {
     path: "login",
-    loadComponent: () => import("./chunk-SAVSBFG4.js").then((m) => m.LoginComponent)
+    loadComponent: () => import("./chunk-F5CZBTD5.js").then((m) => m.LoginComponent)
   },
   {
     path: "register",
-    loadComponent: () => import("./chunk-2OJR2J3V.js").then((m) => m.RegisterComponent)
+    loadComponent: () => import("./chunk-X7HI73U4.js").then((m) => m.RegisterComponent)
   },
   {
     path: "products/:slug",
-    loadComponent: () => import("./chunk-4L7P4LH7.js").then((m) => m.ProductDetailComponent)
+    loadComponent: () => import("./chunk-XJNF3VIG.js").then((m) => m.ProductDetailComponent)
   },
   {
     path: "cart",
-    loadComponent: () => import("./chunk-O6WUQKSV.js").then((m) => m.CartComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import("./chunk-63ZR4A4Y.js").then((m) => m.CartComponent)
   },
   {
     path: "checkout",
-    loadComponent: () => import("./chunk-ODZ2NITZ.js").then((m) => m.CheckoutComponent),
-    canActivate: [authGuard]
+    loadComponent: () => import("./chunk-JZQRIABC.js").then((m) => m.CheckoutComponent)
+  },
+  {
+    path: "confirmacion",
+    loadComponent: () => import("./chunk-GZDC673K.js").then((m) => m.OrderConfirmationComponent)
   },
   {
     path: "orders",
-    loadComponent: () => import("./chunk-22BPUIM6.js").then((m) => m.OrderListComponent),
+    loadComponent: () => import("./chunk-JONFRJLX.js").then((m) => m.OrderListComponent),
     canActivate: [authGuard]
   },
   {
     path: "orders/:orderNumber",
-    loadComponent: () => import("./chunk-ZORXDF6U.js").then((m) => m.OrderDetailComponent),
+    loadComponent: () => import("./chunk-BLURLPED.js").then((m) => m.OrderDetailComponent),
     canActivate: [authGuard]
   },
   {
     path: "profile",
-    loadComponent: () => import("./chunk-62KI2IHE.js").then((m) => m.ProfileComponent),
+    loadComponent: () => import("./chunk-GW6UIP5J.js").then((m) => m.ProfileComponent),
     canActivate: [authGuard]
   },
   {
@@ -2518,25 +2257,73 @@ var routes = [
     children: [
       {
         path: "",
-        loadComponent: () => import("./chunk-RE7ZJONP.js").then((m) => m.DashboardComponent)
+        loadComponent: () => import("./chunk-DQA2IC44.js").then((m) => m.DashboardComponent)
       },
       {
         path: "categories",
-        loadComponent: () => import("./chunk-N7NXUR4R.js").then((m) => m.CategoryManagementComponent)
+        loadComponent: () => import("./chunk-DJ5PDTMO.js").then((m) => m.CategoryManagementComponent)
       },
       {
         path: "products",
-        loadComponent: () => import("./chunk-UCGIDR6R.js").then((m) => m.ProductManagementComponent)
+        loadComponent: () => import("./chunk-OY552H5Z.js").then((m) => m.ProductManagementComponent)
       },
       {
         path: "orders",
-        loadComponent: () => import("./chunk-BBQCSVXX.js").then((m) => m.OrderManagementComponent)
+        loadComponent: () => import("./chunk-EYDAPKXY.js").then((m) => m.OrderManagementComponent)
       },
       {
         path: "users",
-        loadComponent: () => import("./chunk-WACXN6NK.js").then((m) => m.UserManagementComponent)
+        loadComponent: () => import("./chunk-CSPK53HX.js").then((m) => m.UserManagementComponent)
+      },
+      {
+        path: "promotions",
+        loadComponent: () => import("./chunk-RIJDTT5G.js").then((m) => m.PromotionManagementComponent)
+      },
+      {
+        path: "banners",
+        loadComponent: () => import("./chunk-ZLMZ5TAZ.js").then((m) => m.BannerManagementComponent)
+      },
+      {
+        path: "coupons",
+        loadComponent: () => import("./chunk-PIFDLMWO.js").then((m) => m.CouponManagementComponent)
+      },
+      {
+        path: "reviews",
+        loadComponent: () => import("./chunk-GHOVALTM.js").then((m) => m.ReviewManagementComponent)
+      },
+      {
+        path: "tickets",
+        loadComponent: () => import("./chunk-7MMFPZ32.js").then((m) => m.TicketManagementComponent)
+      },
+      {
+        path: "shipping",
+        loadComponent: () => import("./chunk-NAERW5QV.js").then((m) => m.ShippingManagementComponent)
+      },
+      {
+        path: "store-info",
+        loadComponent: () => import("./chunk-BYSF3XDG.js").then((m) => m.StoreInfoComponent)
+      },
+      {
+        path: "shipments",
+        loadComponent: () => import("./chunk-U4K2FMKW.js").then((m) => m.ShipmentScheduleComponent)
+      },
+      {
+        path: "reports",
+        loadComponent: () => import("./chunk-RM6PXMJR.js").then((m) => m.ReportsComponent)
       }
     ]
+  },
+  {
+    path: "sobre-nosotros",
+    loadComponent: () => import("./chunk-KB3JLGHF.js").then((m) => m.AboutComponent)
+  },
+  {
+    path: "forgot-password",
+    loadComponent: () => import("./chunk-PE37A6YO.js").then((m) => m.ForgotPasswordComponent)
+  },
+  {
+    path: "reset-password",
+    loadComponent: () => import("./chunk-FG2HD6KO.js").then((m) => m.ResetPasswordComponent)
   },
   { path: "**", redirectTo: "" }
 ];
@@ -2564,11 +2351,50 @@ var appConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([jwtInterceptor])),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    provideNativeDateAdapter(),
+    { provide: LOCALE_ID, useValue: "es-MX" },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: "MXN" }
   ]
 };
 
+// node_modules/@angular/common/locales/es-MX.mjs
+var u = void 0;
+function plural(val) {
+  const n = val, i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length, e = parseInt(val.toString().replace(/^[^e]*(e([-+]?\d+))?/, "$2")) || 0;
+  if (n === 1) return 1;
+  if (e === 0 && !(i === 0) && i % 1e6 === 0 && v === 0 || !(e >= 0 && e <= 5)) return 4;
+  return 5;
+}
+var es_MX_default = ["es-MX", [["a.\xA0m.", "p.\xA0m."], u, u], u, [["D", "L", "M", "M", "J", "V", "S"], ["dom", "lun", "mar", "mi\xE9", "jue", "vie", "s\xE1b"], ["domingo", "lunes", "martes", "mi\xE9rcoles", "jueves", "viernes", "s\xE1bado"], ["DO", "LU", "MA", "MI", "JU", "VI", "SA"]], u, [["E", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"], ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]], u, [["a. C.", "d. C."], u, ["antes de Cristo", "despu\xE9s de Cristo"]], 0, [6, 0], ["dd/MM/yy", "d MMM y", "d 'de' MMMM 'de' y", "EEEE, d 'de' MMMM 'de' y"], ["HH:mm", "HH:mm:ss", "HH:mm:ss z", "HH:mm:ss zzzz"], ["{1}, {0}", "{1} {0}", "{1}, {0}", u], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0\xA0%", "\xA4#,##0.00", "#E0"], "MXN", "$", "peso mexicano", {
+  "AUD": [u, "$"],
+  "BRL": [u, "R$"],
+  "BYN": [u, "p."],
+  "CAD": [u, "$"],
+  "CNY": [u, "\xA5"],
+  "ESP": ["\u20A7"],
+  "EUR": [u, "\u20AC"],
+  "GBP": [u, "\xA3"],
+  "HKD": [u, "$"],
+  "ILS": [u, "\u20AA"],
+  "INR": [u, "\u20B9"],
+  "JPY": [u, "\xA5"],
+  "KRW": [u, "\u20A9"],
+  "MRO": ["MRU"],
+  "MRU": ["UM"],
+  "MXN": ["$"],
+  "NZD": [u, "$"],
+  "PHP": [u, "\u20B1"],
+  "TWD": [u, "NT$"],
+  "USD": [u, "$"],
+  "VND": [u, "\u20AB"],
+  "XAF": [],
+  "XCD": [u, "$"],
+  "XOF": []
+}, "ltr", plural];
+
 // src/main.ts
+registerLocaleData(es_MX_default);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
 /*! Bundled license information:
 
@@ -2577,6 +2403,15 @@ bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err))
    * @license Angular v18.2.14
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
+   *)
+
+@angular/common/locales/es-MX.mjs:
+  (**
+   * @license
+   * Copyright Google LLC All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.dev/license
    *)
 */
 //# sourceMappingURL=main.js.map

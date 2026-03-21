@@ -54,7 +54,7 @@ export class PaymentService {
         return;
       }
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=MXN`;
       script.onload = () => resolve();
       script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
       document.head.appendChild(script);

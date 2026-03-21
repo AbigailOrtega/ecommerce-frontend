@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;e7262d1c4fe411a8ce33058474900e14b831069340038a662c63aeb9959defb9;/Users/abigailortega/ecommerce/frontend/src/app/features/admin/review-management/review-management.component.ts"],
+  "sourcesContent": ["\n    .header { display: flex; justify-content: space-between; align-items: center; }\n    .subtitle { color: #666; margin: -8px 0 24px; }\n    .table-card { padding: 16px; }\n    .full-width { width: 100%; }\n    .comment-cell { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n    .stars { color: #f59e0b; letter-spacing: 2px; }\n    .rating-num { color: #888; font-size: 0.8rem; margin-left: 4px; }\n    .empty-state { text-align: center; padding: 48px; color: #888; }\n    .empty-icon { font-size: 48px; width: 48px; height: 48px; color: #4caf50; display: block; margin: 0 auto 12px; }\n  "],
+  "mappings": ";AACI,CAAC;AAAS,WAAS;AAAM,mBAAiB;AAAe,eAAa;AAAQ;AAC9E,CAAC;AAAW,SAAO;AAAM,UAAQ,KAAK,EAAE;AAAM;AAC9C,CAAC;AAAa,WAAS;AAAM;AAC7B,CAAC;AAAa,SAAO;AAAM;AAC3B,CAAC;AAAe,aAAW;AAAO,eAAa;AAAQ,YAAU;AAAQ,iBAAe;AAAU;AAClG,CAAC;AAAQ,SAAO;AAAS,kBAAgB;AAAK;AAC9C,CAAC;AAAa,SAAO;AAAM,aAAW;AAAQ,eAAa;AAAK;AAChE,CAAC;AAAc,cAAY;AAAQ,WAAS;AAAM,SAAO;AAAM;AAC/D,CAAC;AAAa,aAAW;AAAM,SAAO;AAAM,UAAQ;AAAM,SAAO;AAAS,WAAS;AAAO,UAAQ,EAAE,KAAK;AAAM;",
+  "names": []
+}

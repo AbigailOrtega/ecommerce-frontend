@@ -8,11 +8,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { OrderService } from '@core/services/order.service';
 import { TicketService } from '@core/services/ticket.service';
-import { Order, Ticket } from '@shared/models';
+import { Order, PickupAvailability, Ticket } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
@@ -20,6 +22,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
   standalone: true,
   imports: [FormsModule, RouterLink, MatCardModule, MatButtonModule, MatChipsModule,
     MatDividerModule, MatFormFieldModule, MatInputModule, MatIconModule,
+    MatDatepickerModule, MatSelectModule,
     MatSnackBarModule, CurrencyPipe, DatePipe, TitleCasePipe, LoadingComponent],
   template: `
     @if (loading) {
@@ -80,11 +83,18 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <p class="date">Realizado el {{ order.createdAt | date:'medium' }}</p>
             </mat-card>
 
-            <mat-card class="info-card">
+            <mat-card class="info-card" [class.cancelled-card]="order.pickupCancelled">
               @if (order.shippingType === 'PICKUP') {
                 <h3>Punto de Retiro</h3>
                 <p>{{ order.pickupLocationName }}</p>
-                @if (order.pickupTimeSlotLabel) {
+                @if (order.pickupDate) {
+                  <p class="date">Fecha: <strong>{{ order.pickupDate | date:'dd/MM/yyyy':'UTC' }}</strong>
+                    @if (order.pickupCancelled) {
+                      <span class="cancelled-tag">Cancelada</span>
+                    }
+                  </p>
+                }
+                @if (order.pickupTimeSlotLabel && !order.pickupCancelled) {
                   <p class="date">Horario: {{ order.pickupTimeSlotLabel }}</p>
                 }
               } @else {
@@ -94,6 +104,106 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                   {{ order.shippingCountry }}</p>
               }
             </mat-card>
+
+            <!-- ── No puedo asistir (cliente cancela/reagenda) ── -->
+            @if (!order.pickupCancelled && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && order.status !== 'REFUNDED' && order.shippingType === 'PICKUP') {
+              @if (!showCancelSection) {
+                <button mat-stroked-button class="cant-attend-btn" (click)="openCancelSection()">
+                  <mat-icon>event_busy</mat-icon> No puedo asistir
+                </button>
+              } @else {
+                <mat-card class="info-card cancel-section-card">
+                  <h3><mat-icon class="reschedule-icon">event_repeat</mat-icon> Cancelar o reagendar recolección</h3>
+                  <p class="reschedule-msg">
+                    ¿No puedes recoger tu pedido el
+                    <strong>{{ order.pickupDate | date:'dd/MM/yyyy':'UTC' }}</strong>?
+                    Elige una nueva fecha o cancela para reagendar después.
+                  </p>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nueva fecha de recolección (opcional)</mat-label>
+                    <input matInput [matDatepicker]="selfPicker"
+                           [ngModel]="rescheduleDate"
+                           (ngModelChange)="onRescheduleDateChange($event)"
+                           [min]="today"
+                           [matDatepickerFilter]="isAvailableDate"
+                           [ngModelOptions]="{standalone: true}"
+                           placeholder="Selecciona una fecha para reagendar">
+                    <mat-datepicker-toggle matSuffix [for]="selfPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #selfPicker></mat-datepicker>
+                  </mat-form-field>
+
+                  @if (availableSlots.length > 1) {
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Horario disponible</mat-label>
+                      <mat-select [(ngModel)]="selectedSlotId" [ngModelOptions]="{standalone: true}">
+                        @for (slot of availableSlots; track slot.id) {
+                          <mat-option [value]="slot.id">{{ slot.startTime }} – {{ slot.endTime }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  }
+
+                  <div class="cancel-actions">
+                    @if (rescheduleDate) {
+                      <button mat-raised-button color="primary"
+                              [disabled]="rescheduling"
+                              (click)="submitReschedule()">
+                        {{ rescheduling ? 'Guardando...' : 'Confirmar nueva fecha' }}
+                      </button>
+                    }
+                    <button mat-stroked-button color="warn"
+                            [disabled]="cancellingPickup"
+                            (click)="cancelOwnPickup()">
+                      {{ cancellingPickup ? 'Cancelando...' : 'Solo cancelar por ahora' }}
+                    </button>
+                    <button mat-button (click)="closeCancelSection()">Volver</button>
+                  </div>
+                </mat-card>
+              }
+            }
+
+            <!-- ── Reagendar recolección (cancelada por tienda o por cliente) ── -->
+            @if (order.pickupCancelled && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && order.status !== 'REFUNDED') {
+              <mat-card class="info-card reschedule-card">
+                <h3><mat-icon class="reschedule-icon">event_repeat</mat-icon> Reagendar recolección</h3>
+                <p class="reschedule-msg">
+                  Tu recolección del
+                  <strong>{{ order.pickupDate | date:'dd/MM/yyyy':'UTC' }}</strong>
+                  fue cancelada. Por favor elige una nueva fecha.
+                </p>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nueva fecha de recolección</mat-label>
+                  <input matInput [matDatepicker]="reschedulePicker"
+                         [ngModel]="rescheduleDate"
+                         (ngModelChange)="onRescheduleDateChange($event)"
+                         [min]="today"
+                         [matDatepickerFilter]="isAvailableDate"
+                         [ngModelOptions]="{standalone: true}"
+                         placeholder="Selecciona fecha">
+                  <mat-datepicker-toggle matSuffix [for]="reschedulePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #reschedulePicker></mat-datepicker>
+                </mat-form-field>
+
+                @if (availableSlots.length > 1) {
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Horario disponible</mat-label>
+                    <mat-select [(ngModel)]="selectedSlotId" [ngModelOptions]="{standalone: true}">
+                      @for (slot of availableSlots; track slot.id) {
+                        <mat-option [value]="slot.id">{{ slot.startTime }} – {{ slot.endTime }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
+                <button mat-raised-button color="primary"
+                        [disabled]="!rescheduleDate || rescheduling"
+                        (click)="submitReschedule()">
+                  {{ rescheduling ? 'Guardando...' : 'Confirmar nueva fecha' }}
+                </button>
+              </mat-card>
+            }
 
             @if (order.trackingNumber) {
               <mat-card class="info-card tracking-card">
@@ -185,6 +295,14 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .info-card { margin-bottom: 16px; }
     .date { color: #666; font-size: 0.9rem; margin-top: 8px; }
     .payment-id { color: #999; font-size: 0.85rem; word-break: break-all; }
+    .cancelled-card { border: 1px solid #ffcc80; background: #fffde7; }
+    .cancelled-tag { display: inline-block; background: #ffcc02; color: #b71c1c; font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; margin-left: 8px; text-transform: uppercase; }
+    .cant-attend-btn { width: 100%; margin-bottom: 16px; color: #e65100; border-color: #ffcc80; }
+    .cancel-section-card { border: 1px solid #ffcc80; background: #fff8f0; margin-bottom: 16px; }
+    .cancel-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .reschedule-card { border: 1px solid #ffe082; background: #fffde7; }
+    .reschedule-icon { vertical-align: middle; margin-right: 6px; font-size: 20px; width: 20px; height: 20px; color: #f57c00; }
+    .reschedule-msg { font-size: 0.9rem; color: #555; margin-bottom: 16px; }
     .problem-card { border: 1px solid #ffcdd2; }
     .report-btn { width: 100%; }
     .full-width { width: 100%; margin-top: 8px; }
@@ -214,6 +332,16 @@ export class OrderDetailComponent implements OnInit {
   ticketDescription = '';
   ticket: Ticket | null = null;
 
+  // Reschedule / cancel state
+  availableDates: string[] = [];
+  availableSlots: PickupAvailability[] = [];
+  rescheduleDate: Date | null = null;
+  selectedSlotId: number | null = null;
+  rescheduling = false;
+  cancellingPickup = false;
+  showCancelSection = false;
+  readonly today = new Date();
+
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
@@ -230,8 +358,95 @@ export class OrderDetailComponent implements OnInit {
         if (res.data.status === 'DELIVERED') {
           this.loadMyTicket();
         }
+        if (res.data.pickupCancelled && res.data.pickupLocationId) {
+          this.loadAvailableDates(res.data.pickupLocationId);
+        }
       },
       error: () => this.loading = false,
+    });
+  }
+
+  openCancelSection(): void {
+    this.showCancelSection = true;
+    this.rescheduleDate = null;
+    this.availableSlots = [];
+    if (this.order?.pickupLocationId && this.availableDates.length === 0) {
+      this.loadAvailableDates(this.order.pickupLocationId);
+    }
+  }
+
+  closeCancelSection(): void {
+    this.showCancelSection = false;
+    this.rescheduleDate = null;
+    this.availableSlots = [];
+  }
+
+  cancelOwnPickup(): void {
+    if (!this.order) return;
+    this.cancellingPickup = true;
+    this.orderService.cancelOwnPickup(this.order.orderNumber).subscribe({
+      next: (res) => {
+        this.order = res.data;
+        this.cancellingPickup = false;
+        this.showCancelSection = false;
+        this.snackBar.open('Recolección cancelada. Puedes reagendar cuando quieras.', 'Cerrar', { duration: 5000 });
+      },
+      error: (err) => {
+        this.cancellingPickup = false;
+        this.snackBar.open(err.error?.message || 'Error al cancelar', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  private loadAvailableDates(locationId: number): void {
+    const from = new Date();
+    const to = new Date();
+    to.setMonth(to.getMonth() + 3);
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    this.orderService.getPickupAvailableDates(locationId, fmt(from), fmt(to)).subscribe({
+      next: (res) => this.availableDates = res.data,
+    });
+  }
+
+  readonly isAvailableDate = (date: Date | null): boolean => {
+    if (!date) return false;
+    const iso = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    return this.availableDates.includes(iso);
+  };
+
+  onRescheduleDateChange(date: Date | null): void {
+    this.rescheduleDate = date;
+    this.selectedSlotId = null;
+    this.availableSlots = [];
+    if (date && this.order?.pickupLocationId) {
+      const iso = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+      this.orderService.getPickupSlotsForDate(this.order.pickupLocationId, iso).subscribe({
+        next: (res) => {
+          this.availableSlots = res.data;
+          if (res.data.length === 1) this.selectedSlotId = res.data[0].id;
+        },
+      });
+    }
+  }
+
+  submitReschedule(): void {
+    if (!this.rescheduleDate || !this.order) return;
+    const d = this.rescheduleDate;
+    const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    this.rescheduling = true;
+    this.orderService.reschedulePickup(this.order.orderNumber, iso, this.selectedSlotId ?? undefined).subscribe({
+      next: (res) => {
+        this.order = res.data;
+        this.rescheduling = false;
+        this.rescheduleDate = null;
+        this.availableSlots = [];
+        this.showCancelSection = false;
+        this.snackBar.open('Recolección reagendada correctamente', 'Cerrar', { duration: 4000 });
+      },
+      error: (err) => {
+        this.rescheduling = false;
+        this.snackBar.open(err.error?.message || 'Error al reagendar', 'Cerrar', { duration: 4000 });
+      },
     });
   }
 

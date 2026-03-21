@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;a6bfdcd7a6eff1749a07c661b6ba9fce69c37429f17389d812143863b8734ccb;/Users/abigailortega/ecommerce/frontend/src/app/app.component.ts"],
-  "sourcesContent": ["\n    :host {\n      display: flex;\n      flex-direction: column;\n      min-height: 100vh;\n    }\n    main {\n      flex: 1;\n    }\n  "],
-  "mappings": ";AACI;AACE,WAAS;AACT,kBAAgB;AAChB,cAAY;AACd;AACA;AACE,QAAM;AACR;",
+  "sources": ["angular:styles/component:css;84e4706d661141248a05eb874dc71734579aca9105a52891abf36b5b1639d98b;/Users/abigailortega/ecommerce/frontend/src/app/app.component.ts"],
+  "sourcesContent": ["\n    :host {\n      display: flex;\n      flex-direction: column;\n      min-height: 100vh;\n    }\n    main {\n      flex: 1;\n    }\n    .whatsapp-bubble {\n      position: fixed;\n      bottom: 24px;\n      right: 24px;\n      width: 56px;\n      height: 56px;\n      background: #25D366;\n      border-radius: 50%;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.25);\n      z-index: 1000;\n      transition: transform 0.2s, box-shadow 0.2s;\n    }\n    .whatsapp-bubble:hover {\n      transform: scale(1.1);\n      box-shadow: 0 6px 16px rgba(0,0,0,0.3);\n    }\n  "],
+  "mappings": ";AACI;AACE,WAAS;AACT,kBAAgB;AAChB,cAAY;AACd;AACA;AACE,QAAM;AACR;AACA,CAAC;AACC,YAAU;AACV,UAAQ;AACR,SAAO;AACP,SAAO;AACP,UAAQ;AACR,cAAY;AACZ,iBAAe;AACf,WAAS;AACT,eAAa;AACb,mBAAiB;AACjB,cAAY,EAAE,IAAI,KAAK,KAAK,CAAC,EAAC,CAAC,EAAC,CAAC,EAAC;AAClC,WAAS;AACT,cAAY,UAAU,IAAI,EAAE,WAAW;AACzC;AACA,CAfC,eAee;AACd,aAAW,MAAM;AACjB,cAAY,EAAE,IAAI,KAAK,KAAK,CAAC,EAAC,CAAC,EAAC,CAAC,EAAC;AACpC;",
   "names": []
 }

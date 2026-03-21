@@ -106,12 +106,49 @@ export interface Order {
   shippingType?: string;
   pickupLocationName?: string;
   pickupTimeSlotLabel?: string;
+  pickupDate?: string;
+  pickupLocationId?: number;
+  pickupCancelled?: boolean;
   skydropxRateId?: string;
   skydropxShipmentId?: string;
   trackingNumber?: string;
   carrierName?: string;
   labelUrl?: string;
   shipmentStatus?: string;
+  guestEmail?: string;
+  guestFirstName?: string;
+  guestLastName?: string;
+  guestPhone?: string;
+}
+
+export interface SalesDataPoint {
+  date: string;
+  orderCount: number;
+  revenue: number;
+}
+
+export interface SalesReport {
+  period: string;
+  data: SalesDataPoint[];
+  totalRevenue: number;
+  totalOrders: number;
+}
+
+export interface ProductSalesItem {
+  productId: number;
+  productName: string;
+  unitsSold: number;
+  revenue: number;
+  currentStock: number;
+}
+
+export interface InventoryItem {
+  productId: number;
+  name: string;
+  sku?: string;
+  stock: number;
+  price: number;
+  active: boolean;
 }
 
 export interface DashboardStats {
@@ -280,10 +317,40 @@ export interface ShippingRatesResponse {
   rates: SkydropxRate[];
 }
 
-export interface PickupTimeSlot {
+export type AvailabilityType = 'RECURRING' | 'SPECIFIC_DATE';
+export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+
+export interface PickupException {
   id: number;
-  label: string;
+  date: string;
+  reason?: string;
+  createdAt: string;
+}
+
+export interface PickupExceptionRequest {
+  date: string;
+  reason?: string;
+}
+
+export interface PickupAvailability {
+  id: number;
+  type: AvailabilityType;
+  dayOfWeek?: DayOfWeek;
+  specificDate?: string;
+  startTime: string;
+  endTime: string;
+  maxCapacity: number;
   active: boolean;
+  exceptions?: PickupException[];
+}
+
+export interface PickupAvailabilityRequest {
+  type: AvailabilityType;
+  dayOfWeek?: DayOfWeek;
+  specificDate?: string;
+  startTime: string;
+  endTime: string;
+  maxCapacity: number;
 }
 
 export interface PickupLocation {
@@ -293,7 +360,7 @@ export interface PickupLocation {
   city: string;
   state: string;
   active: boolean;
-  timeSlots: PickupTimeSlot[];
+  availabilities?: PickupAvailability[];
 }
 
 export interface PickupLocationRequest {
@@ -303,9 +370,6 @@ export interface PickupLocationRequest {
   state: string;
 }
 
-export interface PickupTimeSlotRequest {
-  label: string;
-}
 
 export interface Ticket {
   id: number;
@@ -388,8 +452,19 @@ export interface GuestOrderRequest {
   couponCode?: string;
   shippingType: string;
   pickupLocationId?: number;
-  pickupTimeSlotId?: number;
   skydropxRateId?: string;
+  pickupDate?: string;
+  pickupAvailabilityId?: number;
+}
+
+export interface PickupGroup {
+  locationName: string;
+  orders: Order[];
+}
+
+export interface UpcomingSchedule {
+  shipments: Order[];
+  pickups: PickupGroup[];
 }
 
 export interface OrderRequest {
@@ -404,6 +479,7 @@ export interface OrderRequest {
   couponCode?: string;
   shippingType: string;
   pickupLocationId?: number;
-  pickupTimeSlotId?: number;
   skydropxRateId?: string;
+  pickupDate?: string;
+  pickupAvailabilityId?: number;
 }

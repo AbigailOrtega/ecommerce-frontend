@@ -7,17 +7,21 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { Review } from '@shared/models';
 
 @Component({
   selector: 'app-review-management',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [RouterLink, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
     MatSnackBarModule, MatTooltipModule, MatChipsModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Moderación de Reseñas</h1>
+      <div class="header">
+        <h1>Moderación de Reseñas</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
+      </div>
       <p class="subtitle">Reseñas pendientes de aprobación antes de mostrarse a los clientes.</p>
 
       <mat-card class="table-card">
@@ -84,6 +88,7 @@ import { Review } from '@shared/models';
     </div>
   `,
   styles: [`
+    .header { display: flex; justify-content: space-between; align-items: center; }
     .subtitle { color: #666; margin: -8px 0 24px; }
     .table-card { padding: 16px; }
     .full-width { width: 100%; }

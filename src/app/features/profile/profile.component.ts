@@ -37,11 +37,13 @@ import { AuthService } from '@core/services/auth.service';
                 <span matListItemLine>{{ user.phone }}</span>
               </mat-list-item>
             }
-            <mat-list-item>
-              <mat-icon matListItemIcon>badge</mat-icon>
-              <span matListItemTitle>Rol</span>
-              <span matListItemLine>{{ user.role }}</span>
-            </mat-list-item>
+            @if (auth.isAdmin()) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>badge</mat-icon>
+                <span matListItemTitle>Rol</span>
+                <span matListItemLine>{{ user.role }}</span>
+              </mat-list-item>
+            }
           </mat-list>
 
           <div class="profile-actions">

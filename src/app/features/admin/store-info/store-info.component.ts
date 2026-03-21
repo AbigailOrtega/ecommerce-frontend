@@ -26,11 +26,11 @@ import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
   template: `
     <div class="container">
       <div class="header">
-        <a mat-button routerLink="/admin"><mat-icon>arrow_back</mat-icon> Dashboard</a>
         <h1>Información General</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
-      <!-- Text form -->
+      <!-- Datos de la tienda -->
       <mat-card class="section-card">
         <mat-card-header><mat-card-title>Datos de la tienda</mat-card-title></mat-card-header>
         <mat-card-content>
@@ -64,13 +64,6 @@ import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
             </mat-form-field>
           </div>
         </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
-            @if (saving) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>save</mat-icon> }
-            Guardar información
-          </button>
-          @if (saveSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
-        </mat-card-actions>
       </mat-card>
 
       <!-- Redes sociales -->
@@ -92,13 +85,27 @@ import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
             </mat-form-field>
           </div>
         </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveSocial()" [disabled]="savingSocial">
-            @if (savingSocial) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>save</mat-icon> }
-            Guardar redes sociales
-          </button>
-          @if (saveSocialSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
-        </mat-card-actions>
+      </mat-card>
+
+      <!-- Color de la tienda -->
+      <mat-card class="section-card">
+        <mat-card-header><mat-card-title>Color de la tienda</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p class="theme-hint">Elige la paleta de colores principal del sitio.</p>
+          <div class="theme-swatches">
+            @for (entry of themeEntries; track entry.key) {
+              <button class="swatch-btn"
+                      [style.background]="entry.primary"
+                      [class.selected]="selectedTheme === entry.key"
+                      [matTooltip]="entry.label"
+                      (click)="selectTheme(entry.key)">
+                @if (selectedTheme === entry.key) {
+                  <mat-icon style="color:white;font-size:18px;line-height:18px;">check</mat-icon>
+                }
+              </button>
+            }
+          </div>
+        </mat-card-content>
       </mat-card>
 
       <!-- Logo -->
@@ -125,35 +132,7 @@ import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
         </mat-card-content>
       </mat-card>
 
-      <!-- Theme -->
-      <mat-card class="section-card">
-        <mat-card-header><mat-card-title>Color de la tienda</mat-card-title></mat-card-header>
-        <mat-card-content>
-          <p class="theme-hint">Elige la paleta de colores principal del sitio.</p>
-          <div class="theme-swatches">
-            @for (entry of themeEntries; track entry.key) {
-              <button class="swatch-btn"
-                      [style.background]="entry.primary"
-                      [class.selected]="selectedTheme === entry.key"
-                      [matTooltip]="entry.label"
-                      (click)="selectTheme(entry.key)">
-                @if (selectedTheme === entry.key) {
-                  <mat-icon style="color:white;font-size:18px;line-height:18px;">check</mat-icon>
-                }
-              </button>
-            }
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-raised-button color="primary" (click)="saveTheme()" [disabled]="saving">
-            @if (saving) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>palette</mat-icon> }
-            Guardar tema
-          </button>
-          @if (saveSuccess) { <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado</span> }
-        </mat-card-actions>
-      </mat-card>
-
-      <!-- Image management -->
+      <!-- Imágenes del carrusel -->
       <mat-card class="section-card">
         <mat-card-header><mat-card-title>Imágenes del carrusel</mat-card-title></mat-card-header>
         <mat-card-content>
@@ -189,16 +168,27 @@ import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
           }
         </mat-card-content>
       </mat-card>
+
+      <!-- Single save button -->
+      <div class="save-row">
+        <button mat-raised-button color="primary" (click)="saveAll()" [disabled]="saving">
+          @if (saving) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>save</mat-icon> }
+          Guardar cambios
+        </button>
+        @if (saveSuccess) {
+          <span class="success-msg"><mat-icon>check_circle</mat-icon> Guardado correctamente</span>
+        }
+      </div>
     </div>
   `,
   styles: [`
-    .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
-    .header { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+    .container { margin: 0 auto; padding: 24px 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .header h1 { margin: 0; }
     .section-card { margin-bottom: 24px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; }
     .full-width { grid-column: 1 / -1; }
-    mat-card-actions { padding: 16px; display: flex; align-items: center; gap: 12px; }
+    .save-row { display: flex; align-items: center; gap: 16px; padding: 8px 0 32px; }
     .success-msg { display: flex; align-items: center; gap: 4px; color: #4caf50; font-weight: 500; }
     .success-msg mat-icon { font-size: 18px; width: 18px; height: 18px; }
     .logo-section { display: flex; align-items: center; gap: 16px; padding-top: 8px; flex-wrap: wrap; }
@@ -236,8 +226,6 @@ export class StoreInfoComponent implements OnInit {
   images: StoreImage[] = [];
   saving = false;
   saveSuccess = false;
-  savingSocial = false;
-  saveSocialSuccess = false;
   uploading = false;
   logoPreview: string | null = null;
   uploadingLogo = false;
@@ -268,33 +256,19 @@ export class StoreInfoComponent implements OnInit {
     this.themeService.apply(key);
   }
 
-  saveTheme(): void {
+  saveAll(): void {
     this.saving = true;
     this.saveSuccess = false;
-    this.storeInfoService.update({ themeKey: this.selectedTheme }).subscribe({
-      next: () => { this.saving = false; this.saveSuccess = true; setTimeout(() => this.saveSuccess = false, 3000); },
-      error: () => { this.saving = false; },
-    });
-  }
-
-  save(): void {
-    this.saving = true;
-    this.saveSuccess = false;
-    this.storeInfoService.update(this.form).subscribe({
-      next: () => { this.saving = false; this.saveSuccess = true; setTimeout(() => this.saveSuccess = false, 3000); },
-      error: () => { this.saving = false; },
-    });
-  }
-
-  saveSocial(): void {
-    this.savingSocial = true;
-    this.saveSocialSuccess = false;
     this.storeInfoService.update({
-      instagramUrl: this.form.instagramUrl ?? '',
-      facebookUrl: this.form.facebookUrl ?? '',
+      ...this.form,
+      themeKey: this.selectedTheme,
     }).subscribe({
-      next: () => { this.savingSocial = false; this.saveSocialSuccess = true; setTimeout(() => this.saveSocialSuccess = false, 3000); },
-      error: () => { this.savingSocial = false; },
+      next: () => {
+        this.saving = false;
+        this.saveSuccess = true;
+        setTimeout(() => this.saveSuccess = false, 3000);
+      },
+      error: () => { this.saving = false; },
     });
   }
 

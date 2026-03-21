@@ -42,6 +42,22 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                 <span class="item-name">{{ item.productName }} x{{ item.quantity }}</span>
               }
             </div>
+            @if (order.shippingType === 'PICKUP') {
+              @if (order.pickupCancelled) {
+                <div class="pickup-row">
+                  <span class="pickup-cancelled-badge">
+                    ⚠️ Recolección cancelada — <a [routerLink]="['/orders', order.orderNumber]">Reagendar</a>
+                  </span>
+                </div>
+              } @else if (order.pickupDate) {
+                <div class="pickup-row">
+                  <span class="pickup-badge">
+                    📅 Recolección: {{ order.pickupDate | date:'dd/MM/yyyy':'UTC' }}
+                    @if (order.pickupTimeSlotLabel) { · {{ order.pickupTimeSlotLabel }} }
+                  </span>
+                </div>
+              }
+            }
             <div class="order-footer">
               <span class="total">{{ order.totalAmount | currency }}</span>
               <a mat-button color="primary" [routerLink]="['/orders', order.orderNumber]">Ver detalles</a>
@@ -59,6 +75,10 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .date { color: #999; font-size: 0.85rem; margin-left: 12px; }
     .order-items { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     .item-name { background: #f5f5f5; padding: 4px 12px; border-radius: 16px; font-size: 0.9rem; }
+    .pickup-row { margin-bottom: 8px; }
+    .pickup-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 12px; }
+    .pickup-cancelled-badge { display: inline-block; background: #fff3e0; color: #e65100; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 12px; }
+    .pickup-cancelled-badge a { color: #e65100; font-weight: 700; }
     .order-footer { display: flex; justify-content: space-between; align-items: center; }
     .total { font-size: 1.2rem; font-weight: 600; }
     .status-pending { background: #fff3e0 !important; color: #e65100 !important; }

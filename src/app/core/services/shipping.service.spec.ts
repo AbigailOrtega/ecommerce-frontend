@@ -91,7 +91,6 @@ describe('ShippingService', () => {
           city: 'CDMX',
           state: 'CDMX',
           active: true,
-          timeSlots: [],
         },
       ];
 

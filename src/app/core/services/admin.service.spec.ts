@@ -5,22 +5,24 @@ import {
   Coupon,
   CouponRequest,
   DashboardStats,
+  InventoryItem,
   Order,
   Page,
   PickupLocation,
   PickupLocationRequest,
-  PickupTimeSlot,
-  PickupTimeSlotRequest,
   Product,
+  ProductSalesItem,
   PromoBanner,
   PromoBannerRequest,
   Promotion,
   PromotionRequest,
   Review,
+  SalesReport,
   ShippingConfig,
   SkydropxQuotation,
   Ticket,
   TicketUpdateRequest,
+  UpcomingSchedule,
   User,
 } from '@shared/models';
 
@@ -109,12 +111,7 @@ function makePickupLocation(id = 1): PickupLocation {
     city: 'CDMX',
     state: 'CDMX',
     active: true,
-    timeSlots: [],
   };
-}
-
-function makeTimeSlot(id = 1): PickupTimeSlot {
-  return { id, label: '10:00 – 12:00', active: true };
 }
 
 // ── Suite ──────────────────────────────────────────────────────────────────
@@ -907,99 +904,6 @@ describe('AdminService', () => {
     });
   });
 
-  // ── addTimeSlot() ─────────────────────────────────────────────────────
-
-  describe('addTimeSlot()', () => {
-    const slotReq: PickupTimeSlotRequest = { label: '10:00 – 12:00' };
-
-    it('sends POST to /admin/pickup-locations/{locationId}/time-slots', () => {
-      service.addTimeSlot(2, slotReq).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots`);
-      expect(req.request.method).toBe('POST');
-      req.flush({ success: true, data: {} });
-    });
-
-    it('sends the correct request body', () => {
-      service.addTimeSlot(2, slotReq).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots`);
-      expect(req.request.body).toEqual(slotReq);
-      req.flush({ success: true, data: {} });
-    });
-
-    it('returns the created time slot', () => {
-      const created = makeTimeSlot(10);
-
-      service.addTimeSlot(2, slotReq).subscribe(res => {
-        expect(res.data.id).toBe(10);
-        expect(res.data.label).toBe('10:00 – 12:00');
-      });
-
-      httpMock
-        .expectOne(`${API}/pickup-locations/2/time-slots`)
-        .flush({ success: true, data: created });
-    });
-  });
-
-  // ── updateTimeSlot() ──────────────────────────────────────────────────
-
-  describe('updateTimeSlot()', () => {
-    const slotReq: PickupTimeSlotRequest = { label: '14:00 – 16:00' };
-
-    it('sends PUT to /admin/pickup-locations/{lid}/time-slots/{sid}', () => {
-      service.updateTimeSlot(2, 5, slotReq).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots/5`);
-      expect(req.request.method).toBe('PUT');
-      req.flush({ success: true, data: {} });
-    });
-
-    it('sends the correct request body', () => {
-      service.updateTimeSlot(2, 5, slotReq).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots/5`);
-      expect(req.request.body).toEqual(slotReq);
-      req.flush({ success: true, data: {} });
-    });
-  });
-
-  // ── deleteTimeSlot() ──────────────────────────────────────────────────
-
-  describe('deleteTimeSlot()', () => {
-    it('sends DELETE to /admin/pickup-locations/{lid}/time-slots/{sid}', () => {
-      service.deleteTimeSlot(2, 5).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots/5`);
-      expect(req.request.method).toBe('DELETE');
-      req.flush({ success: true, data: null });
-    });
-  });
-
-  // ── toggleTimeSlot() ──────────────────────────────────────────────────
-
-  describe('toggleTimeSlot()', () => {
-    it('sends PATCH to /admin/pickup-locations/{lid}/time-slots/{sid}/toggle', () => {
-      service.toggleTimeSlot(2, 5).subscribe();
-
-      const req = httpMock.expectOne(`${API}/pickup-locations/2/time-slots/5/toggle`);
-      expect(req.request.method).toBe('PATCH');
-      req.flush({ success: true, data: {} });
-    });
-
-    it('returns the updated time slot', () => {
-      const updated = { ...makeTimeSlot(5), active: false };
-
-      service.toggleTimeSlot(2, 5).subscribe(res => {
-        expect(res.data.active).toBeFalse();
-      });
-
-      httpMock
-        .expectOne(`${API}/pickup-locations/2/time-slots/5/toggle`)
-        .flush({ success: true, data: updated });
-    });
-  });
-
   // ── getSkydropxQuotation() ────────────────────────────────────────────
 
   describe('getSkydropxQuotation()', () => {
@@ -1099,6 +1003,193 @@ describe('AdminService', () => {
       });
 
       httpMock.expectOne(`${API}/orders/10/skydropx/label`).flush(pdfBlob);
+    });
+  });
+
+  // ── getUpcomingSchedule() ─────────────────────────────────────────────
+
+  describe('getUpcomingSchedule()', () => {
+    it('sends GET to /admin/orders/upcoming-schedule', () => {
+      service.getUpcomingSchedule().subscribe();
+
+      const req = httpMock.expectOne(`${API}/orders/upcoming-schedule`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: { shipments: [], pickups: [] } });
+    });
+
+    it('returns shipments and pickup groups', () => {
+      const schedule: UpcomingSchedule = {
+        shipments: [makeOrder()],
+        pickups: [{ locationName: 'Sucursal Norte', orders: [makeOrder('ORD-P01')] }],
+      };
+
+      service.getUpcomingSchedule().subscribe(res => {
+        expect(res.data.shipments.length).toBe(1);
+        expect(res.data.pickups.length).toBe(1);
+        expect(res.data.pickups[0].locationName).toBe('Sucursal Norte');
+      });
+
+      httpMock
+        .expectOne(`${API}/orders/upcoming-schedule`)
+        .flush({ success: true, data: schedule });
+    });
+  });
+
+  // ── getSalesReport() ──────────────────────────────────────────────────
+
+  describe('getSalesReport()', () => {
+    it('sends GET to /admin/reports/sales with period param', () => {
+      service.getSalesReport('month').subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/sales?period=month`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: { period: 'Este mes', data: [], totalRevenue: 0, totalOrders: 0 } });
+    });
+
+    it('sends week period correctly', () => {
+      service.getSalesReport('week').subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/sales?period=week`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: { period: 'Última semana', data: [], totalRevenue: 0, totalOrders: 0 } });
+    });
+
+    it('returns SalesReport in response data', () => {
+      const report: SalesReport = {
+        period: 'Este mes',
+        data: [{ date: '2025-03-01', orderCount: 3, revenue: 900 }],
+        totalRevenue: 900,
+        totalOrders: 3,
+      };
+
+      service.getSalesReport('month').subscribe(res => {
+        expect(res.data.period).toBe('Este mes');
+        expect(res.data.totalOrders).toBe(3);
+        expect(res.data.data.length).toBe(1);
+      });
+
+      httpMock.expectOne(`${API}/reports/sales?period=month`).flush({ success: true, data: report });
+    });
+  });
+
+  // ── getTopSellingProducts() ───────────────────────────────────────────
+
+  describe('getTopSellingProducts()', () => {
+    it('sends GET to /admin/reports/products/top-selling with default limit=20', () => {
+      service.getTopSellingProducts().subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/products/top-selling?limit=20`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: [] });
+    });
+
+    it('sends custom limit when provided', () => {
+      service.getTopSellingProducts(5).subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/products/top-selling?limit=5`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: [] });
+    });
+
+    it('returns list of ProductSalesItem', () => {
+      const items: ProductSalesItem[] = [
+        { productId: 1, productName: 'Camiseta', unitsSold: 50, revenue: 1499.5, currentStock: 10 },
+      ];
+
+      service.getTopSellingProducts().subscribe(res => {
+        expect(res.data.length).toBe(1);
+        expect(res.data[0].productName).toBe('Camiseta');
+        expect(res.data[0].unitsSold).toBe(50);
+      });
+
+      httpMock
+        .expectOne(`${API}/reports/products/top-selling?limit=20`)
+        .flush({ success: true, data: items });
+    });
+  });
+
+  // ── getLeastSellingProducts() ─────────────────────────────────────────
+
+  describe('getLeastSellingProducts()', () => {
+    it('sends GET to /admin/reports/products/least-selling with default limit=20', () => {
+      service.getLeastSellingProducts().subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/products/least-selling?limit=20`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: [] });
+    });
+
+    it('includes zero-sales products in response', () => {
+      const items: ProductSalesItem[] = [
+        { productId: 2, productName: 'Pantalón', unitsSold: 0, revenue: 0, currentStock: 5 },
+      ];
+
+      service.getLeastSellingProducts().subscribe(res => {
+        expect(res.data[0].unitsSold).toBe(0);
+      });
+
+      httpMock
+        .expectOne(`${API}/reports/products/least-selling?limit=20`)
+        .flush({ success: true, data: items });
+    });
+  });
+
+  // ── getInventoryReport() ──────────────────────────────────────────────
+
+  describe('getInventoryReport()', () => {
+    it('sends GET to /admin/reports/inventory', () => {
+      service.getInventoryReport().subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/inventory`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: [] });
+    });
+
+    it('returns list of InventoryItem', () => {
+      const items: InventoryItem[] = [
+        { productId: 1, name: 'Camiseta', sku: 'SKU-1', stock: 50, price: 29.99, active: true },
+      ];
+
+      service.getInventoryReport().subscribe(res => {
+        expect(res.data.length).toBe(1);
+        expect(res.data[0].name).toBe('Camiseta');
+        expect(res.data[0].stock).toBe(50);
+      });
+
+      httpMock.expectOne(`${API}/reports/inventory`).flush({ success: true, data: items });
+    });
+  });
+
+  // ── getOutOfStockProducts() ───────────────────────────────────────────
+
+  describe('getOutOfStockProducts()', () => {
+    it('sends GET to /admin/reports/out-of-stock', () => {
+      service.getOutOfStockProducts().subscribe();
+
+      const req = httpMock.expectOne(`${API}/reports/out-of-stock`);
+      expect(req.request.method).toBe('GET');
+      req.flush({ success: true, data: [] });
+    });
+
+    it('returns products with stock = 0', () => {
+      const items: InventoryItem[] = [
+        { productId: 3, name: 'Agotado', sku: 'SKU-3', stock: 0, price: 19.99, active: false },
+      ];
+
+      service.getOutOfStockProducts().subscribe(res => {
+        expect(res.data[0].stock).toBe(0);
+        expect(res.data[0].name).toBe('Agotado');
+      });
+
+      httpMock.expectOne(`${API}/reports/out-of-stock`).flush({ success: true, data: items });
+    });
+
+    it('returns empty list when all products have stock', () => {
+      service.getOutOfStockProducts().subscribe(res => {
+        expect(res.data).toEqual([]);
+      });
+
+      httpMock.expectOne(`${API}/reports/out-of-stock`).flush({ success: true, data: [] });
     });
   });
 

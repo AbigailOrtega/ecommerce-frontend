@@ -98,6 +98,14 @@ export const routes: Routes = [
         path: 'store-info',
         loadComponent: () => import('./features/admin/store-info/store-info.component').then(m => m.StoreInfoComponent),
       },
+      {
+        path: 'shipments',
+        loadComponent: () => import('./features/admin/shipment-schedule/shipment-schedule.component').then(m => m.ShipmentScheduleComponent),
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/admin/reports/reports.component').then(m => m.ReportsComponent),
+      },
     ],
   },
   {

@@ -10,20 +10,28 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { CurrencyPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '@core/services/admin.service';
-import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingConfig } from '@shared/models';
+import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, ShippingConfig } from '@shared/models';
 
 @Component({
   selector: 'app-shipping-management',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatTableModule, MatButtonModule, MatIconModule,
+  imports: [RouterLink, FormsModule, ReactiveFormsModule, MatTableModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule,
-    MatSlideToggleModule, MatDividerModule, MatTooltipModule, CurrencyPipe],
+    MatSlideToggleModule, MatDividerModule, MatTooltipModule, MatSelectModule,
+    MatDatepickerModule, MatButtonToggleModule, CurrencyPipe],
   template: `
     <div class="container">
-      <h1>Gestión de Envíos</h1>
+      <div class="header">
+        <h1>Configuración de Entregas</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
+      </div>
 
       <!-- ── Sección 1: Configuración ── -->
       <mat-card class="config-card">
@@ -212,7 +220,7 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
                   <div class="location-info">
                     <strong>{{ loc.name }}</strong>
                     <span class="location-meta">{{ loc.address }} · {{ loc.city }}, {{ loc.state }}</span>
-                    <span class="slot-count">{{ loc.timeSlots.length }} horario(s)</span>
+                    <span class="slot-count">{{ (loc.availabilities || []).length }} regla(s) de disponibilidad</span>
                   </div>
                   <div class="location-actions">
                     <mat-slide-toggle [checked]="loc.active" (change)="toggleLocation(loc)" color="primary"
@@ -226,41 +234,146 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
                   </div>
                 </div>
 
-                <!-- Time slots -->
-                <div class="slots-section">
-                  <div class="slots-list">
-                    @for (slot of loc.timeSlots; track slot.id) {
-                      <div class="slot-item" [class.slot-inactive]="!slot.active">
-                        <span>{{ slot.label }}</span>
-                        <div class="slot-actions">
-                          <mat-slide-toggle [checked]="slot.active" (change)="toggleSlot(loc, slot)"
-                                            color="primary" [matTooltip]="slot.active ? 'Desactivar' : 'Activar'"></mat-slide-toggle>
-                          <button mat-icon-button color="warn" (click)="deleteSlot(loc, slot)" matTooltip="Eliminar">
+                <!-- ── Disponibilidad ── -->
+                <mat-divider style="margin: 12px 0;"></mat-divider>
+                <div class="avail-section">
+                  <div class="avail-header">
+                    <strong class="avail-title">Disponibilidad (calendario)</strong>
+                    <button mat-stroked-button color="primary" (click)="startAddAvailability(loc)"
+                            [disabled]="addingAvailForLocationId === loc.id">
+                      <mat-icon>add</mat-icon> Agregar regla
+                    </button>
+                  </div>
+
+                  <!-- List existing rules with inline exceptions -->
+                  @for (rule of (loc.availabilities || []); track rule.id) {
+                    <div class="avail-item" [class.avail-inactive]="!rule.active">
+                      <mat-icon class="avail-icon">{{ rule.type === 'RECURRING' ? 'repeat' : 'event' }}</mat-icon>
+                      <span class="avail-label">{{ availabilityLabel(rule) }}</span>
+                      <div class="avail-actions">
+                        <mat-slide-toggle [checked]="rule.active"
+                                          (change)="toggleAvailability(loc, rule)"
+                                          color="primary"
+                                          [matTooltip]="rule.active ? 'Desactivar' : 'Activar'">
+                        </mat-slide-toggle>
+                        <button mat-icon-button color="warn" (click)="deleteAvailability(loc, rule)" matTooltip="Eliminar">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Excepciones inline under each rule -->
+                    <div class="exc-section">
+                      <div class="exc-header">
+                        <span class="exc-title">Excepciones</span>
+                        <button mat-button color="warn" style="font-size:0.78rem;"
+                                (click)="startAddException(rule.id)"
+                                [disabled]="addingExceptionForRuleId === rule.id">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;">block</mat-icon> Bloquear fecha
+                        </button>
+                      </div>
+
+                      @for (exc of (rule.exceptions || []); track exc.id) {
+                        <div class="exc-item">
+                          <mat-icon class="exc-icon">event_busy</mat-icon>
+                          <span class="exc-label">{{ exceptionDateLabel(exc.date) }}{{ exc.reason ? ' — ' + exc.reason : '' }}</span>
+                          <button mat-icon-button color="warn" (click)="removeException(loc.id, rule.id, exc.id)" matTooltip="Eliminar excepción">
                             <mat-icon>close</mat-icon>
                           </button>
                         </div>
-                      </div>
-                    }
-                  </div>
+                      }
 
-                  <!-- Add slot inline -->
-                  @if (addingSlotForLocationId === loc.id) {
-                    <div class="add-slot-row">
-                      <mat-form-field appearance="outline" class="slot-input">
-                        <mat-label>Ej. Lunes 10:00 – 14:00</mat-label>
-                        <input matInput [(ngModel)]="newSlotLabel" [ngModelOptions]="{standalone: true}">
-                      </mat-form-field>
-                      <button mat-icon-button color="primary" (click)="saveSlot(loc)" [disabled]="!newSlotLabel.trim()">
-                        <mat-icon>check</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="cancelAddSlot()">
-                        <mat-icon>close</mat-icon>
-                      </button>
+                      @if ((rule.exceptions || []).length === 0 && addingExceptionForRuleId !== rule.id) {
+                        <p class="exc-empty">Sin excepciones.</p>
+                      }
+
+                      @if (addingExceptionForRuleId === rule.id) {
+                        <div class="add-exc-form">
+                          <mat-form-field appearance="outline" class="exc-date-field">
+                            <mat-label>Fecha a bloquear</mat-label>
+                            <input matInput [matDatepicker]="excPicker"
+                                   [min]="today"
+                                   [ngModel]="newExcDate"
+                                   (ngModelChange)="newExcDate = $event"
+                                   [ngModelOptions]="{standalone: true}">
+                            <mat-datepicker-toggle matSuffix [for]="excPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #excPicker></mat-datepicker>
+                          </mat-form-field>
+                          <mat-form-field appearance="outline" class="exc-reason-field">
+                            <mat-label>Motivo (opcional)</mat-label>
+                            <input matInput [(ngModel)]="newExcReason" [ngModelOptions]="{standalone: true}" placeholder="Ej. Día festivo">
+                          </mat-form-field>
+                          <div class="avail-form-actions">
+                            <button mat-raised-button color="warn"
+                                    (click)="saveException(loc.id, rule.id)"
+                                    [disabled]="!newExcDate">
+                              Guardar
+                            </button>
+                            <button mat-button (click)="cancelAddException()">Cancelar</button>
+                          </div>
+                        </div>
+                      }
                     </div>
-                  } @else {
-                    <button mat-stroked-button (click)="startAddSlot(loc.id)" class="add-slot-btn">
-                      <mat-icon>schedule</mat-icon> Agregar horario
-                    </button>
+                  }
+
+                  <!-- Add availability form (inline) -->
+                  @if (addingAvailForLocationId === loc.id) {
+                    <div class="add-avail-form">
+                      <mat-button-toggle-group [(ngModel)]="newAvail.type" [ngModelOptions]="{standalone: true}"
+                                               class="type-toggle">
+                        <mat-button-toggle value="RECURRING">↻ Recurrente</mat-button-toggle>
+                        <mat-button-toggle value="SPECIFIC_DATE">📅 Fecha específica</mat-button-toggle>
+                      </mat-button-toggle-group>
+
+                      @if (newAvail.type === 'RECURRING') {
+                        <mat-form-field appearance="outline" class="avail-field">
+                          <mat-label>Día de la semana</mat-label>
+                          <mat-select [(ngModel)]="newAvail.dayOfWeek" [ngModelOptions]="{standalone: true}">
+                            <mat-option value="MONDAY">Lunes</mat-option>
+                            <mat-option value="TUESDAY">Martes</mat-option>
+                            <mat-option value="WEDNESDAY">Miércoles</mat-option>
+                            <mat-option value="THURSDAY">Jueves</mat-option>
+                            <mat-option value="FRIDAY">Viernes</mat-option>
+                            <mat-option value="SATURDAY">Sábado</mat-option>
+                            <mat-option value="SUNDAY">Domingo</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      } @else {
+                        <mat-form-field appearance="outline" class="avail-field">
+                          <mat-label>Fecha específica</mat-label>
+                          <input matInput [matDatepicker]="availPicker"
+                                 [ngModel]="newAvailSpecificDate"
+                                 (ngModelChange)="onAvailDateChange($event)"
+                                 [ngModelOptions]="{standalone: true}">
+                          <mat-datepicker-toggle matSuffix [for]="availPicker"></mat-datepicker-toggle>
+                          <mat-datepicker #availPicker></mat-datepicker>
+                        </mat-form-field>
+                      }
+
+                      <div class="avail-time-row">
+                        <mat-form-field appearance="outline" class="avail-time-field">
+                          <mat-label>Hora inicio</mat-label>
+                          <input matInput type="time" [(ngModel)]="newAvail.startTime" [ngModelOptions]="{standalone: true}">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="avail-time-field">
+                          <mat-label>Hora fin</mat-label>
+                          <input matInput type="time" [(ngModel)]="newAvail.endTime" [ngModelOptions]="{standalone: true}">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="avail-cap-field">
+                          <mat-label>Cap. máx.</mat-label>
+                          <input matInput type="number" min="1" [(ngModel)]="newAvail.maxCapacity" [ngModelOptions]="{standalone: true}">
+                        </mat-form-field>
+                      </div>
+
+                      <div class="avail-form-actions">
+                        <button mat-raised-button color="primary"
+                                (click)="saveAvailability(loc)"
+                                [disabled]="!isNewAvailValid()">
+                          Agregar
+                        </button>
+                        <button mat-button (click)="cancelAddAvailability()">Cancelar</button>
+                      </div>
+                    </div>
                   }
                 </div>
               </mat-card>
@@ -271,7 +384,8 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
     </div>
   `,
   styles: [`
-    .container { max-width: 900px; }
+    .container { }
+    .header { display: flex; justify-content: space-between; align-items: center; }
     .config-card, .locations-card { padding: 24px; margin-bottom: 24px; }
     .full-width { width: 100%; }
     .row { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -307,6 +421,33 @@ import { PickupLocation, PickupLocationRequest, PickupTimeSlotRequest, ShippingC
     .section-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
     .section-header-row .sub-title { margin: 0; }
     .sub-label { font-size: 0.82rem; font-weight: 600; color: #555; margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    /* Availability */
+    .avail-section { margin-top: 8px; }
+    .avail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .avail-title { font-size: 0.875rem; color: #555; }
+    .avail-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: #f1f8e9; margin-bottom: 4px; font-size: 0.875rem; }
+    .avail-item.avail-inactive { opacity: 0.55; background: #f5f5f5; }
+    .avail-icon { font-size: 18px; width: 18px; height: 18px; color: #558b2f; flex-shrink: 0; }
+    .avail-label { flex: 1; }
+    .avail-actions { display: flex; align-items: center; gap: 4px; }
+    .add-avail-form { margin-top: 10px; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; }
+    .type-toggle { margin-bottom: 12px; }
+    .avail-field { min-width: 200px; }
+    .avail-time-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .avail-time-field { min-width: 130px; }
+    .avail-cap-field { min-width: 110px; }
+    .avail-form-actions { display: flex; gap: 8px; margin-top: 8px; }
+    /* Exceptions */
+    .exc-section { margin-top: 6px; padding-left: 4px; }
+    .exc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .exc-title { font-size: 0.8rem; color: #888; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+    .exc-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 6px; background: #fce4ec; margin-bottom: 4px; font-size: 0.85rem; }
+    .exc-icon { font-size: 16px; width: 16px; height: 16px; color: #c62828; flex-shrink: 0; }
+    .exc-label { flex: 1; color: #555; }
+    .exc-empty { font-size: 0.8rem; color: #bbb; margin: 4px 0 6px; }
+    .add-exc-form { margin-top: 8px; padding: 12px; background: #fff3f3; border-radius: 8px; border: 1px solid #ffcdd2; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+    .exc-date-field { min-width: 180px; }
+    .exc-reason-field { flex: 1; min-width: 180px; }
   `],
 })
 export class ShippingManagementComponent implements OnInit {
@@ -324,8 +465,16 @@ export class ShippingManagementComponent implements OnInit {
   editingLocation: PickupLocation | null = null;
   savingLocation = false;
 
-  addingSlotForLocationId: number | null = null;
-  newSlotLabel = '';
+  // Availability state
+  addingAvailForLocationId: number | null = null;
+  newAvail: PickupAvailabilityRequest = this.defaultAvail();
+  newAvailSpecificDate: Date | null = null;
+
+  // Exception state
+  addingExceptionForRuleId: number | null = null;
+  newExcDate: Date | null = null;
+  newExcReason = '';
+  readonly today = new Date();
 
   constructor(
     private fb: FormBuilder,
@@ -422,8 +571,25 @@ export class ShippingManagementComponent implements OnInit {
   loadLocations(): void {
     this.locationsLoading = true;
     this.adminService.getPickupLocations().subscribe({
-      next: (res) => { this.locations = res.data; this.locationsLoading = false; },
+      next: (res) => {
+        this.locations = res.data;
+        // Load availabilities for each location
+        this.locations.forEach(loc => this.loadAvailabilities(loc));
+        this.locationsLoading = false;
+      },
       error: () => this.locationsLoading = false,
+    });
+  }
+
+  loadAvailabilities(loc: PickupLocation): void {
+    this.adminService.getPickupAvailability(loc.id).subscribe({
+      next: (res) => {
+        const idx = this.locations.findIndex(l => l.id === loc.id);
+        if (idx !== -1) {
+          this.locations[idx] = { ...this.locations[idx], availabilities: res.data };
+          this.locations = [...this.locations];
+        }
+      },
     });
   }
 
@@ -487,45 +653,70 @@ export class ShippingManagementComponent implements OnInit {
     });
   }
 
-  startAddSlot(locationId: number): void {
-    this.addingSlotForLocationId = locationId;
-    this.newSlotLabel = '';
+  // ── Availability ─────────────────────────────────────────────────────────
+
+  private defaultAvail(): PickupAvailabilityRequest {
+    return { type: 'RECURRING', dayOfWeek: 'MONDAY', startTime: '10:00', endTime: '14:00', maxCapacity: 10 };
   }
 
-  cancelAddSlot(): void {
-    this.addingSlotForLocationId = null;
-    this.newSlotLabel = '';
+  startAddAvailability(loc: PickupLocation): void {
+    this.addingAvailForLocationId = loc.id;
+    this.newAvail = this.defaultAvail();
+    this.newAvailSpecificDate = null;
   }
 
-  saveSlot(loc: PickupLocation): void {
-    if (!this.newSlotLabel.trim()) return;
-    const req: PickupTimeSlotRequest = { label: this.newSlotLabel.trim() };
-    this.adminService.addTimeSlot(loc.id, req).subscribe({
+  cancelAddAvailability(): void {
+    this.addingAvailForLocationId = null;
+    this.newAvail = this.defaultAvail();
+    this.newAvailSpecificDate = null;
+  }
+
+  onAvailDateChange(date: Date | null): void {
+    this.newAvailSpecificDate = date;
+    if (date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      this.newAvail = { ...this.newAvail, specificDate: `${y}-${m}-${d}` };
+    }
+  }
+
+  isNewAvailValid(): boolean {
+    if (!this.newAvail.startTime || !this.newAvail.endTime || !this.newAvail.maxCapacity) return false;
+    if (this.newAvail.type === 'RECURRING') return !!this.newAvail.dayOfWeek;
+    return !!this.newAvail.specificDate;
+  }
+
+  saveAvailability(loc: PickupLocation): void {
+    if (!this.isNewAvailValid()) return;
+    const req: PickupAvailabilityRequest = { ...this.newAvail };
+    if (req.type === 'RECURRING') delete req.specificDate;
+    if (req.type === 'SPECIFIC_DATE') delete req.dayOfWeek;
+
+    this.adminService.createPickupAvailability(loc.id, req).subscribe({
       next: (res) => {
         const idx = this.locations.findIndex(l => l.id === loc.id);
         if (idx !== -1) {
-          this.locations[idx] = {
-            ...this.locations[idx],
-            timeSlots: [...this.locations[idx].timeSlots, res.data],
-          };
+          const avails = [...(this.locations[idx].availabilities || []), res.data];
+          this.locations[idx] = { ...this.locations[idx], availabilities: avails };
           this.locations = [...this.locations];
         }
-        this.cancelAddSlot();
-        this.snackBar.open('Horario agregado', 'Cerrar', { duration: 3000 });
+        this.cancelAddAvailability();
+        this.snackBar.open('Regla de disponibilidad agregada', 'Cerrar', { duration: 3000 });
       },
       error: (err) => this.snackBar.open(err.error?.message || 'Error', 'Cerrar', { duration: 4000 }),
     });
   }
 
-  deleteSlot(loc: PickupLocation, slot: { id: number; label: string; active: boolean }): void {
-    if (!confirm(`¿Eliminar horario "${slot.label}"?`)) return;
-    this.adminService.deleteTimeSlot(loc.id, slot.id).subscribe({
+  deleteAvailability(loc: PickupLocation, rule: PickupAvailability): void {
+    if (!confirm(`¿Eliminar regla "${this.availabilityLabel(rule)}"?`)) return;
+    this.adminService.deletePickupAvailability(loc.id, rule.id).subscribe({
       next: () => {
         const idx = this.locations.findIndex(l => l.id === loc.id);
         if (idx !== -1) {
           this.locations[idx] = {
             ...this.locations[idx],
-            timeSlots: this.locations[idx].timeSlots.filter(s => s.id !== slot.id),
+            availabilities: (this.locations[idx].availabilities || []).filter(a => a.id !== rule.id),
           };
           this.locations = [...this.locations];
         }
@@ -535,19 +726,98 @@ export class ShippingManagementComponent implements OnInit {
     });
   }
 
-  toggleSlot(loc: PickupLocation, slot: { id: number; label: string; active: boolean }): void {
-    this.adminService.toggleTimeSlot(loc.id, slot.id).subscribe({
+  toggleAvailability(loc: PickupLocation, rule: PickupAvailability): void {
+    this.adminService.togglePickupAvailability(loc.id, rule.id).subscribe({
       next: (res) => {
         const locIdx = this.locations.findIndex(l => l.id === loc.id);
         if (locIdx !== -1) {
-          const slots = this.locations[locIdx].timeSlots.map(s =>
-            s.id === slot.id ? { ...s, active: res.data.active } : s
+          const avails = (this.locations[locIdx].availabilities || []).map(a =>
+            a.id === rule.id ? { ...a, active: res.data.active } : a
           );
-          this.locations[locIdx] = { ...this.locations[locIdx], timeSlots: slots };
+          this.locations[locIdx] = { ...this.locations[locIdx], availabilities: avails };
           this.locations = [...this.locations];
         }
       },
       error: (err) => this.snackBar.open(err.error?.message || 'Error', 'Cerrar', { duration: 4000 }),
     });
+  }
+
+  availabilityLabel(rule: PickupAvailability): string {
+    const dayLabels: Record<string, string> = {
+      MONDAY: 'Lunes', TUESDAY: 'Martes', WEDNESDAY: 'Miércoles',
+      THURSDAY: 'Jueves', FRIDAY: 'Viernes', SATURDAY: 'Sábado', SUNDAY: 'Domingo',
+    };
+    const timeRange = `${rule.startTime} – ${rule.endTime}`;
+    const cap = `Cap: ${rule.maxCapacity}`;
+    if (rule.type === 'RECURRING' && rule.dayOfWeek) {
+      return `↻ ${dayLabels[rule.dayOfWeek] ?? rule.dayOfWeek} · ${timeRange} · ${cap}`;
+    }
+    return `📅 ${rule.specificDate ?? ''} · ${timeRange} · ${cap}`;
+  }
+
+  // ── Exceptions ───────────────────────────────────────────────────────────
+
+  startAddException(ruleId: number): void {
+    this.addingExceptionForRuleId = ruleId;
+    this.newExcDate = null;
+    this.newExcReason = '';
+  }
+
+  cancelAddException(): void {
+    this.addingExceptionForRuleId = null;
+    this.newExcDate = null;
+    this.newExcReason = '';
+  }
+
+  saveException(lid: number, aid: number): void {
+    if (!this.newExcDate) return;
+    const d = this.newExcDate;
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const req: PickupExceptionRequest = { date: dateStr, reason: this.newExcReason || undefined };
+    this.adminService.createPickupException(lid, aid, req).subscribe({
+      next: (res) => {
+        const locIdx = this.locations.findIndex(l => l.id === lid);
+        if (locIdx !== -1) {
+          const avails = (this.locations[locIdx].availabilities || []).map(a => {
+            if (a.id === aid) {
+              return { ...a, exceptions: [...(a.exceptions || []), res.data] };
+            }
+            return a;
+          });
+          this.locations[locIdx] = { ...this.locations[locIdx], availabilities: avails };
+          this.locations = [...this.locations];
+        }
+        this.cancelAddException();
+        this.snackBar.open('Excepción guardada', 'Cerrar', { duration: 3000 });
+      },
+      error: (err) => this.snackBar.open(err.error?.message || 'Error al guardar', 'Cerrar', { duration: 4000 }),
+    });
+  }
+
+  removeException(lid: number, aid: number, eid: number): void {
+    if (!confirm('¿Eliminar esta excepción?')) return;
+    this.adminService.deletePickupException(lid, aid, eid).subscribe({
+      next: () => {
+        const locIdx = this.locations.findIndex(l => l.id === lid);
+        if (locIdx !== -1) {
+          const avails = (this.locations[locIdx].availabilities || []).map(a => {
+            if (a.id === aid) {
+              return { ...a, exceptions: (a.exceptions || []).filter(e => e.id !== eid) };
+            }
+            return a;
+          });
+          this.locations[locIdx] = { ...this.locations[locIdx], availabilities: avails };
+          this.locations = [...this.locations];
+        }
+        this.snackBar.open('Excepción eliminada', 'Cerrar', { duration: 3000 });
+      },
+      error: (err) => this.snackBar.open(err.error?.message || 'Error', 'Cerrar', { duration: 4000 }),
+    });
+  }
+
+  exceptionDateLabel(dateStr: string): string {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    return d.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   }
 }

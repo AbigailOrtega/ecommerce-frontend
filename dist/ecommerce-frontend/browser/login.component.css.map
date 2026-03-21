@@ -1,7 +1,7 @@
 {
   "version": 3,
-  "sources": ["angular:styles/component:css;9d2fec115739554760474901e4592f76ce05be8eb48a8832fe1fd5c72ddf3d8a;/Users/abigailortega/ecommerce/frontend/src/app/features/auth/login/login.component.ts"],
-  "sourcesContent": ["\n    .auth-container {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      min-height: 60vh;\n      padding: 24px;\n    }\n    mat-card {\n      max-width: 420px;\n      width: 100%;\n      padding: 24px;\n    }\n    .full-width { width: 100%; }\n    mat-card-actions p { margin: 0; font-size: 0.9rem; }\n    mat-card-actions a { color: #3f51b5; font-weight: 500; }\n  "],
-  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,mBAAiB;AACjB,eAAa;AACb,cAAY;AACZ,WAAS;AACX;AACA;AACE,aAAW;AACX,SAAO;AACP,WAAS;AACX;AACA,CAAC;AAAa,SAAO;AAAM;AAC3B,iBAAiB;AAAI,UAAQ;AAAG,aAAW;AAAQ;AACnD,iBAAiB;AAAI,SAAO;AAAS,eAAa;AAAK;",
+  "sources": ["angular:styles/component:css;e2931cbe893fff00b8d339d4fe7c709a05262381cbd9714f6aed705ef6440f63;/Users/abigailortega/ecommerce/frontend/src/app/features/auth/login/login.component.ts"],
+  "sourcesContent": ["\n    .auth-container {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      min-height: 60vh;\n      padding: 24px;\n    }\n    mat-card {\n      max-width: 420px;\n      width: 100%;\n      padding: 24px;\n    }\n    .full-width { width: 100%; }\n    mat-card-actions p { margin: 0; font-size: 0.9rem; }\n    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }\n    .forgot-link { margin-top: 8px; font-size: 0.9rem; text-align: right; }\n    .forgot-link a { color: var(--theme-primary); }\n  "],
+  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,mBAAiB;AACjB,eAAa;AACb,cAAY;AACZ,WAAS;AACX;AACA;AACE,aAAW;AACX,SAAO;AACP,WAAS;AACX;AACA,CAAC;AAAa,SAAO;AAAM;AAC3B,iBAAiB;AAAI,UAAQ;AAAG,aAAW;AAAQ;AACnD,iBAAiB;AAAI,SAAO,IAAI;AAAkB,eAAa;AAAK;AACpE,CAAC;AAAc,cAAY;AAAK,aAAW;AAAQ,cAAY;AAAO;AACtE,CADC,YACY;AAAI,SAAO,IAAI;AAAkB;",
   "names": []
 }

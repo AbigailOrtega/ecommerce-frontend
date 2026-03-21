@@ -11,18 +11,22 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '@core/services/admin.service';
 import { Ticket, TicketUpdateRequest } from '@shared/models';
 
 @Component({
   selector: 'app-ticket-management',
   standalone: true,
-  imports: [FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule,
     MatSnackBarModule, MatTooltipModule, DatePipe],
   template: `
     <div class="container">
-      <h1>Tickets de Soporte</h1>
+      <div class="header">
+        <h1>Tickets de Soporte</h1>
+        <a mat-button routerLink="/admin">&larr; Panel</a>
+      </div>
 
       <!-- Detail panel -->
       @if (selected) {
@@ -125,6 +129,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
     </div>
   `,
   styles: [`
+    .header { display: flex; justify-content: space-between; align-items: center; }
     .detail-card { padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--theme-primary); }
     .detail-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .meta { color: #666; font-size: 0.9rem; margin: 4px 0 0; }

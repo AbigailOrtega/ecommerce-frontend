@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { ApiResponse, Coupon, CouponRequest, DashboardStats, Order, Page, PickupLocation, PickupLocationRequest, PickupTimeSlot, PickupTimeSlotRequest, Product, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, User } from '@shared/models';
+import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User } from '@shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -13,6 +13,30 @@ export class AdminService {
 
   getDashboardStats(): Observable<ApiResponse<DashboardStats>> {
     return this.http.get<ApiResponse<DashboardStats>>(`${this.apiUrl}/dashboard`);
+  }
+
+  getUpcomingSchedule(): Observable<ApiResponse<UpcomingSchedule>> {
+    return this.http.get<ApiResponse<UpcomingSchedule>>(`${this.apiUrl}/orders/upcoming-schedule`);
+  }
+
+  getSalesReport(period: 'week' | 'month' | 'year'): Observable<ApiResponse<SalesReport>> {
+    return this.http.get<ApiResponse<SalesReport>>(`${this.apiUrl}/reports/sales?period=${period}`);
+  }
+
+  getTopSellingProducts(limit = 20): Observable<ApiResponse<ProductSalesItem[]>> {
+    return this.http.get<ApiResponse<ProductSalesItem[]>>(`${this.apiUrl}/reports/products/top-selling?limit=${limit}`);
+  }
+
+  getLeastSellingProducts(limit = 20): Observable<ApiResponse<ProductSalesItem[]>> {
+    return this.http.get<ApiResponse<ProductSalesItem[]>>(`${this.apiUrl}/reports/products/least-selling?limit=${limit}`);
+  }
+
+  getInventoryReport(): Observable<ApiResponse<InventoryItem[]>> {
+    return this.http.get<ApiResponse<InventoryItem[]>>(`${this.apiUrl}/reports/inventory`);
+  }
+
+  getOutOfStockProducts(): Observable<ApiResponse<InventoryItem[]>> {
+    return this.http.get<ApiResponse<InventoryItem[]>>(`${this.apiUrl}/reports/out-of-stock`);
   }
 
   getAllOrders(page = 0, size = 20): Observable<ApiResponse<Page<Order>>> {
@@ -26,6 +50,11 @@ export class AdminService {
 
   updateOrderStatus(id: number, status: string): Observable<ApiResponse<Order>> {
     return this.http.put<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/status`, { status });
+  }
+
+  cancelPickup(id: number, reason?: string): Observable<ApiResponse<Order>> {
+    const params = reason ? new HttpParams().set('reason', reason) : undefined;
+    return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/cancel-pickup`, null, { params });
   }
 
   getAllProducts(page = 0, size = 20): Observable<ApiResponse<Page<Product>>> {
@@ -151,20 +180,40 @@ export class AdminService {
     return this.http.patch<ApiResponse<PickupLocation>>(`${this.apiUrl}/pickup-locations/${id}/toggle`, {});
   }
 
-  addTimeSlot(locationId: number, req: PickupTimeSlotRequest): Observable<ApiResponse<PickupTimeSlot>> {
-    return this.http.post<ApiResponse<PickupTimeSlot>>(`${this.apiUrl}/pickup-locations/${locationId}/time-slots`, req);
+  // ── Pickup Availability ────────────────────────────────────────────────────
+
+  getPickupAvailability(lid: number): Observable<ApiResponse<PickupAvailability[]>> {
+    return this.http.get<ApiResponse<PickupAvailability[]>>(`${this.apiUrl}/pickup-locations/${lid}/availability`);
   }
 
-  updateTimeSlot(lid: number, sid: number, req: PickupTimeSlotRequest): Observable<ApiResponse<PickupTimeSlot>> {
-    return this.http.put<ApiResponse<PickupTimeSlot>>(`${this.apiUrl}/pickup-locations/${lid}/time-slots/${sid}`, req);
+  createPickupAvailability(lid: number, req: PickupAvailabilityRequest): Observable<ApiResponse<PickupAvailability>> {
+    return this.http.post<ApiResponse<PickupAvailability>>(`${this.apiUrl}/pickup-locations/${lid}/availability`, req);
   }
 
-  deleteTimeSlot(lid: number, sid: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/pickup-locations/${lid}/time-slots/${sid}`);
+  updatePickupAvailability(lid: number, aid: number, req: PickupAvailabilityRequest): Observable<ApiResponse<PickupAvailability>> {
+    return this.http.put<ApiResponse<PickupAvailability>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}`, req);
   }
 
-  toggleTimeSlot(lid: number, sid: number): Observable<ApiResponse<PickupTimeSlot>> {
-    return this.http.patch<ApiResponse<PickupTimeSlot>>(`${this.apiUrl}/pickup-locations/${lid}/time-slots/${sid}/toggle`, {});
+  deletePickupAvailability(lid: number, aid: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}`);
+  }
+
+  togglePickupAvailability(lid: number, aid: number): Observable<ApiResponse<PickupAvailability>> {
+    return this.http.patch<ApiResponse<PickupAvailability>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}/toggle`, {});
+  }
+
+  // ── Pickup Exceptions ─────────────────────────────────────────────────────
+
+  getPickupExceptions(lid: number, aid: number): Observable<ApiResponse<PickupException[]>> {
+    return this.http.get<ApiResponse<PickupException[]>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}/exceptions`);
+  }
+
+  createPickupException(lid: number, aid: number, req: PickupExceptionRequest): Observable<ApiResponse<PickupException>> {
+    return this.http.post<ApiResponse<PickupException>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}/exceptions`, req);
+  }
+
+  deletePickupException(lid: number, aid: number, eid: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/pickup-locations/${lid}/availability/${aid}/exceptions/${eid}`);
   }
 
   // ── Skydropx ──────────────────────────────────────────────────────────────

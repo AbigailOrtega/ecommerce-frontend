@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;ea6b0f4211d1428e0efae57406e19a8ea5ee2314a3023d5ebc96b512ae4df564;/Users/abigailortega/ecommerce/frontend/src/app/features/admin/coupon-management/coupon-management.component.ts"],
+  "sourcesContent": ["\n    .header { display: flex; justify-content: space-between; align-items: center; }\n    .form-card { padding: 24px; margin-bottom: 24px; }\n    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }\n    .form-actions { display: flex; gap: 12px; margin-top: 8px; }\n    .table-card { padding: 16px; }\n    .full-width { width: 100%; }\n    .empty { text-align: center; padding: 24px; color: #888; }\n    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }\n  "],
+  "mappings": ";AACI,CAAC;AAAS,WAAS;AAAM,mBAAiB;AAAe,eAAa;AAAQ;AAC9E,CAAC;AAAY,WAAS;AAAM,iBAAe;AAAM;AACjD,CAAC;AAAY,WAAS;AAAM,yBAAuB,OAAO,CAAC,EAAE;AAAM,OAAK;AAAM;AAC9E,CAAC;AAAe,WAAS;AAAM,OAAK;AAAM,cAAY;AAAK;AAC3D,CAAC;AAAa,WAAS;AAAM;AAC7B,CAAC;AAAa,SAAO;AAAM;AAC3B,CAAC;AAAQ,cAAY;AAAQ,WAAS;AAAM,SAAO;AAAM;AACzD,OAAO,CAAC,SAAS,EAAE;AAAS,GAL3B;AAKwC,2BAAuB;AAAK;AAAE;",
+  "names": []
+}

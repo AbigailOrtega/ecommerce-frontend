@@ -89,12 +89,12 @@ describe('OrderService', () => {
       httpMock.expectOne(API).flush({ success: true, data: expected });
     });
 
-    it('supports PICKUP shipping type with pickupLocationId and pickupTimeSlotId', () => {
+    it('supports PICKUP shipping type with pickupLocationId and pickupDate', () => {
       const pickupRequest: OrderRequest = {
         paymentMethod: 'COD',
         shippingType: 'PICKUP',
         pickupLocationId: 5,
-        pickupTimeSlotId: 12,
+        pickupDate: '2026-04-07',
       };
 
       service.createOrder(pickupRequest).subscribe();
