@@ -33,107 +33,81 @@ import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequ
         <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
-      <!-- ── Sección 1: Configuración ── -->
+      <!-- ── Configuración ── -->
       <mat-card class="config-card">
-        <h2>Configuración de Envío</h2>
+        <h2>Configuración de Envío por paquetería</h2>
         @if (configLoading) {
           <p class="hint">Cargando configuración...</p>
         } @else if (configForm) {
           <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
 
-            <!-- ── 1. Skydropx ── -->
+            <!-- ── 1. Paquetería ── -->
             <div class="section-header-row">
-              <h3 class="sub-title">Skydropx (Guías de envío)</h3>
-              <span class="api-badge" [class.configured]="config?.hasSkydropxCredentials">
-                <mat-icon>{{ config?.hasSkydropxCredentials ? 'check_circle' : 'cancel' }}</mat-icon>
-                {{ config?.hasSkydropxCredentials ? 'Conectado' : 'No configurado' }}
-              </span>
+              <h3 class="sub-title">Envío por paquetería</h3>
+              <mat-slide-toggle formControlName="nationalEnabled" color="primary">Habilitado</mat-slide-toggle>
             </div>
 
-            <div class="toggle-row" style="margin-bottom: 12px;">
-              <mat-slide-toggle formControlName="skydropxSandbox" color="accent">
-                Modo Sandbox (demo)
-              </mat-slide-toggle>
-            </div>
-
-            <div class="api-key-row">
+            @if (configForm.get('nationalEnabled')?.value) {
+              <p class="sub-label">Dirección de origen para guías</p>
               <mat-form-field appearance="outline" class="full-width">
-                <mat-label>API Key (Client ID)</mat-label>
-                <input matInput [type]="showSkydropxId ? 'text' : 'password'" formControlName="skydropxClientId"
-                       placeholder="Ingresa tu API Key">
-                <button mat-icon-button matSuffix type="button" (click)="showSkydropxId = !showSkydropxId">
-                  <mat-icon>{{ showSkydropxId ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
+                <mat-label>Calle y número</mat-label>
+                <input matInput formControlName="skydropxOriginStreet" placeholder="Ej. Reforma 222 Int. 5">
               </mat-form-field>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>API Secret Key (Client Secret)</mat-label>
-                <input matInput [type]="showSkydropxSecret ? 'text' : 'password'" formControlName="skydropxClientSecret"
-                       placeholder="Ingresa tu API Secret Key">
-                <button mat-icon-button matSuffix type="button" (click)="showSkydropxSecret = !showSkydropxSecret">
-                  <mat-icon>{{ showSkydropxSecret ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
-              </mat-form-field>
-            </div>
+              <div class="row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Código Postal</mat-label>
+                  <input matInput formControlName="skydropxOriginPostalCode">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Ciudad</mat-label>
+                  <input matInput formControlName="skydropxOriginCity">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Estado</mat-label>
+                  <input matInput formControlName="skydropxOriginState">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>País (ISO)</mat-label>
+                  <input matInput formControlName="skydropxOriginCountry" placeholder="MX">
+                </mat-form-field>
+              </div>
 
-            <p class="sub-label">Dirección de origen para guías</p>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Calle y número</mat-label>
-              <input matInput formControlName="skydropxOriginStreet" placeholder="Ej. Reforma 222 Int. 5">
-            </mat-form-field>
-            <div class="row">
-              <mat-form-field appearance="outline">
-                <mat-label>Código Postal</mat-label>
-                <input matInput formControlName="skydropxOriginPostalCode">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Ciudad</mat-label>
-                <input matInput formControlName="skydropxOriginCity">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Estado</mat-label>
-                <input matInput formControlName="skydropxOriginState">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>País (ISO)</mat-label>
-                <input matInput formControlName="skydropxOriginCountry" placeholder="MX">
-              </mat-form-field>
-            </div>
+              <p class="sub-label">Datos del remitente</p>
+              <div class="row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nombre</mat-label>
+                  <input matInput formControlName="skydropxSenderName">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Email</mat-label>
+                  <input matInput formControlName="skydropxSenderEmail">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Teléfono</mat-label>
+                  <input matInput formControlName="skydropxSenderPhone">
+                </mat-form-field>
+              </div>
 
-            <p class="sub-label">Datos del remitente</p>
-            <div class="row">
-              <mat-form-field appearance="outline">
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="skydropxSenderName">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="skydropxSenderEmail">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Teléfono</mat-label>
-                <input matInput formControlName="skydropxSenderPhone">
-              </mat-form-field>
-            </div>
-
-            <p class="sub-label">Dimensiones de paquete por defecto</p>
-            <div class="row">
-              <mat-form-field appearance="outline">
-                <mat-label>Peso (kg)</mat-label>
-                <input matInput type="number" min="0.1" step="0.1" formControlName="skydropxDefaultWeight">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Largo (cm)</mat-label>
-                <input matInput type="number" min="1" formControlName="skydropxDefaultLength">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Ancho (cm)</mat-label>
-                <input matInput type="number" min="1" formControlName="skydropxDefaultWidth">
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Alto (cm)</mat-label>
-                <input matInput type="number" min="1" formControlName="skydropxDefaultHeight">
-              </mat-form-field>
-            </div>
+              <p class="sub-label">Dimensiones de paquete por defecto</p>
+              <div class="row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Peso (kg)</mat-label>
+                  <input matInput type="number" min="0.1" step="0.1" formControlName="skydropxDefaultWeight">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Largo (cm)</mat-label>
+                  <input matInput type="number" min="1" formControlName="skydropxDefaultLength">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Ancho (cm)</mat-label>
+                  <input matInput type="number" min="1" formControlName="skydropxDefaultWidth">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Alto (cm)</mat-label>
+                  <input matInput type="number" min="1" formControlName="skydropxDefaultHeight">
+                </mat-form-field>
+              </div>
+            }
 
             <!-- ── 2. Pick Up ── -->
             <mat-divider style="margin: 24px 0 16px;"></mat-divider>
@@ -149,33 +123,17 @@ import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequ
               </mat-form-field>
             }
 
-            <!-- ── WhatsApp ── -->
-            <mat-divider style="margin: 24px 0 16px;"></mat-divider>
-            <h3 class="sub-title">WhatsApp de contacto</h3>
-            <mat-form-field appearance="outline">
-              <mat-label>Número WhatsApp (con código de país)</mat-label>
-              <input matInput formControlName="whatsappNumber" placeholder="Ej. 5215512345678">
-              <mat-hint>Sin espacios ni "+". Se muestra como botón flotante en la tienda.</mat-hint>
-            </mat-form-field>
+          </form>
 
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="savingConfig">
-                {{ savingConfig ? 'Guardando...' : 'Guardar configuración' }}
+          <!-- ── Puntos de Pick Up (misma card) ── -->
+          @if (configForm.get('pickupEnabled')?.value) {
+            <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+            <div class="locations-header">
+              <h3 class="sub-title" style="margin:0;">Puntos de Pick Up</h3>
+              <button mat-raised-button color="primary" (click)="openLocationForm()">
+                <mat-icon>add</mat-icon> Agregar Punto
               </button>
             </div>
-          </form>
-        }
-      </mat-card>
-
-      <!-- ── Sección 2: Puntos de Pick Up ── -->
-      @if (configForm?.get('pickupEnabled')?.value) {
-        <mat-card class="locations-card">
-          <div class="locations-header">
-            <h2>Puntos de Pick Up</h2>
-            <button mat-raised-button color="primary" (click)="openLocationForm()">
-              <mat-icon>add</mat-icon> Agregar Punto
-            </button>
-          </div>
 
           @if (showLocationForm) {
             <mat-card class="inline-form">
@@ -379,14 +337,22 @@ import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequ
               </mat-card>
             }
           }
-        </mat-card>
-      }
+          }
+
+          <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" (click)="saveConfig()" [disabled]="savingConfig">
+              {{ savingConfig ? 'Guardando...' : 'Guardar configuración' }}
+            </button>
+          </div>
+        }
+      </mat-card>
     </div>
   `,
   styles: [`
     .container { }
     .header { display: flex; justify-content: space-between; align-items: center; }
-    .config-card, .locations-card { padding: 24px; margin-bottom: 24px; }
+    .config-card { padding: 24px; margin-bottom: 24px; }
     .full-width { width: 100%; }
     .row { display: flex; gap: 16px; flex-wrap: wrap; }
     .row mat-form-field { flex: 1; min-width: 180px; }
@@ -455,8 +421,6 @@ export class ShippingManagementComponent implements OnInit {
   config: ShippingConfig | null = null;
   configLoading = true;
   savingConfig = false;
-  showSkydropxId = false;
-  showSkydropxSecret = false;
 
   locations: PickupLocation[] = [];
   locationsLoading = true;
@@ -500,10 +464,9 @@ export class ShippingManagementComponent implements OnInit {
       next: (res) => {
         this.config = res.data;
         this.configForm = this.fb.group({
+          nationalEnabled: [res.data.nationalEnabled],
           pickupEnabled: [res.data.pickupEnabled],
           pickupCost: [res.data.pickupCost, [Validators.min(0)]],
-          skydropxClientId: [''],
-          skydropxClientSecret: [''],
           skydropxOriginStreet: [res.data.skydropxOriginStreet ?? ''],
           skydropxOriginPostalCode: [res.data.skydropxOriginPostalCode ?? ''],
           skydropxOriginCity: [res.data.skydropxOriginCity ?? ''],
@@ -516,8 +479,6 @@ export class ShippingManagementComponent implements OnInit {
           skydropxDefaultLength: [res.data.skydropxDefaultLength ?? 20],
           skydropxDefaultWidth: [res.data.skydropxDefaultWidth ?? 20],
           skydropxDefaultHeight: [res.data.skydropxDefaultHeight ?? 10],
-          skydropxSandbox: [res.data.skydropxSandbox ?? false],
-          whatsappNumber: [res.data.whatsappNumber ?? ''],
         });
         this.configLoading = false;
       },
@@ -530,6 +491,7 @@ export class ShippingManagementComponent implements OnInit {
     this.savingConfig = true;
     const val = this.configForm.value;
     const req: Partial<ShippingConfig> = {
+      nationalEnabled: val.nationalEnabled,
       pickupEnabled: val.pickupEnabled,
       pickupCost: val.pickupCost,
       skydropxOriginStreet: val.skydropxOriginStreet,
@@ -544,21 +506,11 @@ export class ShippingManagementComponent implements OnInit {
       skydropxDefaultLength: val.skydropxDefaultLength,
       skydropxDefaultWidth: val.skydropxDefaultWidth,
       skydropxDefaultHeight: val.skydropxDefaultHeight,
-      skydropxSandbox: val.skydropxSandbox,
-      whatsappNumber: val.whatsappNumber,
     };
-    if (val.skydropxClientId?.trim()) {
-      (req as any).skydropxClientId = val.skydropxClientId;
-    }
-    if (val.skydropxClientSecret?.trim()) {
-      (req as any).skydropxClientSecret = val.skydropxClientSecret;
-    }
-
     this.adminService.updateShippingConfig(req).subscribe({
       next: (res) => {
         this.config = res.data;
         this.savingConfig = false;
-        this.configForm?.patchValue({ skydropxClientId: '', skydropxClientSecret: '' });
         this.snackBar.open('Configuración guardada', 'Cerrar', { duration: 3000 });
       },
       error: (err) => {

@@ -198,7 +198,24 @@ import { CartItem, LocalCartItem } from '@shared/models';
     .discount-value { font-weight: 600; }
     .checkout-btn { width: 100%; margin-top: 16px; }
     .clear-btn { width: 100%; margin-top: 8px; }
-    @media (max-width: 768px) { .cart-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .cart-layout { grid-template-columns: 1fr; }
+      .cart-summary { position: static; }
+    }
+    @media (max-width: 600px) {
+      .item-content {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding: 10px 8px;
+        gap: 8px 10px;
+      }
+      .item-content img { width: 64px; height: 64px; flex-shrink: 0; align-self: center; }
+      .item-info { flex: 1 1 0; min-width: 100px; }
+      .quantity-controls { flex-shrink: 0; }
+      .item-subtotal { flex: 1; text-align: right; min-width: 0; align-self: center; }
+      .coupon-row { flex-wrap: wrap; }
+      .coupon-field { min-width: 0; }
+    }
   `],
 })
 export class CartComponent implements OnInit {

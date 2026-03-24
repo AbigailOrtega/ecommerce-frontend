@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["angular:styles/component:css;a6f0ac1e114b6e5171e8e3421d569dbbce16d7b165cfba7769009272c30e9056;/Users/abigailortega/ecommerce/frontend/src/app/features/checkout/order-confirmation/order-confirmation.component.ts"],
-  "sourcesContent": ["\n    .confirmation-container { max-width: 560px; margin: 48px auto; padding: 16px; }\n    .confirmation-card { text-align: center; padding: 48px 32px; }\n    .success-icon { font-size: 72px; width: 72px; height: 72px; color: #2e7d32; margin-bottom: 16px; }\n    h1 { margin: 0 0 16px; }\n    .order-number { font-size: 1.1rem; color: #333; margin: 8px 0; }\n    .email-notice { color: #555; margin: 8px 0; }\n    .total-notice { color: #333; font-size: 1.05rem; margin: 8px 0; }\n    .hint { color: #888; font-size: 0.9rem; margin: 16px 0 32px; }\n    .actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }\n  "],
-  "mappings": ";AACI,CAAC;AAAyB,aAAW;AAAO,UAAQ,KAAK;AAAM,WAAS;AAAM;AAC9E,CAAC;AAAoB,cAAY;AAAQ,WAAS,KAAK;AAAM;AAC7D,CAAC;AAAe,aAAW;AAAM,SAAO;AAAM,UAAQ;AAAM,SAAO;AAAS,iBAAe;AAAM;AACjG;AAAK,UAAQ,EAAE,EAAE;AAAM;AACvB,CAAC;AAAe,aAAW;AAAQ,SAAO;AAAM,UAAQ,IAAI;AAAG;AAC/D,CAAC;AAAe,SAAO;AAAM,UAAQ,IAAI;AAAG;AAC5C,CAAC;AAAe,SAAO;AAAM,aAAW;AAAS,UAAQ,IAAI;AAAG;AAChE,CAAC;AAAO,SAAO;AAAM,aAAW;AAAQ,UAAQ,KAAK,EAAE;AAAM;AAC7D,CAAC;AAAU,WAAS;AAAM,mBAAiB;AAAQ,OAAK;AAAM,aAAW;AAAM;",
-  "names": []
-}

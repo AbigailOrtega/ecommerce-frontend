@@ -6,13 +6,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSnackBarModule],
+  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule,
+    MatButtonModule, MatIconModule, MatCheckboxModule, MatSnackBarModule],
   template: `
     <div class="auth-container">
       <mat-card>
@@ -54,7 +56,11 @@ import { AuthService } from '@core/services/auth.service';
               }
             </mat-form-field>
 
-            <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
+            <mat-checkbox formControlName="marketingOptIn" class="marketing-check">
+              Quiero recibir promociones y noticias
+            </mat-checkbox>
+
+            <button mat-raised-button color="primary" type="submit" class="full-width submit-btn" [disabled]="loading">
               {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
             </button>
           </form>
@@ -78,6 +84,8 @@ import { AuthService } from '@core/services/auth.service';
     .row { display: flex; gap: 16px; }
     .row mat-form-field { flex: 1; }
     mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
+    .marketing-check { display: block; margin-bottom: 16px; font-size: 0.9rem; color: #555; }
+    .submit-btn { margin-top: 4px; }
   `],
 })
 export class RegisterComponent {
@@ -92,6 +100,7 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       phone: [''],
       password: ['', [Validators.required, Validators.minLength(8)]],
+      marketingOptIn: [false],
     });
   }
 

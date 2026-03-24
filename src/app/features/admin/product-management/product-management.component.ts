@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -150,45 +150,47 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
       @if (loading) {
         <app-loading />
       } @else {
-        <table mat-table [dataSource]="products" class="product-table">
-          <ng-container matColumnDef="image">
-            <th mat-header-cell *matHeaderCellDef>Imagen</th>
-            <td mat-cell *matCellDef="let p">
-              @if (p.imageUrl) { <img [src]="p.imageUrl" class="table-thumb" [alt]="p.name"> }
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Nombre</th>
-            <td mat-cell *matCellDef="let p">{{ p.name }}</td>
-          </ng-container>
-          <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef>Precio</th>
-            <td mat-cell *matCellDef="let p">{{ p.price | currency }}</td>
-          </ng-container>
-          <ng-container matColumnDef="stock">
-            <th mat-header-cell *matHeaderCellDef>Stock</th>
-            <td mat-cell *matCellDef="let p">
-              @if (p.colors && p.colors.length > 0) {
-                {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 'es' : '' }})
-              } @else {
-                {{ p.stockQuantity }}
-              }
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Activo</th>
-            <td mat-cell *matCellDef="let p">{{ p.active ? 'Sí' : 'No' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
-            <td mat-cell *matCellDef="let p">
-              <button mat-icon-button (click)="editProduct(p)"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="deleteProduct(p.id)"><mat-icon>delete</mat-icon></button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-        </table>
+        <div class="table-wrap">
+          <table mat-table [dataSource]="products" class="product-table">
+            <ng-container matColumnDef="image">
+              <th mat-header-cell *matHeaderCellDef>Imagen</th>
+              <td mat-cell *matCellDef="let p">
+                @if (p.imageUrl) { <img [src]="p.imageUrl" class="table-thumb" [alt]="p.name"> }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Nombre</th>
+              <td mat-cell *matCellDef="let p">{{ p.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef>Precio</th>
+              <td mat-cell *matCellDef="let p">{{ p.price | currency }}</td>
+            </ng-container>
+            <ng-container matColumnDef="stock">
+              <th mat-header-cell *matHeaderCellDef>Stock</th>
+              <td mat-cell *matCellDef="let p">
+                @if (p.colors && p.colors.length > 0) {
+                  {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 'es' : '' }})
+                } @else {
+                  {{ p.stockQuantity }}
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="active">
+              <th mat-header-cell *matHeaderCellDef>Activo</th>
+              <td mat-cell *matCellDef="let p">{{ p.active ? 'Sí' : 'No' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let p">
+                <button mat-icon-button (click)="editProduct(p)"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button color="warn" (click)="deleteProduct(p.id)"><mat-icon>delete</mat-icon></button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: visibleColumns;"></tr>
+          </table>
+        </div>
         <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
       }
     </div>
@@ -198,10 +200,21 @@ interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSi
     .form-card { padding: 24px; margin: 16px 0; }
     .full-width { width: 100%; }
     .row { display: flex; gap: 16px; align-items: flex-start; }
-    .row mat-form-field { flex: 1; }
-    .toggles { display: flex; gap: 24px; margin: 16px 0; }
-    .product-table { width: 100%; margin-top: 16px; }
+    .row mat-form-field { flex: 1; min-width: 0; }
+    .toggles { display: flex; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; }
+    .product-table { width: 100%; }
     .table-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+
+    @media (max-width: 600px) {
+      .row { flex-direction: column; gap: 0; }
+      .row mat-form-field { width: 100%; }
+      .form-card { padding: 14px; }
+      .table-wrap td, .table-wrap th { font-size: 0.8rem; padding: 6px 8px !important; white-space: nowrap; }
+      .table-thumb { width: 36px; height: 36px; }
+      .size-name-input { width: 90px; }
+      .size-stock-input { width: 60px; }
+    }
     .section-label { font-size: 12px; color: rgba(0,0,0,0.6); display: block; }
 
     /* Colors section */
@@ -251,6 +264,11 @@ export class ProductManagementComponent implements OnInit {
 
   form: FormGroup;
   columns = ['image', 'name', 'price', 'stock', 'active', 'actions'];
+  isMobile = window.innerWidth < 600;
+  get visibleColumns() {
+    return this.isMobile ? ['image', 'name', 'price', 'actions'] : this.columns;
+  }
+  @HostListener('window:resize') onResize() { this.isMobile = window.innerWidth < 600; }
   totalElements = 0;
   pageSize = 20;
   currentPage = 0;

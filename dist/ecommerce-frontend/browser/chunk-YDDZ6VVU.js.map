@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/components/loading/loading.component.ts"],
-  "sourcesContent": ["import { Component } from '@angular/core';\nimport { MatProgressSpinnerModule } from '@angular/material/progress-spinner';\n\n@Component({\n  selector: 'app-loading',\n  standalone: true,\n  imports: [MatProgressSpinnerModule],\n  template: `\n    <div class=\"loading-container\">\n      <mat-spinner diameter=\"48\"></mat-spinner>\n    </div>\n  `,\n  styles: [`\n    .loading-container {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding: 48px;\n    }\n  `],\n})\nexport class LoadingComponent {}\n"],
-  "mappings": ";;;;;;;;;;;;;;AAqBM,IAAO,mBAAP,MAAO,kBAAgB;;;uCAAhB,mBAAgB;IAAA;EAAA;;yEAAhB,mBAAgB,WAAA,CAAA,CAAA,aAAA,CAAA,GAAA,YAAA,MAAA,UAAA,CAAA,6BAAA,GAAA,OAAA,GAAA,MAAA,GAAA,QAAA,CAAA,CAAA,GAAA,mBAAA,GAAA,CAAA,YAAA,IAAA,CAAA,GAAA,UAAA,SAAA,0BAAA,IAAA,KAAA;AAAA,UAAA,KAAA,GAAA;AAbzB,QAAA,yBAAA,GAAA,OAAA,CAAA;AACE,QAAA,oBAAA,GAAA,eAAA,CAAA;AACF,QAAA,uBAAA;;sBAJQ,0BAAwB,kBAAA,GAAA,QAAA,CAAA,2LAAA,EAAA,CAAA;EAAA;;;6EAevB,kBAAgB,EAAA,WAAA,mBAAA,CAAA;AAAA,GAAA;",
-  "names": []
-}

@@ -31,6 +31,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
         <a mat-raised-button routerLink="/admin/shipments"><mat-icon>calendar_month</mat-icon> Agenda Envíos</a>
         <a mat-raised-button routerLink="/admin/store-info"><mat-icon>storefront</mat-icon> Info General</a>
         <a mat-raised-button routerLink="/admin/reports"><mat-icon>bar_chart</mat-icon> Reportes</a>
+        <a mat-raised-button routerLink="/admin/marketing"><mat-icon>campaign</mat-icon> Email Marketing</a>
       </div>
 
       @if (loading) {
@@ -70,6 +71,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
         <div class="dashboard-grid">
           <mat-card class="recent-orders">
             <h2>Pedidos recientes</h2>
+            <div class="table-scroll">
             <table mat-table [dataSource]="stats.recentOrders">
               <ng-container matColumnDef="orderNumber">
                 <th mat-header-cell *matHeaderCellDef>Pedido</th>
@@ -94,6 +96,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
+            </div>
           </mat-card>
 
           <mat-card class="status-breakdown">
@@ -110,7 +113,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     </div>
   `,
   styles: [`
-    .admin-nav { display: flex; gap: 12px; margin-bottom: 24px; }
+    .admin-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .admin-nav a { flex: 0 1 auto; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .stat-card { display: flex; align-items: center; gap: 16px; padding: 20px; }
     .stat-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--theme-primary); }
@@ -118,12 +122,25 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .stat-card p { margin: 0; color: #666; }
     .stat-card.revenue mat-icon { color: #4caf50; }
     .dashboard-grid { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
-    .recent-orders, .status-breakdown { padding: 20px; }
+    .recent-orders, .status-breakdown { padding: 20px; min-width: 0; overflow: hidden; }
+    .status-row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .status-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
     .count { font-weight: 600; }
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .admin-nav { gap: 8px; }
+      .admin-nav a { font-size: 0.78rem; padding: 0 10px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 14px; gap: 10px; }
+      .stat-card mat-icon { font-size: 28px; width: 28px; height: 28px; }
+      .stat-card h3 { font-size: 1.2rem; }
+      .recent-orders, .status-breakdown { padding: 14px 10px; }
+      .recent-orders h2, .status-breakdown h2 { font-size: 1rem; margin: 0 0 10px; }
+      .table-scroll table td, .table-scroll table th { font-size: 0.78rem; padding: 6px 8px !important; white-space: nowrap; }
     }
   `],
 })

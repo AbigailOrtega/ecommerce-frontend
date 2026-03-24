@@ -106,11 +106,27 @@ export const routes: Routes = [
         path: 'reports',
         loadComponent: () => import('./features/admin/reports/reports.component').then(m => m.ReportsComponent),
       },
+      {
+        path: 'marketing',
+        loadComponent: () => import('./features/admin/marketing/marketing.component').then(m => m.MarketingComponent),
+      },
     ],
+  },
+  {
+    path: 'unsubscribe',
+    loadComponent: () => import('./features/unsubscribe/unsubscribe.component').then(m => m.UnsubscribeComponent),
   },
   {
     path: 'sobre-nosotros',
     loadComponent: () => import('./features/about/about.component').then(m => m.AboutComponent),
+  },
+  {
+    path: 'contacto',
+    loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent),
+  },
+  {
+    path: 'aviso-privacidad',
+    loadComponent: () => import('./features/privacy/privacy.component').then(m => m.PrivacyComponent),
   },
   {
     path: 'forgot-password',

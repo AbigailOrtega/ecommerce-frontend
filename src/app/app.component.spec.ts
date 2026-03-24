@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AppComponent } from './app.component';
-import { ShippingService } from './core/services/shipping.service';
+import { StoreInfoService } from './core/services/store-info.service';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 
@@ -13,8 +13,8 @@ class MockNavbarComponent {}
 @Component({ selector: 'app-footer', template: '', standalone: true })
 class MockFooterComponent {}
 
-const mockShippingService = (whatsappNumber: string | null) => ({
-  getConfig: () => of({ success: true, data: { whatsappNumber, pickupEnabled: true, nationalEnabled: true, nationalBasePrice: 0, nationalPricePerKm: 0, pickupCost: 0 } }),
+const mockStoreInfoService = (whatsappNumber: string | null) => ({
+  getPublic: () => of({ success: true, data: { whatsappNumber, name: 'Test', images: [] } }),
 });
 
 describe('AppComponent — WhatsApp bubble', () => {
@@ -26,7 +26,7 @@ describe('AppComponent — WhatsApp bubble', () => {
       imports: [AppComponent],
       providers: [
         provideRouter([]),
-        { provide: ShippingService, useValue: mockShippingService(whatsappNumber) },
+        { provide: StoreInfoService, useValue: mockStoreInfoService(whatsappNumber) },
       ],
     })
     .overrideComponent(AppComponent, {
@@ -79,12 +79,12 @@ describe('AppComponent — WhatsApp bubble', () => {
     expect(compiled.querySelector('.whatsapp-bubble')).toBeNull();
   });
 
-  it('does NOT render the bubble when ShippingService fails', async () => {
+  it('does NOT render the bubble when StoreInfoService fails', async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
         provideRouter([]),
-        { provide: ShippingService, useValue: { getConfig: () => throwError(() => new Error('network')) } },
+        { provide: StoreInfoService, useValue: { getPublic: () => throwError(() => new Error('network')) } },
       ],
     })
     .overrideComponent(AppComponent, {

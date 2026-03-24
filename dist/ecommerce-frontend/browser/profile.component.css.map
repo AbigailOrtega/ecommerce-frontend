@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["angular:styles/component:css;4332d85cb162d3f8dd1cfb0f1214dbd733f444e83163592d8087e5727a6154ab;/Users/abigailortega/ecommerce/frontend/src/app/features/profile/profile.component.ts"],
-  "sourcesContent": ["\n    .profile-container { max-width: 600px; }\n    mat-card { padding: 24px; }\n    .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }\n    .avatar-icon { font-size: 64px; width: 64px; height: 64px; color: var(--theme-primary); }\n    .profile-header h2 { margin: 0; }\n    .profile-header p { color: #666; margin: 4px 0 0; }\n    .profile-actions { display: flex; gap: 12px; margin-top: 24px; }\n  "],
-  "mappings": ";AACI,CAAC;AAAoB,aAAW;AAAO;AACvC;AAAW,WAAS;AAAM;AAC1B,CAAC;AAAiB,WAAS;AAAM,eAAa;AAAQ,OAAK;AAAM,iBAAe;AAAM;AACtF,CAAC;AAAc,aAAW;AAAM,SAAO;AAAM,UAAQ;AAAM,SAAO,IAAI;AAAkB;AACxF,CAFC,eAEe;AAAK,UAAQ;AAAG;AAChC,CAHC,eAGe;AAAI,SAAO;AAAM,UAAQ,IAAI,EAAE;AAAG;AAClD,CAAC;AAAkB,WAAS;AAAM,OAAK;AAAM,cAAY;AAAM;",
-  "names": []
-}

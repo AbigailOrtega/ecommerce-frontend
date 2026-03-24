@@ -2,7 +2,6 @@ import { Component, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
-import { ShippingService } from './core/services/shipping.service';
 import { StoreInfoService } from './core/services/store-info.service';
 import { ThemeService } from './core/services/theme.service';
 
@@ -63,21 +62,16 @@ export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
 
   constructor(
-    private shippingService: ShippingService,
     private storeInfoService: StoreInfoService,
     private themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
-    this.themeService.apply(null); // apply default while loading
+    this.themeService.apply(null, null); // apply defaults while loading
 
     this.storeInfoService.getPublic().subscribe({
-      next: (res) => { this.themeService.apply(res.data?.themeKey); },
-      error: () => {},
-    });
-
-    this.shippingService.getConfig().subscribe({
       next: (res) => {
+        this.themeService.apply(res.data?.themeKey, res.data?.fontKey);
         if (res.data?.whatsappNumber) {
           this.whatsappNumber.set(res.data.whatsappNumber);
         }

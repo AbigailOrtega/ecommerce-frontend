@@ -1,11 +1,18 @@
 import { Injectable } from '@angular/core';
 import { THEMES, DEFAULT_THEME_KEY } from '../themes';
+import { FONTS, DEFAULT_FONT_KEY } from '../fonts';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private styleEl: HTMLStyleElement | null = null;
+  private fontLinkEl: HTMLLinkElement | null = null;
 
-  apply(themeKey: string | null | undefined): void {
+  apply(themeKey: string | null | undefined, fontKey: string | null | undefined = null): void {
+    this.applyTheme(themeKey);
+    this.applyFont(fontKey);
+  }
+
+  private applyTheme(themeKey: string | null | undefined): void {
     const key = (themeKey && THEMES[themeKey]) ? themeKey : DEFAULT_THEME_KEY;
     const t = THEMES[key];
 
@@ -49,5 +56,22 @@ export class ThemeService {
       document.head.appendChild(this.styleEl);
     }
     this.styleEl.textContent = css;
+  }
+
+  private applyFont(fontKey: string | null | undefined): void {
+    const key = (fontKey && FONTS[fontKey]) ? fontKey : DEFAULT_FONT_KEY;
+    const f = FONTS[key];
+
+    // Inject or update the Google Fonts <link>
+    if (!this.fontLinkEl) {
+      this.fontLinkEl = document.createElement('link');
+      this.fontLinkEl.id = 'app-dynamic-font';
+      this.fontLinkEl.rel = 'stylesheet';
+      document.head.appendChild(this.fontLinkEl);
+    }
+    this.fontLinkEl.href = f.googleUrl;
+
+    // Apply font-family to body
+    document.body.style.fontFamily = f.fontFamily;
   }
 }

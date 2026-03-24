@@ -80,6 +80,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       @if (loading) {
         <app-loading />
       } @else {
+        <div class="table-wrap">
         <table mat-table [dataSource]="promotions" class="promo-table">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Nombre</th>
@@ -120,6 +121,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+        </div>
         @if (promotions.length === 0) {
           <p class="no-data">Sin promociones. Crea una arriba.</p>
         }
@@ -133,10 +135,16 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .row mat-form-field { flex: 1; }
     .full-width { width: 100%; }
     .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
-    .promo-table { width: 100%; margin-top: 16px; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; }
+    .promo-table { width: 100%; white-space: nowrap; }
     .badge-active { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; }
     .badge-inactive { background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; }
     .no-data { text-align: center; color: #666; padding: 32px; }
+    @media (max-width: 600px) {
+      .row { flex-direction: column; gap: 0; }
+      .row mat-form-field { width: 100%; }
+      .form-card { padding: 14px; }
+    }
   `],
 })
 export class PromotionManagementComponent implements OnInit {

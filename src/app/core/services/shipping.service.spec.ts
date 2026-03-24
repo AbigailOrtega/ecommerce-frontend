@@ -45,38 +45,6 @@ describe('ShippingService', () => {
       req.flush({ success: true, data: mockConfig });
     });
 
-    it('includes whatsappNumber in the response when configured', () => {
-      const mockConfig: ShippingConfig = {
-        nationalEnabled: true,
-        pickupEnabled: true,
-        nationalBasePrice: 0,
-        nationalPricePerKm: 0,
-        pickupCost: 0,
-        whatsappNumber: '5215512345678',
-      };
-
-      service.getConfig().subscribe(res => {
-        expect(res.data.whatsappNumber).toBe('5215512345678');
-      });
-
-      httpMock.expectOne(`${API}/config`).flush({ success: true, data: mockConfig });
-    });
-
-    it('whatsappNumber is undefined when not configured', () => {
-      const mockConfig: ShippingConfig = {
-        nationalEnabled: true,
-        pickupEnabled: true,
-        nationalBasePrice: 0,
-        nationalPricePerKm: 0,
-        pickupCost: 0,
-      };
-
-      service.getConfig().subscribe(res => {
-        expect(res.data.whatsappNumber).toBeUndefined();
-      });
-
-      httpMock.expectOne(`${API}/config`).flush({ success: true, data: mockConfig });
-    });
   });
 
   // ── getPickupLocations() ───────────────────────────────────────────────────

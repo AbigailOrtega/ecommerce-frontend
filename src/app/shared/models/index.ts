@@ -207,6 +207,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phone?: string;
+  marketingOptIn?: boolean;
 }
 
 export interface Coupon {
@@ -287,8 +288,6 @@ export interface ShippingConfig {
   skydropxDefaultWidth?: number;
   skydropxDefaultHeight?: number;
   skydropxSandbox?: boolean;
-  // General
-  whatsappNumber?: string;
 }
 
 export interface SkydropxRate {
@@ -408,11 +407,15 @@ export interface StoreInfo {
   mission?: string;
   vision?: string;
   phone?: string;
+  email?: string;
+  privacyPolicy?: string;
   logoUrl?: string;
   themeKey?: string;
+  fontKey?: string;
   images: StoreImage[];
   instagramUrl?: string;
   facebookUrl?: string;
+  whatsappNumber?: string;
 }
 
 export interface LocalCartItem {

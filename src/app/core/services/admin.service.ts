@@ -15,6 +15,14 @@ export class AdminService {
     return this.http.get<ApiResponse<DashboardStats>>(`${this.apiUrl}/dashboard`);
   }
 
+  getMarketingSubscriberCount(): Observable<ApiResponse<Record<string, number>>> {
+    return this.http.get<ApiResponse<Record<string, number>>>(`${this.apiUrl}/marketing/subscribers/count`);
+  }
+
+  sendMarketingCampaign(formData: FormData): Observable<ApiResponse<Record<string, any>>> {
+    return this.http.post<ApiResponse<Record<string, any>>>(`${this.apiUrl}/marketing/send`, formData);
+  }
+
   getUpcomingSchedule(): Observable<ApiResponse<UpcomingSchedule>> {
     return this.http.get<ApiResponse<UpcomingSchedule>>(`${this.apiUrl}/orders/upcoming-schedule`);
   }
@@ -39,8 +47,15 @@ export class AdminService {
     return this.http.get<ApiResponse<InventoryItem[]>>(`${this.apiUrl}/reports/out-of-stock`);
   }
 
-  getAllOrders(page = 0, size = 20): Observable<ApiResponse<Page<Order>>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  getAllOrders(page = 0, size = 20, status = '', shippingType = '',
+               paymentMethod = '', dateFrom = '', dateTo = '', search = ''): Observable<ApiResponse<Page<Order>>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (status) params = params.set('status', status);
+    if (shippingType) params = params.set('shippingType', shippingType);
+    if (paymentMethod) params = params.set('paymentMethod', paymentMethod);
+    if (dateFrom) params = params.set('dateFrom', dateFrom);
+    if (dateTo) params = params.set('dateTo', dateTo);
+    if (search) params = params.set('search', search);
     return this.http.get<ApiResponse<Page<Order>>>(`${this.apiUrl}/orders`, { params });
   }
 
