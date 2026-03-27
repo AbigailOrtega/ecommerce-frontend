@@ -9,7 +9,7 @@ test.describe('Admin panel', () => {
   test('admin can access dashboard at /admin', async ({ page }) => {
     await page.goto('/admin');
     // adminGuard allows admin through; DashboardComponent renders h1
-    await expect(page.locator('h1:has-text("Admin Dashboard")')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('h1:has-text("Panel de Administración")')).toBeVisible({ timeout: 10000 });
     await expect(page).toHaveURL(/\/admin/);
   });
 
@@ -29,9 +29,9 @@ test.describe('Admin panel', () => {
     await page.goto('/admin');
     await page.waitForSelector('.admin-nav', { timeout: 10000 });
 
-    await expect(page.locator('.admin-nav a:has-text("Orders")')).toBeVisible();
-    await expect(page.locator('.admin-nav a:has-text("Products")')).toBeVisible();
-    await expect(page.locator('.admin-nav a:has-text("Users")')).toBeVisible();
+    await expect(page.locator('.admin-nav a:has-text("Pedidos")')).toBeVisible();
+    await expect(page.locator('.admin-nav a:has-text("Productos")')).toBeVisible();
+    await expect(page.locator('.admin-nav a:has-text("Usuarios")')).toBeVisible();
   });
 
   // ── Orders list ───────────────────────────────────────────────────────────
@@ -61,9 +61,9 @@ test.describe('Admin panel', () => {
     }
 
     // Table should have header cells
-    await expect(page.locator('th[mat-header-cell]:has-text("Order #")')).toBeVisible();
-    await expect(page.locator('th[mat-header-cell]:has-text("Customer")')).toBeVisible();
-    await expect(page.locator('th[mat-header-cell]:has-text("Status")')).toBeVisible();
+    await expect(page.locator('th[mat-header-cell]:has-text("Pedido #")')).toBeVisible();
+    await expect(page.locator('th[mat-header-cell]:has-text("Cliente")')).toBeVisible();
+    await expect(page.locator('th[mat-header-cell]:has-text("Estado")')).toBeVisible();
   });
 
   test('order row — clicking a row shows expandable detail panel with status select', async ({ page }) => {
@@ -112,14 +112,11 @@ test.describe('Admin panel', () => {
     // Toggle switches for pickup / skydropx sandbox
     await expect(page.locator('mat-slide-toggle').first()).toBeVisible();
 
-    // Skydropx credentials field
-    await expect(page.locator('[formControlName="skydropxClientId"]')).toBeVisible();
-
-    // WhatsApp number field
-    await expect(page.locator('[formControlName="whatsappNumber"]')).toBeVisible();
+    // Skydropx origin field
+    await expect(page.locator('[formControlName="skydropxSenderName"]')).toBeVisible();
 
     // Save button
-    await expect(page.locator('button[type="submit"]:has-text("Guardar configuración")')).toBeVisible();
+    await expect(page.locator('button:has-text("Guardar configuración")')).toBeVisible();
   });
 
   // ── Pickup locations ──────────────────────────────────────────────────────
@@ -180,27 +177,27 @@ test.describe('Admin › Products', () => {
   test('products page loads with table and "Add Product" button', async ({ page }) => {
     await page.goto('/admin/products');
     await page.waitForSelector('button, table', { timeout: 15000 });
-    await expect(page.locator('button').filter({ hasText: 'Add Product' })).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'Agregar Producto' })).toBeVisible();
   });
 
   test('can open and cancel the create product form', async ({ page }) => {
     await page.goto('/admin/products');
-    const addBtn = page.locator('button').filter({ hasText: 'Add Product' });
+    const addBtn = page.locator('button').filter({ hasText: 'Agregar Producto' });
     await addBtn.waitFor({ timeout: 10000 });
     await addBtn.click();
 
     await expect(page.locator('[formControlName="name"]')).toBeVisible();
     await expect(page.locator('[formControlName="price"]')).toBeVisible();
-    await expect(page.locator('button').filter({ hasText: 'Create' })).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'Crear' })).toBeVisible();
 
-    await page.locator('button').filter({ hasText: 'Cancel' }).click();
+    await page.locator('button').filter({ hasText: 'Cancelar' }).click();
     await expect(page.locator('[formControlName="name"]')).not.toBeVisible();
   });
 
   test('can create a new product', async ({ page }) => {
     await page.goto('/admin/products');
-    await page.locator('button').filter({ hasText: 'Add Product' }).waitFor({ timeout: 10000 });
-    await page.locator('button').filter({ hasText: 'Add Product' }).click();
+    await page.locator('button').filter({ hasText: 'Agregar Producto' }).waitFor({ timeout: 10000 });
+    await page.locator('button').filter({ hasText: 'Agregar Producto' }).click();
 
     await page.fill('[formControlName="name"]', 'E2E Test Product');
     await page.fill('[formControlName="sku"]',  `E2E-${Date.now()}`);
@@ -209,7 +206,7 @@ test.describe('Admin › Products', () => {
     const stockField = page.locator('[formControlName="stockQuantity"]');
     if (await stockField.isVisible()) await stockField.fill('10');
 
-    await page.locator('button[type="submit"]').filter({ hasText: 'Create' }).click();
+    await page.locator('button[type="submit"]').filter({ hasText: 'Crear' }).click();
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
@@ -229,7 +226,7 @@ test.describe('Admin › Products', () => {
     const nameInput = page.locator('[formControlName="name"]');
     await nameInput.clear();
     await nameInput.fill('Updated Product');
-    await page.locator('button[type="submit"]').filter({ hasText: 'Update' }).click();
+    await page.locator('button[type="submit"]').filter({ hasText: 'Actualizar' }).click();
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
@@ -247,7 +244,7 @@ test.describe('Admin › Coupons', () => {
     // Form card is always visible at the top
     await expect(page.locator('.form-card')).toBeVisible();
     // Save / Create button
-    await expect(page.locator('button').filter({ hasText: /Create|Save/ })).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: /Crear|Actualizar/ })).toBeVisible();
   });
 
   test('can create a coupon', async ({ page }) => {
@@ -257,16 +254,16 @@ test.describe('Admin › Coupons', () => {
     const code = `TESTE2E${Date.now().toString().slice(-4)}`;
 
     // Code field uses [(ngModel)] — target by label text
-    await page.locator('mat-form-field').filter({ hasText: 'Code' }).locator('input').fill(code);
-    await page.locator('mat-form-field').filter({ hasText: 'Discount' }).locator('input').fill('15');
+    await page.locator('mat-form-field').filter({ hasText: 'Código' }).locator('input').fill(code);
+    await page.locator('mat-form-field').filter({ hasText: 'Descuento' }).locator('input').fill('15');
     // Expires At — date input
-    await page.locator('mat-form-field').filter({ hasText: 'Expires' }).locator('input[type="date"]').fill('2027-12-31');
+    await page.locator('mat-form-field').filter({ hasText: 'Expira' }).locator('input[type="date"]').fill('2027-12-31');
 
-    await page.locator('button').filter({ hasText: /Create|Save/ }).click();
+    await page.locator('button').filter({ hasText: /Crear|Actualizar/ }).click();
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
-    ).toContainText('created', { timeout: 10000 });
+    ).toContainText('creado', { timeout: 10000 });
   });
 
   test('can toggle a coupon active/inactive', async ({ page }) => {
@@ -311,26 +308,26 @@ test.describe('Admin › Promotions', () => {
   test('promotions page loads with "Add Promotion" button', async ({ page }) => {
     await page.goto('/admin/promotions');
     await page.waitForSelector('button, table', { timeout: 15000 });
-    await expect(page.locator('button').filter({ hasText: 'Add Promotion' })).toBeVisible();
+    await expect(page.locator('button').filter({ hasText: 'Agregar Promoción' })).toBeVisible();
   });
 
   test('can open and cancel the create promotion form', async ({ page }) => {
     await page.goto('/admin/promotions');
-    await page.locator('button').filter({ hasText: 'Add Promotion' }).waitFor({ timeout: 10000 });
-    await page.locator('button').filter({ hasText: 'Add Promotion' }).click();
+    await page.locator('button').filter({ hasText: 'Agregar Promoción' }).waitFor({ timeout: 10000 });
+    await page.locator('button').filter({ hasText: 'Agregar Promoción' }).click();
 
     await expect(page.locator('[formControlName="name"]')).toBeVisible();
     await expect(page.locator('[formControlName="discountPercent"]')).toBeVisible();
 
     // Scope to the form to avoid matching the toggle button which also reads "Cancel"
-    await page.locator('form').getByRole('button', { name: 'Cancel' }).click();
+    await page.locator('form').getByRole('button', { name: 'Cancelar' }).click();
     await expect(page.locator('[formControlName="name"]')).not.toBeVisible();
   });
 
   test('can create a promotion', async ({ page }) => {
     await page.goto('/admin/promotions');
-    await page.locator('button').filter({ hasText: 'Add Promotion' }).waitFor({ timeout: 10000 });
-    await page.locator('button').filter({ hasText: 'Add Promotion' }).click();
+    await page.locator('button').filter({ hasText: 'Agregar Promoción' }).waitFor({ timeout: 10000 });
+    await page.locator('button').filter({ hasText: 'Agregar Promoción' }).click();
 
     await page.fill('[formControlName="name"]',            'E2E Promo');
     await page.fill('[formControlName="discountPercent"]', '10');
@@ -346,11 +343,11 @@ test.describe('Admin › Promotions', () => {
     await page.locator('mat-option').first().click();
     await page.keyboard.press('Escape');
 
-    await page.locator('button[type="submit"]').filter({ hasText: 'Save' }).click();
+    await page.locator('button[type="submit"]').filter({ hasText: 'Guardar' }).click();
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
-    ).toContainText('saved', { timeout: 10000 });
+    ).toContainText('guardada', { timeout: 10000 });
   });
 
   test('can toggle a promotion active/inactive', async ({ page }) => {
@@ -369,7 +366,7 @@ test.describe('Admin › Promotions', () => {
     // Verify the API call succeeded: snackbar says "activated" or "deactivated"
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
-    ).toContainText(wasOn ? 'deactivated' : 'activated', { timeout: 5000 });
+    ).toContainText(wasOn ? 'desactivada' : 'activada', { timeout: 5000 });
   });
 });
 
@@ -386,7 +383,7 @@ test.describe('Admin › Store Info', () => {
     await expect(page.locator('mat-form-field').filter({ hasText: 'Teléfono' })).toBeVisible();
 
     // Save and upload buttons
-    await expect(page.locator('button:has-text("Guardar información")')).toBeVisible();
+    await expect(page.locator('button:has-text("Guardar cambios")')).toBeVisible();
     await expect(page.locator('button:has-text("Subir imagen")')).toBeVisible();
   });
 
@@ -404,7 +401,7 @@ test.describe('Admin › Store Info', () => {
     await page.waitForSelector('mat-card', { timeout: 15000 });
 
     await page.locator('mat-form-field').filter({ hasText: 'Nombre de la tienda' }).locator('input').fill('E2E Test Store');
-    await page.locator('button:has-text("Guardar información")').click();
+    await page.locator('button:has-text("Guardar cambios")').click();
 
     // Success indicator appears after save
     await expect(page.locator('.success-msg')).toBeVisible({ timeout: 10000 });
@@ -414,7 +411,7 @@ test.describe('Admin › Store Info', () => {
     await page.goto('/admin/store-info');
     await page.waitForSelector('mat-card', { timeout: 15000 });
 
-    const emptyMsg = page.locator('p.empty-msg');
+    const emptyMsg = page.locator('p.empty-msg').first();
     const imageGrid = page.locator('.image-grid');
 
     const hasEmpty = await emptyMsg.isVisible();

@@ -265,7 +265,71 @@
 <a name='L200'></a><a href='#L200'>200</a>
 <a name='L201'></a><a href='#L201'>201</a>
 <a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -551,10 +615,30 @@ import { StoreInfo, StoreImage } from '@shared/models';
             &lt;/div&gt;
           }
 &nbsp;
-          @if (info.phone) {
-            &lt;div class="contact-row"&gt;
-              &lt;mat-icon&gt;phone&lt;/mat-icon&gt;
-              &lt;span&gt;{{ info.phone }}&lt;/span&gt;
+          @if (info.phone || info.instagramUrl || info.facebookUrl) {
+            &lt;div class="contact-section"&gt;
+              @if (info.phone) {
+                &lt;div class="contact-row"&gt;
+                  &lt;mat-icon&gt;phone&lt;/mat-icon&gt;
+                  &lt;span&gt;{{ info.phone }}&lt;/span&gt;
+                &lt;/div&gt;
+              }
+              @if (info.instagramUrl || info.facebookUrl) {
+                &lt;div class="social-row"&gt;
+                  @if (info.instagramUrl) {
+                    &lt;a [href]="info.instagramUrl" target="_blank" rel="noopener" class="social-link instagram"&gt;
+                      &lt;mat-icon&gt;photo_camera&lt;/mat-icon&gt;
+                      Instagram
+                    &lt;/a&gt;
+                  }
+                  @if (info.facebookUrl) {
+                    &lt;a [href]="info.facebookUrl" target="_blank" rel="noopener" class="social-link facebook"&gt;
+                      &lt;mat-icon&gt;facebook&lt;/mat-icon&gt;
+                      Facebook
+                    &lt;/a&gt;
+                  }
+                &lt;/div&gt;
+              }
             &lt;/div&gt;
           }
         &lt;/div&gt;
@@ -601,8 +685,20 @@ import { StoreInfo, StoreImage } from '@shared/models';
     .card-icon.vision { color: #1565c0; }
     .info-card p { margin: 0; color: #555; line-height: 1.6; }
 &nbsp;
+    .contact-section { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
     .contact-row { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; color: #333; }
     .contact-row mat-icon { color: #4caf50; }
+    .social-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .social-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 24px;
+      font-size: 0.95rem; font-weight: 500; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .social-link:hover { opacity: 0.82; }
+    .social-link mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    .social-link.instagram { background: #E1306C; color: white; }
+    .social-link.facebook { background: #1877F2; color: white; }
 &nbsp;
     @media (max-width: 600px) {
       .cards-row { grid-template-columns: 1fr; }
@@ -676,7 +772,7 @@ export class AboutComponent implements OnInit, OnDestroy {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-18T18:50:15.301Z
+                at 2026-03-24T23:45:26.927Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

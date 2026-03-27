@@ -1,5 +1,6 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '@core/services/admin.service';
 import { ReportsComponent } from './reports.component';
@@ -55,7 +56,7 @@ describe('ReportsComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ReportsComponent, NoopAnimationsModule],
-      providers: [{ provide: AdminService, useValue: adminService }],
+      providers: [{ provide: AdminService, useValue: adminService }, provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReportsComponent);
@@ -92,7 +93,7 @@ describe('ReportsComponent', () => {
       );
 
       component.selectType('top');
-      tick();
+      tick(60);
 
       expect(component.reportType).toBe('top');
       expect(adminService.getTopSellingProducts).toHaveBeenCalled();
@@ -104,7 +105,7 @@ describe('ReportsComponent', () => {
       );
 
       component.selectType('inventory');
-      tick();
+      tick(60);
 
       expect(component.reportType).toBe('inventory');
       expect(adminService.getInventoryReport).toHaveBeenCalled();
@@ -140,7 +141,7 @@ describe('ReportsComponent', () => {
       );
 
       component.setPeriod('week');
-      tick();
+      tick(60);
 
       expect(component.period).toBe('week');
       expect(adminService.getSalesReport).toHaveBeenCalledWith('week');
@@ -164,7 +165,7 @@ describe('ReportsComponent', () => {
       );
 
       component.loadReport();
-      tick();
+      tick(60);
 
       expect(component.hasData).toBeTrue();
     }));
@@ -203,7 +204,7 @@ describe('ReportsComponent', () => {
       );
 
       component.loadReport();
-      tick();
+      tick(60);
 
       expect(component.kpis.length).toBeGreaterThan(0);
       expect(component.kpis.some(k => k.label === 'Pedidos')).toBeTrue();
@@ -216,7 +217,7 @@ describe('ReportsComponent', () => {
       );
 
       component.loadReport();
-      tick();
+      tick(60);
 
       expect(component.tableRows.length).toBe(2);
       expect(component.tableHeaders).toEqual(['Fecha', 'Pedidos', 'Ingresos']);
@@ -228,7 +229,7 @@ describe('ReportsComponent', () => {
       );
 
       component.selectType('top');
-      tick();
+      tick(60);
 
       expect(component.kpis.some(k => k.label === 'Unidades vendidas')).toBeTrue();
       expect(component.tableHeaders).toEqual(['Producto', 'Unidades vendidas', 'Ingresos', 'Stock actual']);
@@ -240,7 +241,7 @@ describe('ReportsComponent', () => {
       );
 
       component.selectType('inventory');
-      tick();
+      tick(60);
 
       expect(component.kpis.some(k => k.label === 'Productos totales')).toBeTrue();
     }));
@@ -255,14 +256,132 @@ describe('ReportsComponent', () => {
       );
 
       component.loadReport();
-      tick();
+      tick(60);
 
-      // Create a minimal anchor element stub so no actual download is triggered
-      spyOn(document, 'createElement').and.returnValue(Object.assign(document.createElement('a'), {
-        click: jasmine.createSpy('click'),
-      }));
+      // Create the anchor element BEFORE setting up the spy so document.createElement
+      // is not yet intercepted when the real element is constructed.
+      const anchorEl = Object.assign(document.createElement('a'), { click: jasmine.createSpy('click') });
+      spyOn(document, 'createElement').and.returnValue(anchorEl);
 
       expect(() => component.downloadExcel()).not.toThrow();
+    }));
+  });
+
+  // ── downloadImage() ────────────────────────────────────────────────────
+
+  describe('downloadImage()', () => {
+    it('does not throw when chartRef is undefined', () => {
+      (component as any).chartRef = undefined;
+      expect(() => component.downloadImage()).not.toThrow();
+    });
+
+    it('creates an anchor and clicks it when canvas is present', fakeAsync(() => {
+      adminService.getSalesReport.and.returnValue(
+        of({ success: true, data: makeSalesReport() })
+      );
+      component.loadReport();
+      tick(60);
+      fixture.detectChanges();
+
+      const anchorEl = Object.assign(document.createElement('a'), { click: jasmine.createSpy('click') });
+      spyOn(document, 'createElement').and.returnValue(anchorEl);
+      component.downloadImage();
+      expect((anchorEl.click as jasmine.Spy).calls.any()).toBeTrue();
+    }));
+  });
+
+  // ── downloadPDF() ────────────────────────────────────────────────────────
+
+  describe('downloadPDF()', () => {
+    it('does not throw when called', fakeAsync(() => {
+      adminService.getSalesReport.and.returnValue(
+        of({ success: true, data: makeSalesReport() })
+      );
+      component.loadReport();
+      tick(60);
+
+      spyOn(window, 'open').and.returnValue(null);
+      expect(() => component.downloadPDF()).not.toThrow();
+    }));
+
+    it('calls window.open with _blank', fakeAsync(() => {
+      adminService.getSalesReport.and.returnValue(
+        of({ success: true, data: makeSalesReport() })
+      );
+      component.loadReport();
+      tick(60);
+
+      const openSpy = spyOn(window, 'open').and.returnValue(null);
+      component.downloadPDF();
+      expect(openSpy).toHaveBeenCalledWith('', '_blank');
+    }));
+  });
+
+  // ── processData — least / outofstock / inventory ──────────────────────
+
+  describe('processData for non-sales types', () => {
+    it('least: sets hasData and correct tableHeaders', fakeAsync(() => {
+      adminService.getLeastSellingProducts.and.returnValue(
+        of({ success: true, data: [makeProductSales()] })
+      );
+
+      component.selectType('least');
+      tick(60);
+
+      expect(component.hasData).toBeTrue();
+      expect(component.tableHeaders).toEqual(['Producto', 'Unidades vendidas', 'Ingresos', 'Stock actual']);
+    }));
+
+    it('outofstock: hasData = false when empty', fakeAsync(() => {
+      adminService.getOutOfStockProducts.and.returnValue(
+        of({ success: true, data: [] })
+      );
+
+      component.selectType('outofstock');
+      tick();
+
+      expect(component.hasData).toBeFalse();
+    }));
+
+    it('outofstock: hasData = true with items', fakeAsync(() => {
+      adminService.getOutOfStockProducts.and.returnValue(
+        of({ success: true, data: [makeInventoryItem({ stock: 0 })] })
+      );
+
+      component.selectType('outofstock');
+      tick(60);
+
+      expect(component.hasData).toBeTrue();
+      expect(component.tableHeaders).toEqual(['Producto', 'SKU', 'Stock', 'Precio', 'Activo']);
+    }));
+
+    it('inventory: shows "Con stock" and "Sin stock" KPIs', fakeAsync(() => {
+      adminService.getInventoryReport.and.returnValue(
+        of({ success: true, data: [
+          makeInventoryItem({ productId: 1, stock: 10 }),
+          makeInventoryItem({ productId: 2, stock: 0 }),
+        ] })
+      );
+
+      component.selectType('inventory');
+      tick(60);
+
+      expect(component.kpis.some(k => k.label === 'Con stock')).toBeTrue();
+      expect(component.kpis.some(k => k.label === 'Sin stock')).toBeTrue();
+      const sinStock = component.kpis.find(k => k.label === 'Sin stock');
+      expect(sinStock?.value).toBe('1');
+    }));
+
+    it('setPeriod("year") calls getSalesReport with "year"', fakeAsync(() => {
+      adminService.getSalesReport.and.returnValue(
+        of({ success: true, data: makeSalesReport() })
+      );
+
+      component.setPeriod('year');
+      tick(60);
+
+      expect(component.period).toBe('year');
+      expect(adminService.getSalesReport).toHaveBeenCalledWith('year');
     }));
   });
 });

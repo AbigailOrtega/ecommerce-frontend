@@ -91,25 +91,27 @@ describe('Admin StoreInfoComponent', () => {
 
     it('calls update with current form data', () => {
       component.form = { name: 'Tienda', phone: '+52' };
-      component.save();
-      expect(storeInfoService.update).toHaveBeenCalledWith(component.form);
+      component.saveAll();
+      expect(storeInfoService.update).toHaveBeenCalledWith(
+        jasmine.objectContaining({ name: 'Tienda', phone: '+52' })
+      );
     });
 
     it('sets saving=true before request and false after', fakeAsync(() => {
-      component.save();
+      component.saveAll();
       // After subscription completes synchronously in test:
       expect(component.saving).toBeFalse();
       tick(3000); // flush the 3s saveSuccess hide timer
     }));
 
     it('shows success message after save', fakeAsync(() => {
-      component.save();
+      component.saveAll();
       expect(component.saveSuccess).toBeTrue();
       tick(3000); // flush the 3s saveSuccess hide timer
     }));
 
     it('hides success message after 3 seconds', fakeAsync(() => {
-      component.save();
+      component.saveAll();
       expect(component.saveSuccess).toBeTrue();
       tick(3000);
       expect(component.saveSuccess).toBeFalse();

@@ -72,7 +72,7 @@ describe('LoginComponent', () => {
 
     component.onSubmit();
 
-    expect(snackBarOpenSpy).toHaveBeenCalledWith('Bad credentials', 'Close', jasmine.any(Object));
+    expect(snackBarOpenSpy).toHaveBeenCalledWith('Bad credentials', 'Cerrar', jasmine.any(Object));
     expect(component.loading).toBeFalse();
   });
 });

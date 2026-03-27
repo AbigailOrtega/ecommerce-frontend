@@ -75,7 +75,7 @@ describe('ResetPasswordComponent', () => {
 
       expect(authService.resetPassword).toHaveBeenCalledWith('valid-uuid-token', 'newPass123');
       expect(router.navigate).toHaveBeenCalledWith(['/login']);
-      expect(snackBarOpenSpy).toHaveBeenCalledWith('Password updated successfully.', 'Close', jasmine.any(Object));
+      expect(snackBarOpenSpy).toHaveBeenCalledWith('Contraseña actualizada exitosamente.', 'Cerrar', jasmine.any(Object));
     });
 
     it('shows error snackbar and resets loading on API error', () => {
@@ -86,7 +86,7 @@ describe('ResetPasswordComponent', () => {
 
       component.onSubmit();
 
-      expect(snackBarOpenSpy).toHaveBeenCalledWith('Invalid or expired token', 'Close', jasmine.any(Object));
+      expect(snackBarOpenSpy).toHaveBeenCalledWith('Invalid or expired token', 'Cerrar', jasmine.any(Object));
       expect(component.loading).toBeFalse();
     });
   });

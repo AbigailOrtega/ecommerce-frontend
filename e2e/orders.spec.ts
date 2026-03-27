@@ -31,7 +31,7 @@ test.describe('Order History', () => {
 
     await page.locator('mat-card.order-card')
       .filter({ hasText: 'ORD-E2E-NATL' })
-      .locator('a:has-text("View Details")')
+      .locator('a:has-text("Ver detalles")')
       .click();
 
     await page.waitForURL(url => url.toString().includes('/orders/ORD-E2E-NATL'), { timeout: 10000 });
@@ -60,10 +60,10 @@ test.describe('Order Detail', () => {
     await expect(page.locator('mat-card').filter({ hasText: 'Punto de Retiro' })).toBeVisible();
   });
 
-  test('"Back to Orders" link navigates to /orders', async ({ page }) => {
+  test('"Volver a pedidos" link navigates to /orders', async ({ page }) => {
     await page.goto('/orders/ORD-E2E-NATL');
-    await page.waitForSelector('a:has-text("Back to Orders")', { timeout: 15000 });
-    await page.locator('a:has-text("Back to Orders")').click();
+    await page.waitForSelector('a:has-text("Volver a pedidos")', { timeout: 15000 });
+    await page.locator('a:has-text("Volver a pedidos")').click();
     await page.waitForURL(url => url.toString().includes('/orders'), { timeout: 10000 });
     expect(page.url()).toContain('/orders');
   });

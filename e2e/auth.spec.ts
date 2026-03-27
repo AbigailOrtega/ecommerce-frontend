@@ -21,7 +21,7 @@ test.describe('Register', () => {
   test('"Sign In" link navigates to /login', async ({ page }) => {
     await page.goto('/register');
     await page.waitForSelector('mat-card', { timeout: 10000 });
-    await page.locator('a:has-text("Sign In")').click();
+    await page.locator('mat-card a:has-text("Iniciar sesión")').click();
     await page.waitForURL(url => url.toString().includes('/login'));
     expect(page.url()).toContain('/login');
   });
@@ -44,7 +44,7 @@ test.describe('Register', () => {
     // Blur by pressing Tab (avoids mat-label pointer-intercept issues)
     await page.press('[formControlName="password"]', 'Tab');
 
-    await expect(page.locator('mat-error')).toContainText('at least 8 characters');
+    await expect(page.locator('mat-error')).toContainText('al menos 8 caracteres');
   });
 
   test('password visibility toggle changes input type', async ({ page }) => {

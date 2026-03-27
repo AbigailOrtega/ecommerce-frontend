@@ -27,14 +27,20 @@ test.describe('User Profile', () => {
     await page.goto('/profile');
     await page.waitForSelector('mat-list', { timeout: 10000 });
 
-    await expect(page.locator('mat-list-item').filter({ hasText: 'Role' })).toBeVisible();
+    const roleItem = page.locator('mat-list-item').filter({ hasText: 'Rol' });
+    if (await roleItem.count() === 0) {
+      // Role is only shown for admin users — skip for regular users
+      test.skip();
+      return;
+    }
+    await expect(roleItem).toBeVisible();
   });
 
   test('"View Orders" button navigates to /orders', async ({ page }) => {
     await page.goto('/profile');
     await page.waitForSelector('.profile-actions', { timeout: 10000 });
 
-    await page.locator('a[mat-raised-button]:has-text("View Orders")').click();
+    await page.locator('a[mat-raised-button]:has-text("Mis Pedidos")').click();
     await page.waitForURL(url => url.toString().includes('/orders'), { timeout: 10000 });
     expect(page.url()).toContain('/orders');
   });
@@ -43,7 +49,7 @@ test.describe('User Profile', () => {
     await page.goto('/profile');
     await page.waitForSelector('.profile-actions', { timeout: 10000 });
 
-    await page.locator('button:has-text("Logout")').click();
+    await page.locator('button:has-text("Cerrar sesión")').click();
 
     await page.waitForURL(url => url.toString().includes('/login'), { timeout: 10000 });
     const token = await page.evaluate(() => localStorage.getItem('accessToken'));

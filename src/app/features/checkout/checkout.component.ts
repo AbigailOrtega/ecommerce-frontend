@@ -132,47 +132,54 @@ import { switchMap } from 'rxjs';
                 </mat-form-field>
               </div>
 
-              <button mat-stroked-button color="primary" type="button"
-                      (click)="calculateShipping()"
-                      [disabled]="!isAddressReady() || calculatingShipping">
-                @if (calculatingShipping) {
-                  <mat-spinner diameter="18" style="display:inline-block;margin-right:8px;"></mat-spinner>
-                }
-                Ver opciones de envío
-              </button>
-
-              @if (shippingCalcError) {
-                <p class="calc-error">{{ shippingCalcError }}</p>
-              }
-
-              <!-- Skydropx: rate selector -->
-              @if (shippingRates?.skydropxAvailable && shippingRates!.rates.length > 0) {
-                <div class="rates-list">
-                  @for (rate of shippingRates!.rates; track rate.id) {
-                    <div class="rate-card" [class.rate-selected]="selectedSkydropxRate?.id === rate.id"
-                         (click)="selectRate(rate)">
-                      <div class="rate-carrier">{{ rate.carrier }}</div>
-                      <div class="rate-service">{{ rate.service }}</div>
-                      @if (rate.estimatedDays) {
-                        <div class="rate-days">{{ rate.estimatedDays }} día(s)</div>
-                      }
-                      <div class="rate-price">{{ rate.price | currency }}</div>
-                    </div>
+              @if (hasFreeShipping) {
+                <div class="free-shipping-notice">
+                  <mat-icon>local_shipping</mat-icon>
+                  <span>¡Tu pedido tiene <strong>envío gratis</strong>!</span>
+                </div>
+              } @else {
+                <button mat-stroked-button color="primary" type="button"
+                        (click)="calculateShipping()"
+                        [disabled]="!isAddressReady() || calculatingShipping">
+                  @if (calculatingShipping) {
+                    <mat-spinner diameter="18" style="display:inline-block;margin-right:8px;"></mat-spinner>
                   }
-                </div>
-              }
+                  Ver opciones de envío
+                </button>
 
-              <!-- Flat/Google Maps result -->
-              @if (shippingRates && !shippingRates.skydropxAvailable) {
-                <div class="calc-result">
-                  <mat-icon>location_on</mat-icon>
-                  <span>
-                    @if (shippingRates.distanceKm > 0) {
-                      {{ shippingRates.distanceKm | number:'1.1-1' }} km —
+                @if (shippingCalcError) {
+                  <p class="calc-error">{{ shippingCalcError }}</p>
+                }
+
+                <!-- Skydropx: rate selector -->
+                @if (shippingRates?.skydropxAvailable && shippingRates!.rates.length > 0) {
+                  <div class="rates-list">
+                    @for (rate of shippingRates!.rates; track rate.id) {
+                      <div class="rate-card" [class.rate-selected]="selectedSkydropxRate?.id === rate.id"
+                           (click)="selectRate(rate)">
+                        <div class="rate-carrier">{{ rate.carrier }}</div>
+                        <div class="rate-service">{{ rate.service }}</div>
+                        @if (rate.estimatedDays) {
+                          <div class="rate-days">{{ rate.estimatedDays }} día(s)</div>
+                        }
+                        <div class="rate-price">{{ rate.price | currency }}</div>
+                      </div>
                     }
-                    Envío: <strong>{{ shippingRates.flatPrice | currency }}</strong>
-                  </span>
-                </div>
+                  </div>
+                }
+
+                <!-- Flat/Google Maps result -->
+                @if (shippingRates && !shippingRates.skydropxAvailable) {
+                  <div class="calc-result">
+                    <mat-icon>location_on</mat-icon>
+                    <span>
+                      @if (shippingRates.distanceKm > 0) {
+                        {{ shippingRates.distanceKm | number:'1.1-1' }} km —
+                      }
+                      Envío: <strong>{{ shippingRates.flatPrice | currency }}</strong>
+                    </span>
+                  </div>
+                }
               }
             }
 
@@ -281,7 +288,11 @@ import { switchMap } from 'rxjs';
             }
             <div class="summary-item">
               <span>Envío ({{ shippingLabel }})</span>
-              <span>{{ shippingCostForSummary | currency }}</span>
+              @if (shippingCostForSummary === 0 && typeForm.get('shippingType')?.value === 'NATIONAL' && shippingConfig?.freeShippingEnabled) {
+                <span class="free-shipping-label">Gratis</span>
+              } @else {
+                <span>{{ shippingCostForSummary | currency }}</span>
+              }
             </div>
             <div class="summary-item total">
               <span>Total</span>
@@ -408,6 +419,9 @@ import { switchMap } from 'rxjs';
     .summary-item { display: flex; justify-content: space-between; padding: 8px 0; }
     .summary-item.total { font-weight: 700; font-size: 1.1rem; }
     .discount-row { color: #2e7d32; font-size: 0.9rem; }
+    .free-shipping-label { color: #2e7d32; font-weight: 600; }
+    .free-shipping-notice { display: flex; align-items: center; gap: 10px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 12px 16px; margin-top: 12px; color: #2e7d32; font-size: 0.95rem; }
+    .free-shipping-notice mat-icon { color: #2e7d32; flex-shrink: 0; }
     .card-form { margin-bottom: 24px; padding: 16px; }
     .card-form h4 { margin: 0 0 16px; }
     .processing-overlay { display: flex; align-items: center; gap: 16px; margin: 16px 0; padding: 16px; background: #f5f5f5; border-radius: 8px; }
@@ -470,6 +484,11 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   get shippingCostForSummary(): number {
     const type = this.typeForm.get('shippingType')?.value;
     if (type === 'NATIONAL') {
+      const cfg = this.shippingConfig;
+      if (cfg?.freeShippingEnabled && cfg?.freeShippingMinAmount != null
+          && this.cart.total() >= cfg.freeShippingMinAmount) {
+        return 0;
+      }
       if (this.shippingRates?.skydropxAvailable) return this.selectedSkydropxRate?.price ?? 0;
       return this.shippingRates?.flatPrice ?? 0;
     }
@@ -697,10 +716,18 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.selectedSkydropxRate = rate;
   }
 
+  get hasFreeShipping(): boolean {
+    const cfg = this.shippingConfig;
+    return !!(cfg?.freeShippingEnabled && cfg?.freeShippingMinAmount != null
+              && this.cart.total() >= cfg.freeShippingMinAmount);
+  }
+
   isDeliveryStepValid(): boolean {
     const type = this.typeForm.get('shippingType')?.value;
     if (type === 'NATIONAL') {
-      if (!this.isAddressReady() || !this.shippingRates) return false;
+      if (!this.isAddressReady()) return false;
+      if (this.hasFreeShipping) return true;
+      if (!this.shippingRates) return false;
       if (this.shippingRates.skydropxAvailable) return !!this.selectedSkydropxRate;
       return true;
     }

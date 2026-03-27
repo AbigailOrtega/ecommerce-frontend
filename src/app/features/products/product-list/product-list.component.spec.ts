@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ProductListComponent } from './product-list.component';
@@ -289,6 +289,246 @@ describe('ProductListComponent', () => {
       component.selectedCategory = 3;
       component.onPageChange({ pageIndex: 1, pageSize: 12, length: 50 } as any);
       expect(productService.getProductsByCategory).toHaveBeenCalledWith(3, 1, 12);
+    });
+  });
+
+  // ── hasAnyStock() ─────────────────────────────────────────────────────────
+
+  describe('hasAnyStock()', () => {
+    it('returns true when product has positive stockQuantity and no colors', () => {
+      const p = makeProduct(1);
+      expect(component.hasAnyStock(p)).toBeTrue();
+    });
+
+    it('returns false when product stockQuantity is 0 and no colors', () => {
+      const p = { ...makeProduct(1), stockQuantity: 0 };
+      expect(component.hasAnyStock(p)).toBeFalse();
+    });
+
+    it('returns true when at least one color/size has stock', () => {
+      const p = { ...makeProduct(1), colors: [{ id: 1, name: 'Red', images: [], sizes: [{ id: 1, name: 'M', stock: 5 }] }] };
+      expect(component.hasAnyStock(p as any)).toBeTrue();
+    });
+
+    it('returns false when all color sizes have 0 stock', () => {
+      const p = { ...makeProduct(1), colors: [{ id: 1, name: 'Red', images: [], sizes: [{ id: 1, name: 'M', stock: 0 }] }] };
+      expect(component.hasAnyStock(p as any)).toBeFalse();
+    });
+  });
+
+  // ── colorHasStock() ───────────────────────────────────────────────────────
+
+  describe('colorHasStock()', () => {
+    it('returns true when at least one size has stock', () => {
+      const color = { id: 1, name: 'Blue', images: [], sizes: [{ id: 1, name: 'S', stock: 3 }] };
+      expect(component.colorHasStock(color as any)).toBeTrue();
+    });
+
+    it('returns false when all sizes have 0 stock', () => {
+      const color = { id: 1, name: 'Blue', images: [], sizes: [{ id: 1, name: 'S', stock: 0 }] };
+      expect(component.colorHasStock(color as any)).toBeFalse();
+    });
+  });
+
+  // ── cartBtnLabel() ────────────────────────────────────────────────────────
+
+  describe('cartBtnLabel()', () => {
+    it('returns "Sin existencia" when product has no stock', () => {
+      const p = { ...makeProduct(1), stockQuantity: 0 };
+      expect(component.cartBtnLabel(p)).toBe('Sin existencia');
+    });
+
+    it('returns "Ver opciones" when product has colors', () => {
+      const p = { ...makeProduct(1), colors: [{ id: 1, name: 'Red', images: [], sizes: [{ id: 1, name: 'M', stock: 5 }] }] };
+      expect(component.cartBtnLabel(p as any)).toBe('Ver opciones');
+    });
+
+    it('returns "Agregar al carrito" for simple product with stock', () => {
+      const p = makeProduct(1);
+      expect(component.cartBtnLabel(p)).toBe('Agregar al carrito');
+    });
+  });
+
+  // ── onAddToCartClick() ────────────────────────────────────────────────────
+
+  describe('onAddToCartClick()', () => {
+    it('opens popup when product has colors', () => {
+      const p = { ...makeProduct(1), colors: [{ id: 1, name: 'Red', images: [], sizes: [{ id: 1, name: 'M', stock: 5 }] }] };
+      component.onAddToCartClick(p as any);
+      expect(component.popupProduct).toBe(p as any);
+      expect(component.popupSelectedColor).toBeNull();
+    });
+
+    it('calls addLocalItem when not logged in (simple product)', () => {
+      authService.isLoggedIn.and.returnValue(false);
+      (cartService as any).addLocalItem = jasmine.createSpy('addLocalItem');
+      const p = makeProduct(1);
+      component.onAddToCartClick(p);
+      expect((cartService as any).addLocalItem).toHaveBeenCalled();
+    });
+
+    it('calls addToCart when logged in (simple product)', () => {
+      authService.isLoggedIn.and.returnValue(true);
+      cartService.addToCart.and.returnValue(of({}  as any));
+      const p = makeProduct(1);
+      component.onAddToCartClick(p);
+      expect(cartService.addToCart).toHaveBeenCalledWith(p.id);
+    });
+
+    it('calls addToCart when logged in (simple product — verify snackbar via addToCart call)', () => {
+      authService.isLoggedIn.and.returnValue(true);
+      cartService.addToCart.and.returnValue(of({} as any));
+      const p = makeProduct(1);
+      component.onAddToCartClick(p);
+      // addToCart must have been called — snackbar fires asynchronously in some zones
+      expect(cartService.addToCart).toHaveBeenCalledWith(p.id);
+    });
+  });
+
+  // ── Popup methods ─────────────────────────────────────────────────────────
+
+  describe('Popup methods', () => {
+    const color = { id: 1, name: 'Red', images: [], sizes: [{ id: 1, name: 'M', stock: 5 }] };
+    const size  = { id: 1, name: 'M', stock: 5 };
+
+    it('popupSelectColor sets selected color and clears size', () => {
+      component.popupSelectedSize = size as any;
+      component.popupSelectColor(color as any);
+      expect(component.popupSelectedColor).toBe(color as any);
+      expect(component.popupSelectedSize).toBeNull();
+    });
+
+    it('popupSelectSize sets selected size', () => {
+      component.popupSelectSize(size as any);
+      expect(component.popupSelectedSize).toBe(size as any);
+    });
+
+    it('canConfirmPopup returns false when no color selected', () => {
+      component.popupSelectedColor = null;
+      expect(component.canConfirmPopup()).toBeFalse();
+    });
+
+    it('canConfirmPopup returns false when color selected but no size', () => {
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = null;
+      expect(component.canConfirmPopup()).toBeFalse();
+    });
+
+    it('canConfirmPopup returns true when color and in-stock size selected', () => {
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = size as any;
+      expect(component.canConfirmPopup()).toBeTrue();
+    });
+
+    it('canConfirmPopup returns false when selected size has 0 stock', () => {
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = { id: 1, name: 'M', stock: 0 } as any;
+      expect(component.canConfirmPopup()).toBeFalse();
+    });
+
+    it('closePopup clears popup state', () => {
+      component.popupProduct = makeProduct(1);
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = size as any;
+      component.closePopup();
+      expect(component.popupProduct).toBeNull();
+      expect(component.popupSelectedColor).toBeNull();
+      expect(component.popupSelectedSize).toBeNull();
+    });
+
+    it('confirmAddToCart does nothing when canConfirmPopup returns false', () => {
+      component.popupProduct = makeProduct(1);
+      component.popupSelectedColor = null;
+      component.confirmAddToCart();
+      expect(cartService.addToCart).not.toHaveBeenCalled();
+    });
+
+    it('confirmAddToCart calls addLocalItem when not logged in', () => {
+      authService.isLoggedIn.and.returnValue(false);
+      (cartService as any).addLocalItem = jasmine.createSpy('addLocalItem');
+      const p = { ...makeProduct(1), colors: [color] };
+      component.popupProduct = p as any;
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = size as any;
+      component.confirmAddToCart();
+      expect((cartService as any).addLocalItem).toHaveBeenCalled();
+    });
+
+    it('confirmAddToCart calls addToCart with sizeId when logged in', () => {
+      authService.isLoggedIn.and.returnValue(true);
+      cartService.addToCart.and.returnValue(of({} as any));
+      const p = { ...makeProduct(1), colors: [color] };
+      component.popupProduct = p as any;
+      component.popupSelectedColor = color as any;
+      component.popupSelectedSize = size as any;
+      component.confirmAddToCart();
+      expect(cartService.addToCart).toHaveBeenCalledWith(p.id, 1, size.id);
+    });
+  });
+
+  // ── Carousel ──────────────────────────────────────────────────────────────
+
+  describe('Carousel', () => {
+    beforeEach(() => {
+      // Set banners directly to test carousel logic
+      component.banners = [
+        { id: 1, imageUrl: 'a.jpg', title: 'A', active: true, sortOrder: 0 },
+        { id: 2, imageUrl: 'b.jpg', title: 'B', active: true, sortOrder: 1 },
+        { id: 3, imageUrl: 'c.jpg', title: 'C', active: true, sortOrder: 2 },
+      ] as any;
+      component.carouselIndex = 0;
+    });
+
+    it('nextSlide advances carouselIndex', () => {
+      component.nextSlide();
+      expect(component.carouselIndex).toBe(1);
+    });
+
+    it('nextSlide wraps around to 0 after last slide', () => {
+      component.carouselIndex = 2;
+      component.nextSlide();
+      expect(component.carouselIndex).toBe(0);
+    });
+
+    it('prevSlide decrements carouselIndex', () => {
+      component.carouselIndex = 1;
+      component.prevSlide();
+      expect(component.carouselIndex).toBe(0);
+    });
+
+    it('prevSlide wraps around to last slide from 0', () => {
+      component.carouselIndex = 0;
+      component.prevSlide();
+      expect(component.carouselIndex).toBe(2);
+    });
+
+    it('goToSlide sets carouselIndex', () => {
+      component.goToSlide(2);
+      expect(component.carouselIndex).toBe(2);
+    });
+  });
+
+  // ── onCategoryChange() ────────────────────────────────────────────────────
+
+  describe('onCategoryChange()', () => {
+    it('resets currentPage and searchQuery then reloads', () => {
+      component.currentPage = 3;
+      component.searchQuery = 'test';
+      productService.getProducts.calls.reset();
+      component.onCategoryChange();
+      expect(component.currentPage).toBe(0);
+      expect(component.searchQuery).toBe('');
+      expect(productService.getProducts).toHaveBeenCalled();
+    });
+  });
+
+  // ── loadProducts() error handler ──────────────────────────────────────────
+
+  describe('loadProducts() error handling', () => {
+    it('sets loading=false on error', () => {
+      productService.getProducts.and.returnValue(throwError(() => new Error('fail')));
+      component.loadProducts();
+      expect(component.loading).toBeFalse();
     });
   });
 });

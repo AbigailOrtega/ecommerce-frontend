@@ -6,7 +6,7 @@
       "localStorage": [
         {
           "name": "accessToken",
-          "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkB0ZXN0LmNvbSIsImlhdCI6MTc3Mzg2MzY2MywiZXhwIjoxNzczOTUwMDYzfQ.PIJFKdiou-rn6f4umnhq9EQtp8RHoS7XbGsCIAyL8nUqX-l0KWJMrAeSqUeH-H5t"
+          "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkB0ZXN0LmNvbSIsImlhdCI6MTc3NDM5MjExNSwiZXhwIjoxNzc0NDc4NTE1fQ.AeWN1pLhr78HchhW4rf4iT0D_rrVOYNExCqVYs8x__vqVAPtY_pgmFHsbrnNj-0E"
         },
         {
           "name": "user",
@@ -14,7 +14,7 @@
         },
         {
           "name": "refreshToken",
-          "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkB0ZXN0LmNvbSIsImlhdCI6MTc3Mzg2MzY2MywiZXhwIjoxNzc0NDY4NDYzfQ.o8eOGjJn4e3nDWwMpRn_-lwolo9H3K4dLBmzTn2pRnvQnhPDd3KhXoSG9-FzM2O3"
+          "value": "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhZG1pbkB0ZXN0LmNvbSIsImlhdCI6MTc3NDM5MjExNSwiZXhwIjoxNzc0OTk2OTE1fQ.W5EKIvv40HWrhGH2CeHdrNMGIAgwN95DHuptQkTsmR1bgKbqdqbDp5bGcqpNFWxV"
         }
       ]
     }

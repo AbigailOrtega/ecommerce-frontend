@@ -7,7 +7,7 @@ test.use({ storageState: 'e2e/.auth/user.json' });
 async function addProductToCart(page: any): Promise<void> {
   await page.goto('/');
   await page.waitForSelector('mat-card-actions button', { timeout: 15000 });
-  const addBtn = page.locator('mat-card-actions button').filter({ hasText: 'Add to Cart' }).first();
+  const addBtn = page.locator('mat-card-actions button').filter({ hasText: 'Agregar al carrito' }).first();
   if (await addBtn.isVisible()) {
     // Wait for the POST /api/cart network response before continuing
     await Promise.all([
@@ -27,7 +27,7 @@ test.describe('Cart', () => {
     await page.goto('/');
     await page.waitForSelector('mat-card-actions button', { timeout: 15000 });
 
-    const addBtn = page.locator('mat-card-actions button').filter({ hasText: 'Add to Cart' }).first();
+    const addBtn = page.locator('mat-card-actions button').filter({ hasText: 'Agregar al carrito' }).first();
     await expect(addBtn).toBeVisible();
 
     // Read badge before (may be hidden/0)
@@ -152,7 +152,7 @@ test.describe('Cart', () => {
     }
 
     await couponInput.fill('INVALID_CODE_XYZ');
-    await page.locator('button:has-text("Apply")').click();
+    await page.locator('button:has-text("Aplicar")').click();
 
     await expect(page.locator('simple-snack-bar, mat-snack-bar-container').first()).toBeVisible();
   });
@@ -164,14 +164,14 @@ test.describe('Cart', () => {
     await page.waitForSelector('mat-card.cart-item, .empty-cart', { timeout: 10000 });
 
     // If cart has items, clear via the Clear Cart button
-    const clearBtn = page.locator('button:has-text("Clear Cart")');
+    const clearBtn = page.locator('button:has-text("Vaciar carrito")');
     if (await clearBtn.isVisible()) {
       await clearBtn.click();
       await page.waitForTimeout(500);
     }
 
     // After clearing (or if already empty), the empty state card should appear
-    await expect(page.locator('.empty-cart h2')).toContainText('Your cart is empty');
+    await expect(page.locator('.empty-cart h2')).toContainText('Tu carrito está vacío');
   });
 
   // ── WhatsApp bubble ───────────────────────────────────────────────────────

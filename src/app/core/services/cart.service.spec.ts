@@ -1,6 +1,7 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { CartService } from './cart.service';
+import { AuthService } from './auth.service';
 import { CartItem, Coupon } from '@shared/models';
 
 const API_CART   = 'http://localhost:8080/api/cart';
@@ -30,7 +31,10 @@ describe('CartService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [CartService],
+      providers: [
+        CartService,
+        { provide: AuthService, useValue: { isLoggedIn: () => true } },
+      ],
     });
     service = TestBed.inject(CartService);
     httpMock = TestBed.inject(HttpTestingController);

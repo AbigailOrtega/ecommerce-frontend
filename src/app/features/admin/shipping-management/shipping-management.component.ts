@@ -109,7 +109,21 @@ import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequ
               </div>
             }
 
-            <!-- ── 2. Pick Up ── -->
+            <!-- ── 2. Envío gratis por monto mínimo ── -->
+            <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+            <div class="section-header-row">
+              <h3 class="sub-title">Envío gratis por monto mínimo</h3>
+              <mat-slide-toggle formControlName="freeShippingEnabled" color="primary">Habilitado</mat-slide-toggle>
+            </div>
+            @if (configForm.get('freeShippingEnabled')?.value) {
+              <mat-form-field appearance="outline">
+                <mat-label>Monto mínimo para envío gratis ($)</mat-label>
+                <input matInput type="number" min="0" step="0.01" formControlName="freeShippingMinAmount">
+                <mat-hint>El cliente obtiene envío gratis al superar este monto en su compra</mat-hint>
+              </mat-form-field>
+            }
+
+            <!-- ── 3. Pick Up ── -->
             <mat-divider style="margin: 24px 0 16px;"></mat-divider>
             <div class="section-header-row">
               <h3 class="sub-title">Pick Up</h3>
@@ -479,6 +493,8 @@ export class ShippingManagementComponent implements OnInit {
           skydropxDefaultLength: [res.data.skydropxDefaultLength ?? 20],
           skydropxDefaultWidth: [res.data.skydropxDefaultWidth ?? 20],
           skydropxDefaultHeight: [res.data.skydropxDefaultHeight ?? 10],
+          freeShippingEnabled: [res.data.freeShippingEnabled ?? false],
+          freeShippingMinAmount: [res.data.freeShippingMinAmount ?? null, [Validators.min(0)]],
         });
         this.configLoading = false;
       },
@@ -506,6 +522,8 @@ export class ShippingManagementComponent implements OnInit {
       skydropxDefaultLength: val.skydropxDefaultLength,
       skydropxDefaultWidth: val.skydropxDefaultWidth,
       skydropxDefaultHeight: val.skydropxDefaultHeight,
+      freeShippingEnabled: val.freeShippingEnabled,
+      freeShippingMinAmount: val.freeShippingMinAmount,
     };
     this.adminService.updateShippingConfig(req).subscribe({
       next: (res) => {

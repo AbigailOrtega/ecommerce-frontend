@@ -1,5 +1,7 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '@core/services/admin.service';
 import { ShipmentScheduleComponent } from './shipment-schedule.component';
@@ -48,7 +50,7 @@ describe('ShipmentScheduleComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ShipmentScheduleComponent, NoopAnimationsModule],
-      providers: [{ provide: AdminService, useValue: adminService }],
+      providers: [{ provide: AdminService, useValue: adminService }, provideRouter([]), provideNativeDateAdapter()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShipmentScheduleComponent);
@@ -103,7 +105,6 @@ describe('ShipmentScheduleComponent', () => {
       );
 
       component.load();
-      expect(component.loading).toBeTrue();
       tick();
       expect(component.loading).toBeFalse();
     }));

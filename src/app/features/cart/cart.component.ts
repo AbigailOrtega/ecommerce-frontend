@@ -10,7 +10,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
-import { CartItem, LocalCartItem } from '@shared/models';
+import { ShippingService } from '@core/services/shipping.service';
+import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
 
 @Component({
   selector: 'app-cart',
@@ -20,6 +21,20 @@ import { CartItem, LocalCartItem } from '@shared/models';
   template: `
     <div class="container">
       <h1>Mi Carrito</h1>
+
+      @if (shippingConfig?.freeShippingEnabled && shippingConfig?.freeShippingMinAmount) {
+        @if (cart.subtotal() >= shippingConfig!.freeShippingMinAmount!) {
+          <div class="free-shipping-banner achieved">
+            <mat-icon>local_shipping</mat-icon>
+            <span>¡Tienes <strong>envío gratis</strong> en tu pedido!</span>
+          </div>
+        } @else {
+          <div class="free-shipping-banner">
+            <mat-icon>local_shipping</mat-icon>
+            <span>Agrega <strong>{{ shippingConfig!.freeShippingMinAmount! - cart.subtotal() | currency }}</strong> más para obtener <strong>envío gratis</strong></span>
+          </div>
+        }
+      }
 
       @if (isEmpty()) {
         <mat-card class="empty-cart">
@@ -198,6 +213,10 @@ import { CartItem, LocalCartItem } from '@shared/models';
     .discount-value { font-weight: 600; }
     .checkout-btn { width: 100%; margin-top: 16px; }
     .clear-btn { width: 100%; margin-top: 8px; }
+    .free-shipping-banner { display: flex; align-items: center; gap: 10px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; font-size: 0.9rem; color: #5d4037; }
+    .free-shipping-banner mat-icon { color: #f57c00; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+    .free-shipping-banner.achieved { background: #e8f5e9; border-color: #a5d6a7; color: #2e7d32; }
+    .free-shipping-banner.achieved mat-icon { color: #2e7d32; }
     @media (max-width: 768px) {
       .cart-layout { grid-template-columns: 1fr; }
       .cart-summary { position: static; }
@@ -221,15 +240,21 @@ import { CartItem, LocalCartItem } from '@shared/models';
 export class CartComponent implements OnInit {
   couponCode = '';
   applyingCoupon = false;
+  shippingConfig: ShippingConfig | null = null;
 
   constructor(
     public cart: CartService,
     public auth: AuthService,
     private snackBar: MatSnackBar,
+    private shippingService: ShippingService,
   ) {}
 
   ngOnInit(): void {
     this.cart.loadCart();
+    this.shippingService.getConfig().subscribe({
+      next: (res) => this.shippingConfig = res.data,
+      error: () => {},
+    });
   }
 
   isEmpty(): boolean {

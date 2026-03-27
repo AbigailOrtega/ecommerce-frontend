@@ -73,10 +73,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <label class="mf-label">Pago</label>
               <select class="fi" [(ngModel)]="filterPayment" (ngModelChange)="applyFilters()">
                 <option value="">Todos</option>
-                <option value="STRIPE">Stripe</option>
-                <option value="TRANSFER">Transferencia</option>
-                <option value="CASH">Efectivo</option>
-                <option value="OXXO">OXXO</option>
+                <option value="stripe">Stripe</option>
+                <option value="paypal">PayPal</option>
               </select>
             </div>
             <div class="mf-row">
@@ -93,8 +91,6 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
       @if (loading) {
         <app-loading />
-      } @else if (orders.length === 0) {
-        <p class="empty-state">Sin pedidos.</p>
       } @else {
         <div class="table-wrap">
         <table mat-table [dataSource]="orders" [multiTemplateDataRows]="true" class="order-table">
@@ -487,10 +483,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <th mat-header-cell *matHeaderCellDef class="filter-cell">
               <select class="fi" [(ngModel)]="filterPayment" (ngModelChange)="applyFilters()">
                 <option value="">Todos</option>
-                <option value="STRIPE">Stripe</option>
-                <option value="TRANSFER">Transferencia</option>
-                <option value="CASH">Efectivo</option>
-                <option value="OXXO">OXXO</option>
+                <option value="stripe">Stripe</option>
+                <option value="paypal">PayPal</option>
               </select>
             </th>
           </ng-container>
@@ -508,10 +502,17 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           <tr mat-row *matRowDef="let row; columns: visibleColumns;" class="main-row"
               (click)="toggleExpand(row)"></tr>
           <tr mat-row *matRowDef="let row; columns: ['expandedDetail'];" class="detail-row"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data-cell" [attr.colspan]="visibleColumns.length">
+              Sin pedidos con los filtros aplicados.
+            </td>
+          </tr>
 
         </table>
         </div><!-- /table-wrap -->
-        <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
+        @if (orders.length > 0) {
+          <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
+        }
       }
     </div>
   `,
@@ -542,13 +543,20 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .date-fi .fi { min-width: 0; }
 
     .items-panel {
-      position: relative;
-      z-index: 200;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      z-index: 1000;
       background: #f9f9fb;
-      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+      box-shadow: 4px 0 16px rgba(0,0,0,0.12);
       display: flex;
       flex-direction: column;
-      max-height: 75vh;
+      height: calc(100vh - 64px);
+      width: 30vw;
+      min-width: 280px;
+      box-sizing: border-box;
+      overflow-y: auto;
     }
     .panel-header {
       display: flex;
@@ -581,6 +589,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .coupon-code { background: #e8f5e9; color: #2e7d32; font-size: 0.75rem; padding: 1px 6px; border-radius: 8px; margin-left: 4px; font-weight: 600; }
     .discount-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 0.72rem; padding: 1px 6px; border-radius: 8px; margin-left: 6px; font-weight: 600; cursor: help; }
     .empty-state { margin-top: 32px; text-align: center; color: #888; font-size: 1rem; }
+    .no-data-cell { text-align: center; color: #888; padding: 32px !important; font-size: 1rem; }
 
     .detail-block { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: #555; margin-top: 8px; padding: 10px 14px; background: #fff; border-radius: 8px; border: 1px solid #e8e8e8; }
     .block-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }

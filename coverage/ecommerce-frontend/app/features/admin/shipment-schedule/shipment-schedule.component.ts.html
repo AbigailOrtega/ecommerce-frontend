@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for app/features/admin/store-info/store-info.component.ts</title>
+    <title>Code coverage report for app/features/admin/shipment-schedule/shipment-schedule.component.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">app/features/admin/store-info</a> store-info.component.ts</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">app/features/admin/shipment-schedule</a> shipment-schedule.component.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>56/80</span>
+                <span class='fraction'>21/49</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">21.42% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/10</span>
+                <span class='fraction'>6/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">40.9% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>18/30</span>
+                <span class='fraction'>9/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.56% </span>
+                <span class="strong">42.85% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>48/69</span>
+                <span class='fraction'>18/42</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -474,7 +474,255 @@
 <a name='L409'></a><a href='#L409'>409</a>
 <a name='L410'></a><a href='#L410'>410</a>
 <a name='L411'></a><a href='#L411'>411</a>
-<a name='L412'></a><a href='#L412'>412</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L412'></a><a href='#L412'>412</a>
+<a name='L413'></a><a href='#L413'>413</a>
+<a name='L414'></a><a href='#L414'>414</a>
+<a name='L415'></a><a href='#L415'>415</a>
+<a name='L416'></a><a href='#L416'>416</a>
+<a name='L417'></a><a href='#L417'>417</a>
+<a name='L418'></a><a href='#L418'>418</a>
+<a name='L419'></a><a href='#L419'>419</a>
+<a name='L420'></a><a href='#L420'>420</a>
+<a name='L421'></a><a href='#L421'>421</a>
+<a name='L422'></a><a href='#L422'>422</a>
+<a name='L423'></a><a href='#L423'>423</a>
+<a name='L424'></a><a href='#L424'>424</a>
+<a name='L425'></a><a href='#L425'>425</a>
+<a name='L426'></a><a href='#L426'>426</a>
+<a name='L427'></a><a href='#L427'>427</a>
+<a name='L428'></a><a href='#L428'>428</a>
+<a name='L429'></a><a href='#L429'>429</a>
+<a name='L430'></a><a href='#L430'>430</a>
+<a name='L431'></a><a href='#L431'>431</a>
+<a name='L432'></a><a href='#L432'>432</a>
+<a name='L433'></a><a href='#L433'>433</a>
+<a name='L434'></a><a href='#L434'>434</a>
+<a name='L435'></a><a href='#L435'>435</a>
+<a name='L436'></a><a href='#L436'>436</a>
+<a name='L437'></a><a href='#L437'>437</a>
+<a name='L438'></a><a href='#L438'>438</a>
+<a name='L439'></a><a href='#L439'>439</a>
+<a name='L440'></a><a href='#L440'>440</a>
+<a name='L441'></a><a href='#L441'>441</a>
+<a name='L442'></a><a href='#L442'>442</a>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a>
+<a name='L448'></a><a href='#L448'>448</a>
+<a name='L449'></a><a href='#L449'>449</a>
+<a name='L450'></a><a href='#L450'>450</a>
+<a name='L451'></a><a href='#L451'>451</a>
+<a name='L452'></a><a href='#L452'>452</a>
+<a name='L453'></a><a href='#L453'>453</a>
+<a name='L454'></a><a href='#L454'>454</a>
+<a name='L455'></a><a href='#L455'>455</a>
+<a name='L456'></a><a href='#L456'>456</a>
+<a name='L457'></a><a href='#L457'>457</a>
+<a name='L458'></a><a href='#L458'>458</a>
+<a name='L459'></a><a href='#L459'>459</a>
+<a name='L460'></a><a href='#L460'>460</a>
+<a name='L461'></a><a href='#L461'>461</a>
+<a name='L462'></a><a href='#L462'>462</a>
+<a name='L463'></a><a href='#L463'>463</a>
+<a name='L464'></a><a href='#L464'>464</a>
+<a name='L465'></a><a href='#L465'>465</a>
+<a name='L466'></a><a href='#L466'>466</a>
+<a name='L467'></a><a href='#L467'>467</a>
+<a name='L468'></a><a href='#L468'>468</a>
+<a name='L469'></a><a href='#L469'>469</a>
+<a name='L470'></a><a href='#L470'>470</a>
+<a name='L471'></a><a href='#L471'>471</a>
+<a name='L472'></a><a href='#L472'>472</a>
+<a name='L473'></a><a href='#L473'>473</a>
+<a name='L474'></a><a href='#L474'>474</a>
+<a name='L475'></a><a href='#L475'>475</a>
+<a name='L476'></a><a href='#L476'>476</a>
+<a name='L477'></a><a href='#L477'>477</a>
+<a name='L478'></a><a href='#L478'>478</a>
+<a name='L479'></a><a href='#L479'>479</a>
+<a name='L480'></a><a href='#L480'>480</a>
+<a name='L481'></a><a href='#L481'>481</a>
+<a name='L482'></a><a href='#L482'>482</a>
+<a name='L483'></a><a href='#L483'>483</a>
+<a name='L484'></a><a href='#L484'>484</a>
+<a name='L485'></a><a href='#L485'>485</a>
+<a name='L486'></a><a href='#L486'>486</a>
+<a name='L487'></a><a href='#L487'>487</a>
+<a name='L488'></a><a href='#L488'>488</a>
+<a name='L489'></a><a href='#L489'>489</a>
+<a name='L490'></a><a href='#L490'>490</a>
+<a name='L491'></a><a href='#L491'>491</a>
+<a name='L492'></a><a href='#L492'>492</a>
+<a name='L493'></a><a href='#L493'>493</a>
+<a name='L494'></a><a href='#L494'>494</a>
+<a name='L495'></a><a href='#L495'>495</a>
+<a name='L496'></a><a href='#L496'>496</a>
+<a name='L497'></a><a href='#L497'>497</a>
+<a name='L498'></a><a href='#L498'>498</a>
+<a name='L499'></a><a href='#L499'>499</a>
+<a name='L500'></a><a href='#L500'>500</a>
+<a name='L501'></a><a href='#L501'>501</a>
+<a name='L502'></a><a href='#L502'>502</a>
+<a name='L503'></a><a href='#L503'>503</a>
+<a name='L504'></a><a href='#L504'>504</a>
+<a name='L505'></a><a href='#L505'>505</a>
+<a name='L506'></a><a href='#L506'>506</a>
+<a name='L507'></a><a href='#L507'>507</a>
+<a name='L508'></a><a href='#L508'>508</a>
+<a name='L509'></a><a href='#L509'>509</a>
+<a name='L510'></a><a href='#L510'>510</a>
+<a name='L511'></a><a href='#L511'>511</a>
+<a name='L512'></a><a href='#L512'>512</a>
+<a name='L513'></a><a href='#L513'>513</a>
+<a name='L514'></a><a href='#L514'>514</a>
+<a name='L515'></a><a href='#L515'>515</a>
+<a name='L516'></a><a href='#L516'>516</a>
+<a name='L517'></a><a href='#L517'>517</a>
+<a name='L518'></a><a href='#L518'>518</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -755,545 +1003,615 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">336x</span>
-<span class="cline-any cline-yes">252x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
-<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">21x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgIf, NgFor } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { StoreInfoService } from '@core/services/store-info.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatSelectModule } from '@angular/material/select';
 import { AdminService } from '@core/services/admin.service';
-import { ThemeService } from '@core/services/theme.service';
-import { StoreInfo, StoreImage } from '@shared/models';
-import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
-import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { LoadingComponent } from '@shared/components/loading/loading.component';
+import { Order, PickupGroup, UpcomingSchedule } from '@shared/models';
 &nbsp;
 @Component({
-  selector: 'app-admin-store-info',
+  selector: 'app-shipment-schedule',
   standalone: true,
   imports: [
-    FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatTooltipModule,
-    NgIf, NgFor, RouterLink,
+    RouterLink, CurrencyPipe, DatePipe, FormsModule,
+    MatCardModule, MatButtonModule, MatIconModule,
+    MatChipsModule, MatDividerModule, MatTabsModule, MatBadgeModule,
+    MatFormFieldModule, MatInputModule, MatDatepickerModule, MatSelectModule,
+    MatSnackBarModule, LoadingComponent,
   ],
   template: `
     &lt;div class="container"&gt;
-      &lt;div class="header"&gt;
-        &lt;h1&gt;Información General&lt;/h1&gt;
+      &lt;div class="page-header"&gt;
+        &lt;h1&gt;Agenda de envíos&lt;/h1&gt;
+        &lt;button mat-icon-button (click)="load()" title="Actualizar"&gt;
+          &lt;mat-icon&gt;refresh&lt;/mat-icon&gt;
+        &lt;/button&gt;
         &lt;a mat-button routerLink="/admin"&gt;&amp;larr; Panel&lt;/a&gt;
       &lt;/div&gt;
 &nbsp;
-      &lt;!-- Datos de la tienda --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Datos de la tienda&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;div class="form-grid"&gt;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Nombre de la tienda&lt;/mat-label&gt;
-              &lt;input matInput [(ngModel)]="form.name" placeholder="Ej. Mi Tienda" /&gt;
-            &lt;/mat-form-field&gt;
+      @if (loading) {
+        &lt;app-loading /&gt;
+      } @else {
+        &lt;mat-tab-group&gt;
 &nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Teléfono&lt;/mat-label&gt;
-              &lt;span matTextPrefix&gt;+52&amp;nbsp;&lt;/span&gt;
-              &lt;input matInput [(ngModel)]="form.phone" placeholder="55 1234 5678" /&gt;
-            &lt;/mat-form-field&gt;
+          &lt;!-- ── Envíos nacionales ───────────────────────────── --&gt;
+          &lt;mat-tab&gt;
+            &lt;ng-template mat-tab-label&gt;
+              &lt;mat-icon class="tab-icon"&gt;local_shipping&lt;/mat-icon&gt;
+              Envíos pendientes
+              @if (schedule?.shipments?.length) {
+                &lt;span class="tab-badge"&gt;{{ schedule!.shipments.length }}&lt;/span&gt;
+              }
+            &lt;/ng-template&gt;
 &nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Correo de contacto&lt;/mat-label&gt;
-              &lt;mat-icon matPrefix&gt;email&lt;/mat-icon&gt;
-              &lt;input matInput [(ngModel)]="form.email" type="email" placeholder="contacto@mitienda.com" /&gt;
-            &lt;/mat-form-field&gt;
-&nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;WhatsApp de contacto&lt;/mat-label&gt;
-              &lt;span matTextPrefix&gt;+52&amp;nbsp;&lt;/span&gt;
-              &lt;input matInput [(ngModel)]="form.whatsappNumber" placeholder="55 1234 5678" /&gt;
-              &lt;mat-hint&gt;Sin espacios ni "+". Se muestra como botón flotante en la tienda.&lt;/mat-hint&gt;
-            &lt;/mat-form-field&gt;
-&nbsp;
-            &lt;mat-form-field appearance="outline" class="full-width"&gt;
-              &lt;mat-label&gt;Descripción (Sobre nosotros)&lt;/mat-label&gt;
-              &lt;textarea matInput [(ngModel)]="form.aboutText" rows="4"
-                        placeholder="Cuéntanos sobre tu tienda..."&gt;&lt;/textarea&gt;
-            &lt;/mat-form-field&gt;
-&nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Misión&lt;/mat-label&gt;
-              &lt;textarea matInput [(ngModel)]="form.mission" rows="3"
-                        placeholder="¿Cuál es la misión de tu tienda?"&gt;&lt;/textarea&gt;
-            &lt;/mat-form-field&gt;
-&nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Visión&lt;/mat-label&gt;
-              &lt;textarea matInput [(ngModel)]="form.vision" rows="3"
-                        placeholder="¿Cuál es la visión de tu tienda?"&gt;&lt;/textarea&gt;
-            &lt;/mat-form-field&gt;
-          &lt;/div&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
-&nbsp;
-      &lt;!-- Redes sociales --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Redes sociales&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;p class="social-hint"&gt;Solo se mostrarán las redes que tengan URL configurada.&lt;/p&gt;
-          &lt;div class="form-grid"&gt;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Instagram&lt;/mat-label&gt;
-              &lt;mat-icon matPrefix class="social-prefix instagram-icon"&gt;photo_camera&lt;/mat-icon&gt;
-              &lt;input matInput [(ngModel)]="form.instagramUrl" placeholder="https://instagram.com/tutienda" /&gt;
-            &lt;/mat-form-field&gt;
-&nbsp;
-            &lt;mat-form-field appearance="outline"&gt;
-              &lt;mat-label&gt;Facebook&lt;/mat-label&gt;
-              &lt;mat-icon matPrefix class="social-prefix facebook-icon"&gt;facebook&lt;/mat-icon&gt;
-              &lt;input matInput [(ngModel)]="form.facebookUrl" placeholder="https://facebook.com/tutienda" /&gt;
-            &lt;/mat-form-field&gt;
-          &lt;/div&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
-&nbsp;
-      &lt;!-- Color de la tienda --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Color de la tienda&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;p class="theme-hint"&gt;Elige la paleta de colores principal del sitio.&lt;/p&gt;
-          &lt;div class="theme-swatches"&gt;
-            @for (entry of themeEntries; track entry.key) {
-              &lt;button class="swatch-btn"
-                      [style.background]="entry.primary"
-                      [class.selected]="selectedTheme === entry.key"
-                      [matTooltip]="entry.label"
-                      (click)="selectTheme(entry.key)"&gt;
-                @if (selectedTheme === entry.key) {
-                  &lt;mat-icon style="color:white;font-size:18px;line-height:18px;"&gt;check&lt;/mat-icon&gt;
-                }
-              &lt;/button&gt;
-            }
-          &lt;/div&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
-&nbsp;
-      &lt;!-- Tipografía --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Tipografía&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;p class="theme-hint"&gt;Elige la fuente principal del sitio. La vista previa muestra cómo se verá el texto.&lt;/p&gt;
-          &lt;div class="font-options"&gt;
-            @for (entry of fontEntries; track entry.key) {
-              &lt;button class="font-btn" [class.font-selected]="selectedFont === entry.key"
-                      [style.font-family]="entry.fontFamily"
-                      (click)="selectFont(entry.key)"&gt;
-                &lt;span class="font-label"&gt;{{ entry.label }}&lt;/span&gt;
-                &lt;span class="font-preview"&gt;Aa — Texto de ejemplo&lt;/span&gt;
-              &lt;/button&gt;
-            }
-          &lt;/div&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
-&nbsp;
-      &lt;!-- Logo --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Logo de la tienda&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;div class="logo-section"&gt;
-            @if (logoPreview) {
-              &lt;div class="logo-preview"&gt;
-                &lt;img [src]="logoPreview" alt="Logo" /&gt;
-                &lt;button mat-icon-button color="warn" (click)="removeLogo()" title="Eliminar logo"&gt;
-                  &lt;mat-icon&gt;close&lt;/mat-icon&gt;
-                &lt;/button&gt;
+            @if (!schedule?.shipments?.length) {
+              &lt;div class="empty-state"&gt;
+                &lt;mat-icon&gt;check_circle&lt;/mat-icon&gt;
+                &lt;p&gt;No hay envíos nacionales pendientes.&lt;/p&gt;
               &lt;/div&gt;
             } @else {
-              &lt;p class="empty-msg"&gt;Sin logo. Se mostrará en la barra de navegación.&lt;/p&gt;
+              &lt;div class="cards-grid"&gt;
+                @for (order of schedule!.shipments; track order.id) {
+                  &lt;mat-card class="order-card"&gt;
+                    &lt;mat-card-header&gt;
+                      &lt;div class="card-title-row"&gt;
+                        &lt;span class="order-number"&gt;{{ order.orderNumber }}&lt;/span&gt;
+                        &lt;span class="status-chip" [class]="'status-' + order.status.toLowerCase()"&gt;
+                          {{ statusLabel(order.status) }}
+                        &lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/mat-card-header&gt;
+&nbsp;
+                    &lt;mat-card-content&gt;
+                      &lt;div class="info-row"&gt;
+                        &lt;mat-icon&gt;person&lt;/mat-icon&gt;
+                        &lt;span&gt;
+                          @if (order.user) {
+                            {{ order.user.firstName }} {{ order.user.lastName }}
+                          } @else {
+                            {{ order.guestFirstName }} {{ order.guestLastName }}
+                            &lt;em class="guest-tag"&gt;invitado&lt;/em&gt;
+                          }
+                        &lt;/span&gt;
+                      &lt;/div&gt;
+&nbsp;
+                      &lt;div class="info-row"&gt;
+                        &lt;mat-icon&gt;email&lt;/mat-icon&gt;
+                        &lt;span&gt;{{ order.user?.email ?? order.guestEmail }}&lt;/span&gt;
+                      &lt;/div&gt;
+&nbsp;
+                      @if (order.shippingAddress) {
+                        &lt;div class="info-row"&gt;
+                          &lt;mat-icon&gt;location_on&lt;/mat-icon&gt;
+                          &lt;span&gt;
+                            {{ order.shippingAddress }},
+                            {{ order.shippingCity }},
+                            {{ order.shippingState }}
+                            {{ order.shippingZipCode }}
+                          &lt;/span&gt;
+                        &lt;/div&gt;
+                      }
+&nbsp;
+                      @if (order.shippingMethodName) {
+                        &lt;div class="info-row"&gt;
+                          &lt;mat-icon&gt;inventory_2&lt;/mat-icon&gt;
+                          &lt;span&gt;{{ order.shippingMethodName }}&lt;/span&gt;
+                        &lt;/div&gt;
+                      }
+&nbsp;
+                      @if (order.trackingNumber) {
+                        &lt;div class="info-row tracking"&gt;
+                          &lt;mat-icon&gt;qr_code&lt;/mat-icon&gt;
+                          &lt;span&gt;Tracking: &lt;strong&gt;{{ order.trackingNumber }}&lt;/strong&gt;&lt;/span&gt;
+                          @if (order.carrierName) {
+                            &lt;span class="carrier"&gt;{{ order.carrierName }}&lt;/span&gt;
+                          }
+                        &lt;/div&gt;
+                      }
+&nbsp;
+                      &lt;mat-divider /&gt;
+&nbsp;
+                      &lt;div class="items-list"&gt;
+                        @for (item of order.items; track item.id) {
+                          &lt;div class="item-row"&gt;
+                            &lt;span class="item-name"&gt;{{ item.productName }}&lt;/span&gt;
+                            &lt;span class="item-qty"&gt;x{{ item.quantity }}&lt;/span&gt;
+                            @if (item.selectedSizeName) {
+                              &lt;span class="item-size"&gt;{{ item.selectedColorName }} / {{ item.selectedSizeName }}&lt;/span&gt;
+                            }
+                          &lt;/div&gt;
+                        }
+                      &lt;/div&gt;
+&nbsp;
+                      &lt;div class="card-footer"&gt;
+                        &lt;span class="total"&gt;{{ order.totalAmount | currency:'MXN':'symbol-narrow' }}&lt;/span&gt;
+                        &lt;span class="date"&gt;{{ order.createdAt | date:'dd MMM yyyy' }}&lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/mat-card-content&gt;
+&nbsp;
+                    &lt;mat-card-actions&gt;
+                      &lt;a mat-button color="primary" routerLink="/admin/orders"&gt;
+                        &lt;mat-icon&gt;open_in_new&lt;/mat-icon&gt; Ver en pedidos
+                      &lt;/a&gt;
+                    &lt;/mat-card-actions&gt;
+                  &lt;/mat-card&gt;
+                }
+              &lt;/div&gt;
             }
-            &lt;button mat-raised-button color="accent" (click)="logoInput.click()" [disabled]="uploadingLogo"&gt;
-              @if (uploadingLogo) { &lt;mat-spinner diameter="20"&gt;&lt;/mat-spinner&gt; } @else { &lt;mat-icon&gt;upload&lt;/mat-icon&gt; }
-              {{ logoPreview ? 'Cambiar logo' : 'Subir logo' }}
-            &lt;/button&gt;
-            &lt;input #logoInput type="file" accept="image/*" hidden (change)="onLogoChange($event)" /&gt;
-          &lt;/div&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
+          &lt;/mat-tab&gt;
 &nbsp;
-      &lt;!-- Imágenes del carrusel --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Imágenes del carrusel&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;div class="upload-row"&gt;
-            &lt;button mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="uploading"&gt;
-              @if (uploading) { &lt;mat-spinner diameter="20"&gt;&lt;/mat-spinner&gt; } @else { &lt;mat-icon&gt;upload&lt;/mat-icon&gt; }
-              Subir imagen
-            &lt;/button&gt;
-            &lt;input #fileInput type="file" accept="image/*" hidden (change)="onFileChange($event)" /&gt;
-          &lt;/div&gt;
+          &lt;!-- ── Pickups ─────────────────────────────────────── --&gt;
+          &lt;mat-tab&gt;
+            &lt;ng-template mat-tab-label&gt;
+              &lt;mat-icon class="tab-icon"&gt;store&lt;/mat-icon&gt;
+              Pickups
+              @if (totalPickups) {
+                &lt;span class="tab-badge"&gt;{{ totalPickups }}&lt;/span&gt;
+              }
+            &lt;/ng-template&gt;
 &nbsp;
-          @if (images.length === 0) {
-            &lt;p class="empty-msg"&gt;No hay imágenes. Sube la primera para el carrusel.&lt;/p&gt;
-          } @else {
-            &lt;div class="image-grid"&gt;
-              @for (img of images; track img.id; let i = $index) {
-                &lt;div class="image-item"&gt;
-                  &lt;img [src]="img.url" [alt]="'Imagen ' + (i + 1)" /&gt;
-                  &lt;div class="image-actions"&gt;
-                    &lt;button mat-icon-button (click)="moveUp(i)" [disabled]="i === 0" title="Subir"&gt;
-                      &lt;mat-icon&gt;arrow_upward&lt;/mat-icon&gt;
-                    &lt;/button&gt;
-                    &lt;button mat-icon-button (click)="moveDown(i)" [disabled]="i === images.length - 1" title="Bajar"&gt;
-                      &lt;mat-icon&gt;arrow_downward&lt;/mat-icon&gt;
-                    &lt;/button&gt;
-                    &lt;button mat-icon-button color="warn" (click)="removeImage(img.id)" title="Eliminar"&gt;
-                      &lt;mat-icon&gt;close&lt;/mat-icon&gt;
-                    &lt;/button&gt;
+            &lt;!-- Filtros --&gt;
+            &lt;div class="filter-bar"&gt;
+              &lt;mat-form-field appearance="outline" class="date-filter-field"&gt;
+                &lt;mat-label&gt;Filtrar por fecha&lt;/mat-label&gt;
+                &lt;input matInput [matDatepicker]="filterPicker"
+                       [ngModel]="filterDate"
+                       (ngModelChange)="filterDate = $event"
+                       [ngModelOptions]="{standalone: true}"
+                       placeholder="Seleccionar fecha"&gt;
+                &lt;mat-datepicker-toggle matSuffix [for]="filterPicker"&gt;&lt;/mat-datepicker-toggle&gt;
+                &lt;mat-datepicker #filterPicker&gt;&lt;/mat-datepicker&gt;
+              &lt;/mat-form-field&gt;
+&nbsp;
+              @if (uniqueTimeSlots.length &gt; 0) {
+                &lt;mat-form-field appearance="outline" class="slot-filter-field"&gt;
+                  &lt;mat-label&gt;Horario&lt;/mat-label&gt;
+                  &lt;mat-select [(ngModel)]="filterTimeSlot" [ngModelOptions]="{standalone: true}"&gt;
+                    &lt;mat-option value=""&gt;Todos los horarios&lt;/mat-option&gt;
+                    @for (slot of uniqueTimeSlots; track slot) {
+                      &lt;mat-option [value]="slot"&gt;{{ slot }}&lt;/mat-option&gt;
+                    }
+                  &lt;/mat-select&gt;
+                &lt;/mat-form-field&gt;
+              }
+&nbsp;
+              @if (filterDate || filterTimeSlot) {
+                &lt;button mat-button (click)="clearFilters()"&gt;
+                  &lt;mat-icon&gt;clear&lt;/mat-icon&gt; Limpiar filtros
+                &lt;/button&gt;
+              }
+            &lt;/div&gt;
+&nbsp;
+            @if (!schedule?.pickups?.length) {
+              &lt;div class="empty-state"&gt;
+                &lt;mat-icon&gt;check_circle&lt;/mat-icon&gt;
+                &lt;p&gt;No hay pickups pendientes.&lt;/p&gt;
+              &lt;/div&gt;
+            } @else if (filteredPickups.length === 0) {
+              &lt;div class="empty-state"&gt;
+                &lt;mat-icon&gt;search_off&lt;/mat-icon&gt;
+                &lt;p&gt;Sin recolecciones para los filtros seleccionados.&lt;/p&gt;
+              &lt;/div&gt;
+            } @else {
+              @for (group of filteredPickups; track group.locationName) {
+                &lt;div class="location-group"&gt;
+                  &lt;div class="location-header"&gt;
+                    &lt;mat-icon&gt;store_mall_directory&lt;/mat-icon&gt;
+                    &lt;h2&gt;{{ group.locationName }}&lt;/h2&gt;
+                    &lt;span class="count-badge"&gt;{{ group.orders.length }}&lt;/span&gt;
+                  &lt;/div&gt;
+&nbsp;
+                  &lt;div class="cards-grid"&gt;
+                    @for (order of group.orders; track order.id) {
+                      &lt;mat-card class="order-card"&gt;
+                        &lt;mat-card-header&gt;
+                          &lt;div class="card-title-row"&gt;
+                            &lt;span class="order-number"&gt;{{ order.orderNumber }}&lt;/span&gt;
+                            &lt;span class="status-chip" [class]="'status-' + order.status.toLowerCase()"&gt;
+                              {{ statusLabel(order.status) }}
+                            &lt;/span&gt;
+                          &lt;/div&gt;
+                        &lt;/mat-card-header&gt;
+&nbsp;
+                        &lt;mat-card-content&gt;
+                          &lt;div class="info-row"&gt;
+                            &lt;mat-icon&gt;person&lt;/mat-icon&gt;
+                            &lt;span&gt;
+                              @if (order.user) {
+                                {{ order.user.firstName }} {{ order.user.lastName }}
+                              } @else {
+                                {{ order.guestFirstName }} {{ order.guestLastName }}
+                                &lt;em class="guest-tag"&gt;invitado&lt;/em&gt;
+                              }
+                            &lt;/span&gt;
+                          &lt;/div&gt;
+&nbsp;
+                          &lt;div class="info-row"&gt;
+                            &lt;mat-icon&gt;email&lt;/mat-icon&gt;
+                            &lt;span&gt;{{ order.user?.email ?? order.guestEmail }}&lt;/span&gt;
+                          &lt;/div&gt;
+&nbsp;
+                          @if (order.pickupDate) {
+                            &lt;div class="info-row date-row"&gt;
+                              &lt;mat-icon&gt;event&lt;/mat-icon&gt;
+                              &lt;span&gt;&lt;strong&gt;{{ order.pickupDate | date:'EEEE dd/MM/yyyy':'UTC' }}&lt;/strong&gt;&lt;/span&gt;
+                            &lt;/div&gt;
+                          }
+&nbsp;
+                          @if (order.pickupTimeSlotLabel) {
+                            &lt;div class="info-row slot-row"&gt;
+                              &lt;mat-icon&gt;schedule&lt;/mat-icon&gt;
+                              &lt;span&gt;&lt;strong&gt;{{ order.pickupTimeSlotLabel }}&lt;/strong&gt;&lt;/span&gt;
+                            &lt;/div&gt;
+                          }
+&nbsp;
+                          &lt;mat-divider /&gt;
+&nbsp;
+                          &lt;div class="items-list"&gt;
+                            @for (item of order.items; track item.id) {
+                              &lt;div class="item-row"&gt;
+                                &lt;span class="item-name"&gt;{{ item.productName }}&lt;/span&gt;
+                                &lt;span class="item-qty"&gt;x{{ item.quantity }}&lt;/span&gt;
+                                @if (item.selectedSizeName) {
+                                  &lt;span class="item-size"&gt;{{ item.selectedColorName }} / {{ item.selectedSizeName }}&lt;/span&gt;
+                                }
+                              &lt;/div&gt;
+                            }
+                          &lt;/div&gt;
+&nbsp;
+                          &lt;div class="card-footer"&gt;
+                            &lt;span class="total"&gt;{{ order.totalAmount | currency:'MXN':'symbol-narrow' }}&lt;/span&gt;
+                            &lt;span class="date"&gt;{{ order.createdAt | date:'dd MMM yyyy' }}&lt;/span&gt;
+                          &lt;/div&gt;
+                        &lt;/mat-card-content&gt;
+&nbsp;
+                        &lt;mat-card-actions&gt;
+                          &lt;a mat-button color="primary" routerLink="/admin/orders"&gt;
+                            &lt;mat-icon&gt;open_in_new&lt;/mat-icon&gt; Ver en pedidos
+                          &lt;/a&gt;
+                          @if (!order.pickupCancelled &amp;&amp; order.status !== 'CANCELLED' &amp;&amp; order.status !== 'DELIVERED' &amp;&amp; order.status !== 'REFUNDED') {
+                            &lt;button mat-button color="warn"
+                                    (click)="cancelPickup(order)"
+                                    [disabled]="cancellingPickupSet.has(order.id)"&gt;
+                              &lt;mat-icon&gt;event_busy&lt;/mat-icon&gt;
+                              {{ cancellingPickupSet.has(order.id) ? 'Cancelando...' : 'Cancelar recolección' }}
+                            &lt;/button&gt;
+                          }
+                        &lt;/mat-card-actions&gt;
+                      &lt;/mat-card&gt;
+                    }
                   &lt;/div&gt;
                 &lt;/div&gt;
               }
-            &lt;/div&gt;
-          }
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
+            }
+          &lt;/mat-tab&gt;
 &nbsp;
-      &lt;!-- Aviso de privacidad --&gt;
-      &lt;mat-card class="section-card"&gt;
-        &lt;mat-card-header&gt;&lt;mat-card-title&gt;Aviso de privacidad&lt;/mat-card-title&gt;&lt;/mat-card-header&gt;
-        &lt;mat-card-content&gt;
-          &lt;p class="privacy-hint"&gt;Este texto se mostrará en la página de Aviso de Privacidad de tu tienda. Puedes usar saltos de línea para organizar las secciones.&lt;/p&gt;
-          &lt;mat-form-field appearance="outline" style="width:100%;margin-top:12px;"&gt;
-            &lt;mat-label&gt;Texto del aviso de privacidad&lt;/mat-label&gt;
-            &lt;textarea matInput [(ngModel)]="form.privacyPolicy" rows="14"
-                      placeholder="Escribe aquí tu aviso de privacidad..."&gt;&lt;/textarea&gt;
-          &lt;/mat-form-field&gt;
-        &lt;/mat-card-content&gt;
-      &lt;/mat-card&gt;
-&nbsp;
-      &lt;!-- Single save button --&gt;
-      &lt;div class="save-row"&gt;
-        &lt;button mat-raised-button color="primary" (click)="saveAll()" [disabled]="saving"&gt;
-          @if (saving) { &lt;mat-spinner diameter="20"&gt;&lt;/mat-spinner&gt; } @else { &lt;mat-icon&gt;save&lt;/mat-icon&gt; }
-          Guardar cambios
-        &lt;/button&gt;
-        @if (saveSuccess) {
-          &lt;span class="success-msg"&gt;&lt;mat-icon&gt;check_circle&lt;/mat-icon&gt; Guardado correctamente&lt;/span&gt;
-        }
-      &lt;/div&gt;
+        &lt;/mat-tab-group&gt;
+      }
     &lt;/div&gt;
   `,
   styles: [`
-    .container { margin: 0 auto; padding: 24px 16px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .header h1 { margin: 0; }
-    .section-card { margin-bottom: 24px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; }
-    .full-width { grid-column: 1 / -1; }
-    .save-row { display: flex; align-items: center; gap: 16px; padding: 8px 0 32px; }
-    .success-msg { display: flex; align-items: center; gap: 4px; color: #4caf50; font-weight: 500; }
-    .success-msg mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    .logo-section { display: flex; align-items: center; gap: 16px; padding-top: 8px; flex-wrap: wrap; }
-    .logo-preview { position: relative; display: inline-flex; align-items: center; gap: 8px; }
-    .logo-preview img { height: 64px; max-width: 200px; object-fit: contain; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px; }
-    .upload-row { margin-bottom: 16px; padding-top: 8px; }
-    .empty-msg { color: #999; font-style: italic; }
-    .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
-    .image-item { position: relative; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
-    .image-item img { width: 100%; height: 130px; object-fit: cover; display: block; }
-    .image-actions {
-      display: flex; justify-content: center; gap: 4px; padding: 4px;
-      background: rgba(255,255,255,0.95);
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+&nbsp;
+    .page-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
     }
-    .theme-hint { color: #666; margin: 8px 0 16px; }
-    .theme-swatches { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 4px; }
-    .font-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; padding-top: 8px; }
-    .font-btn {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-      padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px;
-      background: #fff; cursor: pointer; text-align: left; transition: border-color 0.15s, box-shadow 0.15s;
+    .page-header h1 { margin: 0; flex: 1; font-size: 1.6rem; font-weight: 700; }
+&nbsp;
+    /* Tab label extras */
+    .tab-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 6px; vertical-align: middle; }
+    .tab-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #f44336; color: white;
+      border-radius: 10px; font-size: 11px; font-weight: 700;
+      min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px;
     }
-    .font-btn:hover { border-color: var(--theme-primary); }
-    .font-btn.font-selected { border-color: var(--theme-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary) 15%, transparent); }
-    .font-label { font-size: 0.78rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; font-family: inherit !important; }
-    .font-preview { font-size: 1.05rem; color: #1a1a2e; line-height: 1.2; }
-    .swatch-btn {
-      width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: transform 0.15s, border-color 0.15s;
+&nbsp;
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 60px 16px; color: #aaa;
     }
-    .swatch-btn:hover { transform: scale(1.12); }
-    .swatch-btn.selected { border-color: rgba(0,0,0,0.35); transform: scale(1.12); }
-    .social-hint { color: #666; font-size: 0.9rem; margin: 8px 0 16px; }
-    .privacy-hint { color: #666; font-size: 0.88rem; margin: 8px 0 0; }
-    .social-prefix { margin-right: 4px; font-size: 20px; }
-    .instagram-icon { color: #E1306C; }
-    .facebook-icon { color: #1877F2; }
+    .empty-state mat-icon { font-size: 56px; width: 56px; height: 56px; color: #4caf50; margin-bottom: 12px; }
+    .empty-state p { font-size: 1.05rem; margin: 0; }
+&nbsp;
+    /* Location group */
+    .location-group { margin-bottom: 32px; }
+    .location-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 0 8px;
+    }
+    .location-header mat-icon { color: #1565c0; font-size: 28px; width: 28px; height: 28px; }
+    .location-header h2 { margin: 0; font-size: 1.2rem; font-weight: 600; flex: 1; }
+    .count-badge {
+      background: #1565c0; color: white; border-radius: 12px;
+      font-size: 12px; font-weight: 700; padding: 2px 10px;
+    }
+&nbsp;
+    /* Cards grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      padding: 16px 0;
+    }
+&nbsp;
+    .order-card { border-radius: 10px; }
+&nbsp;
+    .card-title-row {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; gap: 8px;
+    }
+    .order-number { font-size: 0.9rem; font-weight: 700; color: #212121; }
+&nbsp;
+    /* Status chips */
+    .status-chip {
+      font-size: 11px; font-weight: 600; padding: 2px 10px;
+      border-radius: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .status-confirmed  { background: #e3f2fd; color: #1565c0; }
+    .status-processing { background: #fff3e0; color: #e65100; }
+    .status-shipped    { background: #e8f5e9; color: #2e7d32; }
+&nbsp;
+    /* Info rows */
+    .info-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.88rem; color: #555; margin: 8px 0;
+    }
+    .info-row mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; color: #90a4ae; }
+    .date-row mat-icon { color: #1565c0; }
+    .date-row span { color: #212121; text-transform: capitalize; }
+    .slot-row mat-icon { color: #f57c00; }
+    .slot-row span { color: #212121; }
+&nbsp;
+    .guest-tag {
+      display: inline-block; margin-left: 6px;
+      font-size: 10px; background: #fce4ec; color: #c62828;
+      border-radius: 6px; padding: 1px 6px;
+    }
+&nbsp;
+    .tracking { align-items: center; }
+    .carrier {
+      background: #ede7f6; color: #4527a0;
+      font-size: 10px; font-weight: 600;
+      border-radius: 6px; padding: 2px 7px; margin-left: 4px;
+    }
+&nbsp;
+    mat-divider { margin: 10px 0; }
+&nbsp;
+    /* Items */
+    .items-list { margin: 8px 0; }
+    .item-row {
+      display: flex; gap: 8px; align-items: baseline;
+      font-size: 0.85rem; padding: 2px 0;
+    }
+    .item-name { flex: 1; color: #333; }
+    .item-qty { font-weight: 600; color: #212121; }
+    .item-size { font-size: 0.78rem; color: #999; }
+&nbsp;
+    /* Footer */
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 10px; padding-top: 6px;
+    }
+    .total { font-size: 1rem; font-weight: 700; color: #212121; }
+    .date { font-size: 0.8rem; color: #999; }
+&nbsp;
+    /* Filter bar */
+    .filter-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 16px 0 8px;
+    }
+    .date-filter-field { min-width: 200px; }
+    .slot-filter-field { min-width: 180px; }
+&nbsp;
     @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .date-filter-field, .slot-filter-field { width: 100%; }
     }
   `],
 })
-export class StoreInfoComponent implements OnInit {
-  form: Partial&lt;StoreInfo&gt; = {};
-  images: StoreImage[] = [];
-  saving = false;
-  saveSuccess = false;
-  uploading = false;
-  logoPreview: string | null = null;
-  uploadingLogo = false;
-  selectedTheme = DEFAULT_THEME_KEY;
-  selectedFont = DEFAULT_FONT_KEY;
+export class ShipmentScheduleComponent implements OnInit {
+  schedule: UpcomingSchedule | null = null;
+  loading = true;
 &nbsp;
-  readonly themeEntries = Object.entries(THEMES).map(([key, val]) =&gt; ({ key, label: val.label, primary: val.primary }));
-  readonly fontEntries = Object.entries(FONTS).map(([key, val]) =&gt; ({ key, label: val.label, fontFamily: val.fontFamily }));
+  filterDate: Date | null = null;
+  filterTimeSlot = '';
 &nbsp;
-  constructor(
-    private storeInfoService: StoreInfoService,
-    private adminService: AdminService,
-    private themeService: ThemeService,
-  ) {}
+  get totalPickups(): number {
+    return this.schedule?.pickups.reduce((sum, g) =&gt; sum + g.orders.length, 0) ?? 0;
+  }
+&nbsp;
+  get uniqueTimeSlots(): string[] {
+    const slots = new Set&lt;string&gt;();
+    this.schedule?.pickups.forEach(<span class="fstat-no" title="function not covered" >g </span>=&gt;
+<span class="cstat-no" title="statement not covered" >      g.orders.forEach(<span class="fstat-no" title="function not covered" >o </span>=&gt; { <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (o.pickupTimeSlotLabel) <span class="cstat-no" title="statement not covered" >slots.add(o.pickupTimeSlotLabel); </span></span>})</span>
+    );
+    return [...slots].sort();
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  get f</span>ilteredPickups(): PickupGroup[] {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!this.schedule?.pickups) <span class="cstat-no" title="statement not covered" >return [];</span></span>
+    const dateStr = <span class="cstat-no" title="statement not covered" >this.filterDate ? this.toDateStr(this.filterDate) : null;</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!dateStr &amp;&amp; !this.filterTimeSlot) <span class="cstat-no" title="statement not covered" >return this.schedule.pickups;</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return this.schedule.pickups</span>
+      .map(<span class="fstat-no" title="function not covered" >g </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+        ...g,
+        orders: g.orders.filter(<span class="fstat-no" title="function not covered" >o </span>=&gt; {
+          const dateMatch = <span class="cstat-no" title="statement not covered" >!dateStr || o.pickupDate === dateStr;</span>
+          const slotMatch = <span class="cstat-no" title="statement not covered" >!this.filterTimeSlot || o.pickupTimeSlotLabel === this.filterTimeSlot;</span>
+<span class="cstat-no" title="statement not covered" >          return dateMatch &amp;&amp; slotMatch;</span>
+        }),
+      }))
+      .filter(<span class="fstat-no" title="function not covered" >g </span>=&gt; <span class="cstat-no" title="statement not covered" >g.orders.length &gt; 0)</span>;
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  clearFilters(</span>): void {
+<span class="cstat-no" title="statement not covered" >    this.filterDate = null;</span>
+<span class="cstat-no" title="statement not covered" >    this.filterTimeSlot = '';</span>
+  }
+&nbsp;
+  private <span class="fstat-no" title="function not covered" >toDateStr(</span>d: Date): string {
+<span class="cstat-no" title="statement not covered" >    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;</span>
+  }
+&nbsp;
+  cancellingPickupSet = new Set&lt;number&gt;();
+&nbsp;
+  constructor(private adminService: AdminService, private snackBar: MatSnackBar) {}
 &nbsp;
   ngOnInit(): void {
-    this.storeInfoService.getPublic().subscribe({
-      next: (res) =&gt; {
-        const d = res.data;
-        this.form = { name: d.name, aboutText: d.aboutText, mission: d.mission, vision: d.vision, phone: d.phone, email: d.email, privacyPolicy: d.privacyPolicy, instagramUrl: d.instagramUrl, facebookUrl: d.facebookUrl, whatsappNumber: d.whatsappNumber };
-        this.images = d.images ?? <span class="branch-1 cbranch-no" title="branch not covered" >[];</span>
-        this.logoPreview = d.logoUrl ?? null;
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (d.themeKey) <span class="cstat-no" title="statement not covered" >this.selectedTheme = d.themeKey;</span>
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (d.fontKey) <span class="cstat-no" title="statement not covered" >this.selectedFont = d.fontKey;</span>
-      },
+    this.load();
+  }
+&nbsp;
+  load(): void {
+    this.loading = true;
+    this.adminService.getUpcomingSchedule().subscribe({
+      next: (res) =&gt; { this.schedule = res.data; this.loading = false; },
+      error: () =&gt; { this.loading = false; },
     });
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  selectTheme(</span>key: string): void {
-<span class="cstat-no" title="statement not covered" >    this.selectedTheme = key;</span>
-<span class="cstat-no" title="statement not covered" >    this.themeService.apply(key, this.selectedFont);</span>
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  selectFont(</span>key: string): void {
-<span class="cstat-no" title="statement not covered" >    this.selectedFont = key;</span>
-<span class="cstat-no" title="statement not covered" >    this.themeService.apply(this.selectedTheme, key);</span>
-  }
-&nbsp;
-  saveAll(): void {
-    this.saving = true;
-    this.saveSuccess = false;
-    this.storeInfoService.update({
-      ...this.form,
-      themeKey: this.selectedTheme,
-      fontKey: this.selectedFont,
-    }).subscribe({
-      next: () =&gt; {
-        this.saving = false;
-        this.saveSuccess = true;
-        setTimeout(() =&gt; this.saveSuccess = false, 3000);
-      },
-      error: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.saving = false; </span>},
-    });
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  onLogoChange(</span>event: Event): void {
-    const input = <span class="cstat-no" title="statement not covered" >event.target as HTMLInputElement;</span>
-    const file = <span class="cstat-no" title="statement not covered" >input.files?.[0];</span>
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!file) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >    this.uploadingLogo = true;</span>
-<span class="cstat-no" title="statement not covered" >    this.adminService.uploadImage(file).subscribe({</span>
+<span class="fstat-no" title="function not covered" >  cancelPickup(</span>order: Order): void {
+    const reason = <span class="cstat-no" title="statement not covered" >prompt('Motivo de cancelación (opcional):') ?? undefined;</span>
+<span class="cstat-no" title="statement not covered" >    this.cancellingPickupSet.add(order.id);</span>
+<span class="cstat-no" title="statement not covered" >    this.adminService.cancelPickup(order.id, reason || undefined).subscribe({</span>
       next: <span class="fstat-no" title="function not covered" >(r</span>es) =&gt; {
-        const url = <span class="cstat-no" title="statement not covered" >res.data.url;</span>
-<span class="cstat-no" title="statement not covered" >        this.storeInfoService.update({ logoUrl: url }).subscribe({</span>
-          next: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
-<span class="cstat-no" title="statement not covered" >            this.logoPreview = url;</span>
-<span class="cstat-no" title="statement not covered" >            this.uploadingLogo = false;</span>
-          },
-          error: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.uploadingLogo = false; </span>},
-        });
+<span class="cstat-no" title="statement not covered" >        this.cancellingPickupSet.delete(order.id);</span>
+        // Update the order in the loaded schedule
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (this.schedule) {</span>
+<span class="cstat-no" title="statement not covered" >          this.schedule = {</span>
+            ...this.schedule,
+            pickups: this.schedule.pickups.map(<span class="fstat-no" title="function not covered" >g </span>=&gt; (<span class="cstat-no" title="statement not covered" >{</span>
+              ...g,
+              orders: g.orders.map(<span class="fstat-no" title="function not covered" >o </span>=&gt; <span class="cstat-no" title="statement not covered" >o.id === order.id ? res.data : o)</span>,
+            })),
+          };
+        }
+<span class="cstat-no" title="statement not covered" >        this.snackBar.open('Recolección cancelada — el cliente podrá reagendar', 'Cerrar', { duration: 5000 });</span>
       },
-      error: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.uploadingLogo = false; </span>},
-    });
-<span class="cstat-no" title="statement not covered" >    input.value = '';</span>
-  }
-&nbsp;
-<span class="fstat-no" title="function not covered" >  removeLogo(</span>): void {
-<span class="cstat-no" title="statement not covered" >    this.storeInfoService.update({ logoUrl: '' }).subscribe({</span>
-      next: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.logoPreview = null; </span>},
-    });
-  }
-&nbsp;
-  onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    this.uploading = true;
-    this.adminService.uploadImage(file).subscribe({
-      next: (res) =&gt; {
-        const url = res.data.url;
-        this.storeInfoService.addImage(url).subscribe({
-          next: (imgRes) =&gt; {
-            this.images.push(imgRes.data);
-            this.uploading = false;
-          },
-          error: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.uploading = false; </span>},
-        });
+      error: <span class="fstat-no" title="function not covered" >(e</span>rr) =&gt; {
+<span class="cstat-no" title="statement not covered" >        this.cancellingPickupSet.delete(order.id);</span>
+<span class="cstat-no" title="statement not covered" >        this.snackBar.open(err.error?.message || 'Error al cancelar recolección', 'Cerrar', { duration: 4000 });</span>
       },
-      error: <span class="fstat-no" title="function not covered" >() =</span>&gt; { <span class="cstat-no" title="statement not covered" >this.uploading = false; </span>},
-    });
-    input.value = '';
-  }
-&nbsp;
-  removeImage(id: number): void {
-    this.storeInfoService.deleteImage(id).subscribe({
-      next: () =&gt; { this.images = this.images.filter(img =&gt; img.id !== id); },
     });
   }
 &nbsp;
-  moveUp(index: number): void {
-    if (index === 0) return;
-    [this.images[index - 1], this.images[index]] = [this.images[index], this.images[index - 1]];
-    this.sendReorder();
-  }
-&nbsp;
-  moveDown(index: number): void {
-    if (index === this.images.length - 1) return;
-    [this.images[index], this.images[index + 1]] = [this.images[index + 1], this.images[index]];
-    this.sendReorder();
-  }
-&nbsp;
-  private sendReorder(): void {
-    const ids = this.images.map(img =&gt; img.id);
-    this.storeInfoService.reorder(ids).subscribe();
+  statusLabel(status?: string): string {
+    const map: Record&lt;string, string&gt; = {
+      CONFIRMED: 'Confirmado',
+      PROCESSING: 'Procesando',
+      SHIPPED: 'Enviado',
+    };
+    return status ? (map[status] ?? status) : '';
   }
 }
 &nbsp;</pre></td></tr></table></pre>

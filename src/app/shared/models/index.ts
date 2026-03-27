@@ -288,6 +288,8 @@ export interface ShippingConfig {
   skydropxDefaultWidth?: number;
   skydropxDefaultHeight?: number;
   skydropxSandbox?: boolean;
+  freeShippingEnabled?: boolean;
+  freeShippingMinAmount?: number;
 }
 
 export interface SkydropxRate {
