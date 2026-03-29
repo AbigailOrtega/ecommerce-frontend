@@ -20,8 +20,8 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 const MAX_COLOR_IMAGES = 6;
 
-interface SizeEntry { name: string; stock: number; }
-interface ColorEntry { name: string; images: string[]; sizes: SizeEntry[]; newSizeName: string; uploading: boolean; }
+interface SizeEntry { id?: number; name: string; stock: number; }
+interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeEntry[]; newSizeName: string; uploading: boolean; }
 
 @Component({
   selector: 'app-product-management',
@@ -316,9 +316,10 @@ export class ProductManagementComponent implements OnInit {
     this.showForm = true;
 
     this.colorEntries = (product.colors || []).map(c => ({
+      id: c.id,
       name: c.name,
       images: [...c.images],
-      sizes: c.sizes.map(s => ({ name: s.name, stock: s.stock })),
+      sizes: c.sizes.map(s => ({ id: s.id, name: s.name, stock: s.stock })),
       newSizeName: '',
       uploading: false,
     }));
@@ -399,9 +400,10 @@ export class ProductManagementComponent implements OnInit {
     const colors = this.colorEntries
       .filter(ce => ce.name.trim())
       .map(ce => ({
+        id: ce.id,
         name: ce.name.trim(),
         images: ce.images,
-        sizes: ce.sizes.filter(s => s.name.trim()).map(s => ({ name: s.name.trim(), stock: s.stock })),
+        sizes: ce.sizes.filter(s => s.name.trim()).map(s => ({ id: s.id, name: s.name.trim(), stock: s.stock })),
       }));
 
     const firstImage = this.colorEntries[0]?.images[0] || null;
