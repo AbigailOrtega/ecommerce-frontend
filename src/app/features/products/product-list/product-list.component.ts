@@ -257,7 +257,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     }
     .product-card { cursor: pointer; transition: transform 0.2s; }
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-    .product-image { height: 200px; object-fit: cover; }
+    .product-image { width: 100%; height: 200px; object-fit: cover; object-position: center; display: block; }
     .product-name h3 { margin: 8px 0 4px; font-size: 1.1rem; color: #333; }
     .category-tag { color: #666; font-size: 0.85rem; margin: 0 0 8px; }
     .price-row { display: flex; align-items: center; gap: 8px; }
