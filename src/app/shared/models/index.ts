@@ -149,6 +149,7 @@ export interface InventoryItem {
   stock: number;
   price: number;
   active: boolean;
+  outOfStockVariants?: string[];
 }
 
 export interface DashboardStats {

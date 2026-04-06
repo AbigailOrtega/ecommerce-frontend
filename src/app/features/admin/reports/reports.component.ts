@@ -279,10 +279,14 @@ export class ReportsComponent implements OnInit {
         { icon: 'check_circle', value: String(inStock), label: 'Con stock' },
         { icon: 'warning', value: String(zeroStock), label: 'Sin stock' },
       ];
-      this.tableHeaders = ['Producto', 'SKU', 'Stock', 'Precio', 'Activo'];
-      this.tableRows = this.inventoryItems.map(i => [
-        i.name, i.sku ?? '—', String(i.stock), this.fmtCurrency(i.price), i.active ? 'Sí' : 'No'
-      ]);
+      const isOutOfStock = this.reportType === 'outofstock';
+      this.tableHeaders = isOutOfStock
+        ? ['Producto', 'SKU', 'Stock total', 'Sin existencia', 'Precio', 'Activo']
+        : ['Producto', 'SKU', 'Stock', 'Precio', 'Activo'];
+      this.tableRows = this.inventoryItems.map(i => isOutOfStock
+        ? [i.name, i.sku ?? '—', String(i.stock), (i.outOfStockVariants && i.outOfStockVariants.length > 0) ? i.outOfStockVariants.join(', ') : '—', this.fmtCurrency(i.price), i.active ? 'Sí' : 'No']
+        : [i.name, i.sku ?? '—', String(i.stock), this.fmtCurrency(i.price), i.active ? 'Sí' : 'No']
+      );
     }
   }
 
