@@ -25,7 +25,11 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
         <div class="image-section">
           <!-- Carousel -->
           <div class="carousel">
-            <img [src]="carouselImages[activeIndex]" [alt]="product.name" class="main-image">
+            <div class="zoom-container" (mousemove)="onZoomMove($event)" (mouseleave)="zoomActive = false" (mouseenter)="zoomActive = true">
+              <img [src]="carouselImages[activeIndex]" [alt]="product.name" class="main-image"
+                [style.transform-origin]="zoomOrigin"
+                [class.zoomed]="zoomActive">
+            </div>
 
             @if (carouselImages.length > 1) {
               <button mat-icon-button class="carousel-btn prev" (click)="prev()" [disabled]="activeIndex === 0">
@@ -156,7 +160,9 @@ import { ProductReviewsComponent } from '../product-reviews/product-reviews.comp
 
     /* Carousel */
     .carousel { position: relative; }
-    .main-image { width: 100%; border-radius: 8px; object-fit: cover; max-height: 500px; display: block; }
+    .zoom-container { overflow: hidden; border-radius: 8px; cursor: zoom-in; }
+    .main-image { width: 100%; object-fit: cover; max-height: 500px; display: block; transition: transform 0.1s ease; }
+    .main-image.zoomed { transform: scale(2); }
     .carousel-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(255,255,255,0.9) !important;
@@ -220,6 +226,8 @@ export class ProductDetailComponent implements OnInit {
   colors: ProductColor[] = [];
   selectedColor: ProductColor | null = null;
   selectedSize: ProductSize | null = null;
+  zoomActive = false;
+  zoomOrigin = '50% 50%';
 
   constructor(
     private route: ActivatedRoute,
@@ -271,6 +279,13 @@ export class ProductDetailComponent implements OnInit {
 
   selectSize(size: ProductSize): void {
     this.selectedSize = size;
+  }
+
+  onZoomMove(event: MouseEvent): void {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    this.zoomOrigin = `${x}% ${y}%`;
   }
 
   prev(): void {
