@@ -32,6 +32,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
         <a mat-raised-button routerLink="/admin/store-info"><mat-icon>storefront</mat-icon> Info General</a>
         <a mat-raised-button routerLink="/admin/reports"><mat-icon>bar_chart</mat-icon> Reportes</a>
         <a mat-raised-button routerLink="/admin/marketing"><mat-icon>campaign</mat-icon> Email Marketing</a>
+        <a mat-raised-button routerLink="/admin/analytics"><mat-icon>insights</mat-icon> Analítica</a>
       </div>
 
       @if (loading) {

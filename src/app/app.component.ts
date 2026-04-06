@@ -1,9 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { StoreInfoService } from './core/services/store-info.service';
 import { ThemeService } from './core/services/theme.service';
+import { PageviewService } from './core/services/pageview.service';
 
 @Component({
   selector: 'app-root',
@@ -64,10 +66,18 @@ export class AppComponent implements OnInit {
   constructor(
     private storeInfoService: StoreInfoService,
     private themeService: ThemeService,
+    private pageviewService: PageviewService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.themeService.apply(null, null); // apply defaults while loading
+
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+    ).subscribe(e => {
+      this.pageviewService.track((e as NavigationEnd).urlAfterRedirects);
+    });
 
     this.storeInfoService.getPublic().subscribe({
       next: (res) => {

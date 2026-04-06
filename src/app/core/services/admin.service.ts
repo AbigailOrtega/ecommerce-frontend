@@ -252,4 +252,20 @@ export class AdminService {
   cancelSkydropxShipment(orderId: number): Observable<ApiResponse<Order>> {
     return this.http.delete<ApiResponse<Order>>(`${this.apiUrl}/orders/${orderId}/skydropx/shipment`);
   }
+
+  // ── Analytics ───────────────────────────────────────────────────────────────
+
+  getPageViewSummary(): Observable<ApiResponse<Record<string, number>>> {
+    return this.http.get<ApiResponse<Record<string, number>>>(`${this.apiUrl}/analytics/pageviews/summary`);
+  }
+
+  getPageViewsByPeriod(period: string, from: string, to: string): Observable<ApiResponse<{ label: string; count: number }[]>> {
+    const params = new HttpParams().set('period', period).set('from', from).set('to', to);
+    return this.http.get<ApiResponse<{ label: string; count: number }[]>>(`${this.apiUrl}/analytics/pageviews/by-period`, { params });
+  }
+
+  getPageViewsByPage(from: string, to: string): Observable<ApiResponse<{ label: string; count: number }[]>> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<ApiResponse<{ label: string; count: number }[]>>(`${this.apiUrl}/analytics/pageviews/by-page`, { params });
+  }
 }
