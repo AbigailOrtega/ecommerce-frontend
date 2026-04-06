@@ -170,9 +170,14 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
               <th mat-header-cell *matHeaderCellDef>Stock</th>
               <td mat-cell *matCellDef="let p">
                 @if (p.colors && p.colors.length > 0) {
-                  {{ totalColorStock(p) }} ({{ p.colors.length }} color{{ p.colors.length !== 1 ? 'es' : '' }})
+                  <div class="stock-cell">
+                    <span [class.no-stock]="totalColorStock(p) === 0">{{ totalColorStock(p) }}</span>
+                    @for (v of outOfStockVariants(p); track v) {
+                      <span class="out-of-stock-badge">{{ v }}</span>
+                    }
+                  </div>
                 } @else {
-                  {{ p.stockQuantity }}
+                  <span [class.no-stock]="p.stockQuantity === 0">{{ p.stockQuantity }}</span>
                 }
               </td>
             </ng-container>
@@ -205,6 +210,9 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
     .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 16px; }
     .product-table { width: 100%; }
     .table-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+    .stock-cell { display: flex; flex-direction: column; gap: 2px; }
+    .no-stock { color: #c62828; font-weight: 600; }
+    .out-of-stock-badge { font-size: 0.75rem; background: #ffebee; color: #c62828; border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
 
     @media (max-width: 600px) {
       .row { flex-direction: column; gap: 0; }
@@ -392,6 +400,22 @@ export class ProductManagementComponent implements OnInit {
 
   totalColorStock(product: Product): number {
     return (product.colors || []).reduce((sum, c) => sum + c.sizes.reduce((s2, sz) => s2 + sz.stock, 0), 0);
+  }
+
+  outOfStockVariants(product: Product): string[] {
+    const result: string[] = [];
+    for (const color of (product.colors || [])) {
+      if (color.sizes.length === 0) {
+        // color sin tallas
+      } else {
+        for (const size of color.sizes) {
+          if (size.stock === 0) {
+            result.push(`${color.name} / ${size.name}`);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   saveProduct(): void {
