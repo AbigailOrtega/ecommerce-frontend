@@ -12,7 +12,7 @@ export class AuthService {
 
   readonly user = this.currentUser.asReadonly();
   readonly isLoggedIn = computed(() => !!this.currentUser());
-  readonly isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
+  readonly isAdmin = computed(() => this.getRoleFromToken() === 'ADMIN');
 
   constructor(private http: HttpClient, private router: Router) {
     this.loadUser();
@@ -32,13 +32,8 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    console.log("STARTING LOGIN")
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, request)
-      .pipe(
-        tap(response => {
-          console.log("Respuesta completa:", response);
-        }),
-        tap(res => this.handleAuth(res.data)));
+      .pipe(tap(res => this.handleAuth(res.data)));
   }
 
   forgotPassword(email: string): Observable<ApiResponse<void>> {
@@ -67,8 +62,18 @@ export class AuthService {
     return localStorage.getItem('accessToken');
   }
 
+  private getRoleFromToken(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   private handleAuth(auth: AuthResponse): void {
-    console.log("handdiling")
     localStorage.setItem('accessToken', auth.accessToken);
     localStorage.setItem('refreshToken', auth.refreshToken);
     localStorage.setItem('user', JSON.stringify(auth.user));
