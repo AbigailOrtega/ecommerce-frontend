@@ -151,18 +151,37 @@ import { switchMap } from 'rxjs';
                   <p class="calc-error">{{ shippingCalcError }}</p>
                 }
 
-                <!-- Skydropx: rate selector -->
+                <!-- Skydropx: estándar / express -->
                 @if (shippingRates?.skydropxAvailable && shippingRates!.rates.length > 0) {
                   <div class="rates-list">
-                    @for (rate of shippingRates!.rates; track rate.id) {
-                      <div class="rate-card" [class.rate-selected]="selectedSkydropxRate?.id === rate.id"
-                           (click)="selectRate(rate)">
-                        <div class="rate-carrier">{{ rate.carrier }}</div>
-                        <div class="rate-service">{{ rate.service }}</div>
-                        @if (rate.estimatedDays) {
-                          <div class="rate-days">{{ rate.estimatedDays }} día(s)</div>
-                        }
-                        <div class="rate-price">{{ rate.price | currency }}</div>
+                    @if (standardRate) {
+                      <div class="rate-card" [class.rate-selected]="selectedSkydropxRate?.id === standardRate.id"
+                           (click)="selectRate(standardRate)">
+                        <div class="rate-info">
+                          <mat-icon>local_shipping</mat-icon>
+                          <div>
+                            <div class="rate-carrier">Envío estándar</div>
+                            @if (standardRate.estimatedDays) {
+                              <div class="rate-days">{{ standardRate.estimatedDays }} día(s)</div>
+                            }
+                          </div>
+                        </div>
+                        <div class="rate-price">{{ standardRate.price | currency }}</div>
+                      </div>
+                    }
+                    @if (expressRate && expressRate.id !== standardRate?.id) {
+                      <div class="rate-card" [class.rate-selected]="selectedSkydropxRate?.id === expressRate.id"
+                           (click)="selectRate(expressRate)">
+                        <div class="rate-info">
+                          <mat-icon>bolt</mat-icon>
+                          <div>
+                            <div class="rate-carrier">Envío express</div>
+                            @if (expressRate.estimatedDays) {
+                              <div class="rate-days">{{ expressRate.estimatedDays }} día(s)</div>
+                            }
+                          </div>
+                        </div>
+                        <div class="rate-price">{{ expressRate.price | currency }}</div>
                       </div>
                     }
                   </div>
@@ -405,13 +424,14 @@ import { switchMap } from 'rxjs';
     .calc-result { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; color: #2e7d32; font-size: 0.95rem; }
     .slot-info { background: #e3f2fd; color: #1565c0; }
     .rates-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
-    .rate-card { display: grid; grid-template-columns: 1fr 1fr auto auto; align-items: center; gap: 8px; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: border-color 0.15s; font-size: 0.9rem; }
+    .rate-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: border-color 0.15s; font-size: 0.9rem; }
     .rate-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
     .rate-card.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
+    .rate-info { display: flex; align-items: center; gap: 10px; }
+    .rate-info mat-icon { color: var(--theme-primary); }
     .rate-carrier { font-weight: 600; color: #1a1a2e; }
-    .rate-service { color: #555; font-size: 0.85rem; }
-    .rate-days { color: #888; font-size: 0.82rem; white-space: nowrap; }
-    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; text-align: right; }
+    .rate-days { color: #888; font-size: 0.82rem; }
+    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; }
     .calc-error { color: #d32f2f; font-size: 0.875rem; margin-top: 8px; }
     .payment-options { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
     .step-actions { display: flex; gap: 12px; margin-top: 16px; }
@@ -458,6 +478,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   today = new Date();
 
   shippingRates: ShippingRatesResponse | null = null;
+  standardRate: SkydropxRate | null = null;
+  expressRate: SkydropxRate | null = null;
   selectedSkydropxRate: SkydropxRate | null = null;
   calculatingShipping = false;
   shippingCalcError: string | null = null;
@@ -591,6 +613,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.typeForm.patchValue({ shippingType: type });
     this.shippingRates = null;
     this.selectedSkydropxRate = null;
+    this.standardRate = null;
+    this.expressRate = null;
     this.shippingCalcError = null;
 
     if (type === 'PICKUP' && this.pickupLocations.length === 0) {
@@ -694,6 +718,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.shippingCalcError = null;
     this.shippingRates = null;
     this.selectedSkydropxRate = null;
+    this.standardRate = null;
+    this.expressRate = null;
     const v = this.deliveryForm.value;
     this.shippingService.calculateNational(
       v.shippingAddress, v.shippingCity, v.shippingState, v.shippingZipCode, v.shippingCountry
@@ -701,8 +727,12 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       next: (res) => {
         this.shippingRates = res.data;
         this.calculatingShipping = false;
-        if (res.data.skydropxAvailable && res.data.rates.length === 1) {
-          this.selectedSkydropxRate = res.data.rates[0];
+        if (res.data.skydropxAvailable && res.data.rates.length > 0) {
+          const sorted = [...res.data.rates].sort((a, b) => a.price - b.price);
+          this.standardRate = sorted[0];
+          const byDays = [...res.data.rates].filter(r => r.estimatedDays != null).sort((a, b) => a.estimatedDays! - b.estimatedDays!);
+          this.expressRate = byDays.length > 0 ? byDays[0] : sorted[sorted.length - 1];
+          this.selectedSkydropxRate = this.standardRate;
         }
       },
       error: (err) => {
