@@ -958,7 +958,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private onOrderSuccess(orderNumber: string): void {
-    if (this.authService.isLoggedIn()) {
+    if (this.authService.isTokenValid()) {
       this.cart.resetLocalCart();
       this.router.navigate(['/orders', orderNumber]);
     } else {
@@ -973,7 +973,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     const type = this.typeForm.get('shippingType')?.value;
     const v = this.deliveryForm.value;
 
-    if (!this.authService.isLoggedIn()) {
+    if (!this.authService.isTokenValid()) {
       this.submitGuestOrder(paymentId, onOrderCreated);
       return;
     }

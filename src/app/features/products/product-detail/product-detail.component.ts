@@ -321,7 +321,7 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     if (!this.product) return;
-    if (!this.authService.isLoggedIn()) {
+    if (!this.authService.isTokenValid()) {
       const price = this.product.discountedPrice ?? this.product.price;
       this.cartService.addLocalItem({
         productId: this.product.id,

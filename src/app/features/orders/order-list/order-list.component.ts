@@ -7,6 +7,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { OrderService } from '@core/services/order.service';
+import { AuthService } from '@core/services/auth.service';
+import { Router } from '@angular/router';
 import { Order } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
@@ -94,9 +96,17 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   loading = true;
 
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
+    if (!this.authService.isTokenValid()) {
+      this.authService.logout();
+      return;
+    }
     this.orderService.getUserOrders().subscribe({
       next: (res) => { this.orders = res.data; this.loading = false; },
       error: () => this.loading = false,

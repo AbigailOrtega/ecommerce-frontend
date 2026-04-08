@@ -62,6 +62,17 @@ export class AuthService {
     return localStorage.getItem('accessToken');
   }
 
+  isTokenValid(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  }
+
   private getRoleFromToken(): string | null {
     const token = this.getToken();
     if (!token) return null;
