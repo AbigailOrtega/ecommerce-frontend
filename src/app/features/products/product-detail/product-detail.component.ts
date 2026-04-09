@@ -261,7 +261,7 @@ export class ProductDetailComponent implements OnInit {
     for (const img of (this.product.images || [])) {
       if (!all.includes(img)) all.push(img);
     }
-    this.carouselImages = all.length > 0 ? all : ['https://via.placeholder.com/500x400?text=No+Image'];
+    this.carouselImages = all.length > 0 ? all : ['https://placehold.co/500x400?text=No+Image'];
     this.activeIndex = 0;
   }
 

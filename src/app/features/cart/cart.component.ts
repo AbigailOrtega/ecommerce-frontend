@@ -51,7 +51,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
               @for (item of cart.items(); track item.id) {
                 <mat-card class="cart-item">
                   <div class="item-content">
-                    <img [src]="item.product.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.product.name">
+                    <img [src]="item.product.imageUrl || 'https://placehold.co/80'" [alt]="item.product.name">
                     <div class="item-info">
                       <a [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
                       @if (item.selectedColorName || item.selectedSizeName) {
@@ -91,7 +91,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
               @for (item of cart.localItems(); track item.tempId) {
                 <mat-card class="cart-item">
                   <div class="item-content">
-                    <img [src]="item.imageUrl || 'https://via.placeholder.com/80'" [alt]="item.productName">
+                    <img [src]="item.imageUrl || 'https://placehold.co/80'" [alt]="item.productName">
                     <div class="item-info">
                       <span class="item-name">{{ item.productName }}</span>
                       @if (item.selectedColorName || item.selectedSizeName) {

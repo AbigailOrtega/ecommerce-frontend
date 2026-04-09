@@ -89,7 +89,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
           @for (product of products; track product.id) {
             <mat-card class="product-card">
               <a [routerLink]="['/products', product.slug]">
-                <img mat-card-image [src]="product.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'"
+                <img mat-card-image [src]="product.imageUrl || 'https://placehold.co/300x200?text=No+Image'"
                      [alt]="product.name" class="product-image">
               </a>
               <mat-card-content>
