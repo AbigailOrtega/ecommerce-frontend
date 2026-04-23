@@ -128,7 +128,7 @@ import { switchMap } from 'rxjs';
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>País</mat-label>
-                  <input matInput formControlName="shippingCountry">
+                  <input matInput formControlName="shippingCountry" readonly>
                 </mat-form-field>
               </div>
 
@@ -566,7 +566,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       shippingCity: [''],
       shippingState: [''],
       shippingZipCode: [''],
-      shippingCountry: [''],
+      shippingCountry: ['México'],
       pickupLocationId: [null],
       pickupDate: [null],
     });
