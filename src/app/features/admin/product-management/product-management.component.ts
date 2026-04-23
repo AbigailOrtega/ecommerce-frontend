@@ -377,6 +377,7 @@ export class ProductManagementComponent implements OnInit {
     const ci = this.currentUploadColorIndex;
     if (ci < 0 || ci >= this.colorEntries.length) return;
     const ce = this.colorEntries[ci];
+    if (ce.uploading) return;
     if (ce.images.length >= MAX_COLOR_IMAGES) {
       this.snackBar.open(`Máximo ${MAX_COLOR_IMAGES} imágenes por color`, 'Cerrar', { duration: 3000 });
       return;
@@ -384,7 +385,11 @@ export class ProductManagementComponent implements OnInit {
     const file = input.files[0];
     ce.uploading = true;
     this.adminService.uploadImage(file, 'product').subscribe({
-      next: (res) => { ce.images = [...ce.images, res.data.url]; ce.uploading = false; },
+      next: (res) => {
+        const url = res.data.url;
+        ce.images = ce.images.includes(url) ? ce.images : [...ce.images, url];
+        ce.uploading = false;
+      },
       error: (err) => { this.snackBar.open(err.error?.message || 'Error al subir imagen', 'Cerrar', { duration: 3000 }); ce.uploading = false; },
     });
   }
