@@ -27,6 +27,10 @@ export class OrderService {
     return this.http.get<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}`);
   }
 
+  trackOrder(orderNumber: string): Observable<ApiResponse<Order>> {
+    return this.http.get<ApiResponse<Order>>(`${this.apiUrl}/track/${orderNumber}`);
+  }
+
   getPickupAvailableDates(locationId: number, from: string, to: string): Observable<ApiResponse<string[]>> {
     return this.http.get<ApiResponse<string[]>>(
       `${environment.apiUrl}/shipping/pickup/${locationId}/available-dates?from=${from}&to=${to}`

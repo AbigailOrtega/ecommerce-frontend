@@ -31,6 +31,9 @@ import { StoreInfoService } from '@core/services/store-info.service';
         </a>
         <a mat-button routerLink="/sobre-nosotros" routerLinkActive="active">Nosotros</a>
         <a mat-button routerLink="/contacto" routerLinkActive="active">Contacto</a>
+        <a mat-button routerLink="/rastrear-pedido" routerLinkActive="active">
+          <mat-icon>search</mat-icon> Rastrear pedido
+        </a>
       </nav>
 
       <!-- Cart (always visible) -->
@@ -77,6 +80,9 @@ import { StoreInfoService } from '@core/services/store-info.service';
         </a>
         <a mat-menu-item routerLink="/contacto" routerLinkActive="menu-active">
           <mat-icon>contact_phone</mat-icon> Contacto
+        </a>
+        <a mat-menu-item routerLink="/rastrear-pedido" routerLinkActive="menu-active">
+          <mat-icon>search</mat-icon> Rastrear pedido
         </a>
         <mat-divider></mat-divider>
         @if (auth.isLoggedIn()) {

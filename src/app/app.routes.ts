@@ -32,6 +32,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/checkout/order-confirmation/order-confirmation.component').then(m => m.OrderConfirmationComponent),
   },
   {
+    path: 'rastrear-pedido',
+    loadComponent: () => import('./features/orders/track-order/track-order.component').then(m => m.TrackOrderComponent),
+  },
+  {
     path: 'orders',
     loadComponent: () => import('./features/orders/order-list/order-list.component').then(m => m.OrderListComponent),
     canActivate: [authGuard],
