@@ -63,6 +63,30 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
               }
             </div>
 
+            <!-- Product images (only when no colors) -->
+            @if (colorEntries.length === 0) {
+              <div class="colors-section">
+                <label class="section-label">Imágenes del producto</label>
+                <div class="images-grid">
+                  @for (img of productImages; track img; let ii = $index) {
+                    <div class="image-slot filled">
+                      <img [src]="img" class="slot-img" [alt]="'Imagen ' + (ii + 1)">
+                      @if (ii === 0) { <span class="main-badge">Principal</span> }
+                      <button type="button" mat-icon-button class="slot-delete" (click)="removeProductImage(ii)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                  @if (productImages.length < maxColorImages) {
+                    <div class="image-slot empty" (click)="triggerProductImageUpload()">
+                      @if (productImagesUploading) { <mat-spinner diameter="28"></mat-spinner> }
+                      @else { <mat-icon>add_photo_alternate</mat-icon><span>Agregar foto</span> }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
             <!-- Colors Section -->
             <div class="colors-section">
               <div class="section-header">
@@ -123,8 +147,9 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
               }
             </div>
 
-            <!-- Hidden file input -->
-            <input #colorFileInput type="file" accept="image/*" hidden (change)="onColorFileSelected($event)">
+            <!-- Hidden file inputs -->
+            <input #colorFileInput   type="file" accept="image/*" hidden (change)="onColorFileSelected($event)">
+            <input #productFileInput type="file" accept="image/*" hidden (change)="onProductFileSelected($event)">
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Categorías</mat-label>
@@ -258,7 +283,8 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
   `],
 })
 export class ProductManagementComponent implements OnInit {
-  @ViewChild('colorFileInput') colorFileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('colorFileInput')   colorFileInputRef!:   ElementRef<HTMLInputElement>;
+  @ViewChild('productFileInput') productFileInputRef!: ElementRef<HTMLInputElement>;
 
   products: Product[] = [];
   categories: Category[] = [];
@@ -269,6 +295,9 @@ export class ProductManagementComponent implements OnInit {
 
   colorEntries: ColorEntry[] = [];
   currentUploadColorIndex = -1;
+
+  productImages: string[] = [];
+  productImagesUploading = false;
 
   form: FormGroup;
   columns = ['image', 'name', 'price', 'stock', 'active', 'actions'];
@@ -316,6 +345,8 @@ export class ProductManagementComponent implements OnInit {
   resetForm(): void {
     this.editingId = null;
     this.colorEntries = [];
+    this.productImages = [];
+    this.productImagesUploading = false;
     this.form.reset({ price: 0, stockQuantity: 0, featured: false, active: true, categoryIds: [] });
   }
 
@@ -331,6 +362,8 @@ export class ProductManagementComponent implements OnInit {
       newSizeName: '',
       uploading: false,
     }));
+
+    this.productImages = this.colorEntries.length === 0 ? [...(product.images || [])] : [];
 
     this.form.patchValue({
       name: product.name, description: product.description, price: product.price,
@@ -399,8 +432,41 @@ export class ProductManagementComponent implements OnInit {
     ce.images = ce.images.filter((_, i) => i !== imageIndex);
   }
 
+  // Images without colors
+  triggerProductImageUpload(): void {
+    this.productFileInputRef.nativeElement.value = '';
+    this.productFileInputRef.nativeElement.click();
+  }
+
+  onProductFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || this.productImagesUploading) return;
+    if (this.productImages.length >= MAX_COLOR_IMAGES) {
+      this.snackBar.open(`Máximo ${MAX_COLOR_IMAGES} imágenes`, 'Cerrar', { duration: 3000 });
+      return;
+    }
+    this.productImagesUploading = true;
+    this.adminService.uploadImage(input.files[0], 'product').subscribe({
+      next: (res) => {
+        const url = res.data.url;
+        if (!this.productImages.includes(url)) {
+          this.productImages = [...this.productImages, url];
+        }
+        this.productImagesUploading = false;
+      },
+      error: (err) => {
+        this.snackBar.open(err.error?.message || 'Error al subir imagen', 'Cerrar', { duration: 3000 });
+        this.productImagesUploading = false;
+      },
+    });
+  }
+
+  removeProductImage(index: number): void {
+    this.productImages = this.productImages.filter((_, i) => i !== index);
+  }
+
   isAnyUploading(): boolean {
-    return this.colorEntries.some(ce => ce.uploading);
+    return this.productImagesUploading || this.colorEntries.some(ce => ce.uploading);
   }
 
   totalColorStock(product: Product): number {
@@ -435,11 +501,12 @@ export class ProductManagementComponent implements OnInit {
         sizes: ce.sizes.filter(s => s.name.trim()).map(s => ({ id: s.id, name: s.name.trim(), stock: s.stock })),
       }));
 
-    const firstImage = this.colorEntries[0]?.images[0] || null;
+    const baseImages = colors.length > 0 ? (colors[0].images || []) : this.productImages;
+    const firstImage = baseImages[0] || null;
 
     const payload = {
       ...this.form.value,
-      images: this.colorEntries[0]?.images || [],
+      images: baseImages,
       imageUrl: firstImage,
       colors,
     };
