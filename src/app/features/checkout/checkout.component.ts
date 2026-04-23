@@ -227,6 +227,7 @@ import { switchMap } from 'rxjs';
                              formControlName="pickupDate"
                              [matDatepickerFilter]="dateFilter"
                              [min]="today"
+                             [max]="maxPickupDate"
                              (dateChange)="onPickupDateChange($event.value)">
                       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                       <mat-datepicker #picker></mat-datepicker>
@@ -476,6 +477,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   loadingSlots = false;
   selectedTimeLabel = '';
   today = new Date();
+  maxPickupDate = (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d; })();
 
   shippingRates: ShippingRatesResponse | null = null;
   standardRate: SkydropxRate | null = null;
@@ -652,9 +654,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.loadingDates = true;
     const from = this.toIsoDate(new Date());
-    const toDate = new Date();
-    toDate.setDate(toDate.getDate() + 60);
-    const to = this.toIsoDate(toDate);
+    const to = this.toIsoDate(this.maxPickupDate);
 
     this.orderService.getPickupAvailableDates(locationId, from, to).subscribe({
       next: (res) => {
