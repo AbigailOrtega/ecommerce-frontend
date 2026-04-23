@@ -81,10 +81,10 @@ export class AdminService {
     return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/users`);
   }
 
-  uploadImage(file: File): Observable<ApiResponse<{ url: string }>> {
+  uploadImage(file: File, type: 'product' | 'banner' | 'default' = 'default'): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<ApiResponse<{ url: string }>>(`${this.uploadUrl}/image`, formData);
+    return this.http.post<ApiResponse<{ url: string }>>(`${this.uploadUrl}/image?type=${type}`, formData);
   }
 
   getPromotions(): Observable<ApiResponse<Promotion[]>> {

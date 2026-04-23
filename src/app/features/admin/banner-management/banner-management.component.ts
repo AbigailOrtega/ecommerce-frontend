@@ -209,7 +209,7 @@ export class BannerManagementComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.uploading = true;
-    this.adminService.uploadImage(file).subscribe({
+    this.adminService.uploadImage(file, 'banner').subscribe({
       next: (res) => {
         this.previewUrl = res.data['url'];
         this.uploading = false;

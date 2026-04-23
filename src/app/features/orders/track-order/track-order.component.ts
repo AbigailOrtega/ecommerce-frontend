@@ -43,7 +43,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
         @if (searched && !loading && !order) {
           <div class="not-found">
             <mat-icon>error_outline</mat-icon>
-            <p>No encontramos ningún pedido con ese número. Verifica que sea correcto.</p>
+            <p>{{ errorMessage }}</p>
           </div>
         }
       </mat-card>
@@ -200,6 +200,7 @@ export class TrackOrderComponent {
   order: Order | null = null;
   loading = false;
   searched = false;
+  errorMessage = '';
 
   constructor(private orderService: OrderService) {}
 
@@ -209,16 +210,24 @@ export class TrackOrderComponent {
     this.loading = true;
     this.order = null;
     this.searched = false;
+    this.errorMessage = '';
     this.orderService.trackOrder(num).subscribe({
       next: (res) => {
         this.order = res.data;
         this.loading = false;
         this.searched = true;
       },
-      error: () => {
+      error: (err) => {
         this.order = null;
         this.loading = false;
         this.searched = true;
+        if (err.status === 404) {
+          this.errorMessage = 'No encontramos ningún pedido con ese número. Verifica que sea correcto.';
+        } else if (err.status === 401 || err.status === 403) {
+          this.errorMessage = 'No tienes permiso para ver este pedido.';
+        } else {
+          this.errorMessage = `Error al buscar el pedido (${err.status}). Intenta de nuevo más tarde.`;
+        }
       },
     });
   }

@@ -383,7 +383,7 @@ export class ProductManagementComponent implements OnInit {
     }
     const file = input.files[0];
     ce.uploading = true;
-    this.adminService.uploadImage(file).subscribe({
+    this.adminService.uploadImage(file, 'product').subscribe({
       next: (res) => { ce.images = [...ce.images, res.data.url]; ce.uploading = false; },
       error: (err) => { this.snackBar.open(err.error?.message || 'Error al subir imagen', 'Cerrar', { duration: 3000 }); ce.uploading = false; },
     });
