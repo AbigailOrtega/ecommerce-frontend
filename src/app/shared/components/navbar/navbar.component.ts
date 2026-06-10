@@ -113,13 +113,10 @@ import { StoreInfoService } from '@core/services/store-info.service';
       text-decoration: none;
       color: white;
       white-space: nowrap;
-      overflow: hidden;
-      align-self: stretch;
-      height: 100%;
     }
-    .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .brand-logo { height: 56px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-    .brand-logo-wide { height: 56px; max-width: 400px; }
+    .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+    .brand-logo { height: 48px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .brand-logo-wide { height: 64px; width: auto; max-width: none; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
