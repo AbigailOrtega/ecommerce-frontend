@@ -406,6 +406,7 @@ export interface StoreImage {
 
 export interface StoreInfo {
   name?: string;
+  showNameInNavbar?: boolean;
   aboutText?: string;
   mission?: string;
   vision?: string;

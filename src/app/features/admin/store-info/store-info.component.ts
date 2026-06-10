@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NgIf, NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StoreInfoService } from '@core/services/store-info.service';
@@ -22,7 +23,7 @@ import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
   imports: [
     FormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, MatTooltipModule,
-    NgIf, NgFor, RouterLink,
+    MatSlideToggleModule, NgIf, NgFor, RouterLink,
   ],
   template: `
     <div class="container">
@@ -36,10 +37,15 @@ import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
         <mat-card-header><mat-card-title>Datos de la tienda</mat-card-title></mat-card-header>
         <mat-card-content>
           <div class="form-grid">
-            <mat-form-field appearance="outline">
-              <mat-label>Nombre de la tienda</mat-label>
-              <input matInput [(ngModel)]="form.name" placeholder="Ej. Mi Tienda" />
-            </mat-form-field>
+            <div class="name-field-group">
+              <mat-form-field appearance="outline" style="flex:1">
+                <mat-label>Nombre de la tienda</mat-label>
+                <input matInput [(ngModel)]="form.name" placeholder="Ej. Mi Tienda" />
+              </mat-form-field>
+              <mat-slide-toggle [(ngModel)]="form.showNameInNavbar" class="name-toggle">
+                Mostrar nombre en la barra de navegación
+              </mat-slide-toggle>
+            </div>
 
             <mat-form-field appearance="outline">
               <mat-label>Teléfono</mat-label>
@@ -233,6 +239,8 @@ import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
     .header h1 { margin: 0; }
     .section-card { margin-bottom: 24px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-top: 16px; }
+    .name-field-group { display: flex; flex-direction: column; gap: 8px; }
+    .name-toggle { font-size: 0.9rem; }
     .full-width { grid-column: 1 / -1; }
     .save-row { display: flex; align-items: center; gap: 16px; padding: 8px 0 32px; }
     .success-msg { display: flex; align-items: center; gap: 4px; color: #4caf50; font-weight: 500; }
@@ -302,7 +310,7 @@ export class StoreInfoComponent implements OnInit {
     this.storeInfoService.getPublic().subscribe({
       next: (res) => {
         const d = res.data;
-        this.form = { name: d.name, aboutText: d.aboutText, mission: d.mission, vision: d.vision, phone: d.phone, email: d.email, privacyPolicy: d.privacyPolicy, instagramUrl: d.instagramUrl, facebookUrl: d.facebookUrl, whatsappNumber: d.whatsappNumber };
+        this.form = { name: d.name, showNameInNavbar: d.showNameInNavbar ?? true, aboutText: d.aboutText, mission: d.mission, vision: d.vision, phone: d.phone, email: d.email, privacyPolicy: d.privacyPolicy, instagramUrl: d.instagramUrl, facebookUrl: d.facebookUrl, whatsappNumber: d.whatsappNumber };
         this.images = d.images ?? [];
         this.logoPreview = d.logoUrl ?? null;
         if (d.themeKey) this.selectedTheme = d.themeKey;

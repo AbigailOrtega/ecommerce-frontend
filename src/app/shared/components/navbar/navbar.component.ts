@@ -20,7 +20,9 @@ import { StoreInfoService } from '@core/services/store-info.service';
         @if (logoUrl()) {
           <img [src]="logoUrl()" class="brand-logo" alt="Logo" />
         }
-        <span class="brand-name">{{ storeName() }}</span>
+        @if (showName()) {
+          <span class="brand-name">{{ storeName() }}</span>
+        }
       </a>
       <span class="spacer"></span>
 
@@ -112,9 +114,11 @@ import { StoreInfoService } from '@core/services/store-info.service';
       color: white;
       white-space: nowrap;
       overflow: hidden;
+      align-self: stretch;
+      height: 100%;
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .brand-logo { height: 6px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .brand-logo { height: 100%; max-height: 56px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
@@ -126,13 +130,14 @@ import { StoreInfoService } from '@core/services/store-info.service';
       .desktop-nav { display: none !important; }
       .mobile-menu-btn { display: inline-flex !important; }
       .brand { font-size: 1.1rem; max-width: 55vw; }
-      .brand-logo { height: 28px; }
+      .brand-logo { max-height: 44px; }
     }
   `],
 })
 export class NavbarComponent implements OnInit {
   readonly storeName = signal('ShopHub');
   readonly logoUrl = signal<string | null>(null);
+  readonly showName = signal(true);
 
   constructor(
     public auth: AuthService,
@@ -149,6 +154,7 @@ export class NavbarComponent implements OnInit {
       next: (res) => {
         if (res.data?.name) this.storeName.set(res.data.name);
         if (res.data?.logoUrl) this.logoUrl.set(res.data.logoUrl);
+        this.showName.set(res.data?.showNameInNavbar ?? true);
       },
     });
   }

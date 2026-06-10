@@ -55,8 +55,6 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     }
 
     <div class="container">
-      <h1>Nuestros Productos</h1>
-
       <div class="filters">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Buscar productos...</mat-label>
