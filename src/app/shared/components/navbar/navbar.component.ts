@@ -18,7 +18,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
     <mat-toolbar color="primary">
       <a routerLink="/" class="brand">
         @if (logoUrl()) {
-          <img [src]="logoUrl()" [class.brand-logo-wide]="!showName()" class="brand-logo" alt="Logo" />
+          <img [src]="logoUrl()" [class]="showName() ? 'brand-logo' : 'brand-logo-wide'" alt="Logo" />
         }
         @if (showName()) {
           <span class="brand-name">{{ storeName() }}</span>
@@ -117,7 +117,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
     .brand-logo { height: 52px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-    .brand-logo-wide { height: 72px !important; width: auto !important; max-height: none !important; max-width: none !important; }
+    .brand-logo-wide { height: 72px; width: auto; max-height: none; max-width: none; object-fit: contain; border-radius: 4px; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
