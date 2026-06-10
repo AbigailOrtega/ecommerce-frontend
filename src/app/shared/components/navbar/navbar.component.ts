@@ -15,11 +15,11 @@ import { StoreInfoService } from '@core/services/store-info.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, MatMenuModule, MatDividerModule],
   template: `
-    <mat-toolbar color="primary">
+    <mat-toolbar color="primary" [class.toolbar-logo-only]="!showName()"  >
       <a routerLink="/" class="brand">
         @if (logoUrl()) {
           <img [src]="logoUrl()"
-               [style.height]="showName() ? '48px' : '72px'"
+               [style.height]="showName() ? '48px' : '100px'"
                [style.width]="'auto'"
                [style.max-width]="'none'"
                [style.max-height]="'none'"
@@ -112,6 +112,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
   `,
   styles: [`
     :host ::ng-deep mat-toolbar { min-height: 80px; }
+    :host ::ng-deep mat-toolbar.toolbar-logo-only { min-height: 116px !important; height: 116px !important; }
     .brand {
       display: flex;
       align-items: center;
