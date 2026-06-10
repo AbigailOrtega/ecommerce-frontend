@@ -118,8 +118,8 @@ import { StoreInfoService } from '@core/services/store-info.service';
       height: 100%;
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .brand-logo { height: 100%; max-height: 56px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-    .brand-logo-wide { max-height: 60px; max-width: 220px; }
+    .brand-logo { height: 56px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .brand-logo-wide { height: 56px; max-width: 400px; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }

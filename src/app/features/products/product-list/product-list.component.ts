@@ -200,7 +200,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       display: flex; transition: transform 0.5s ease; will-change: transform;
     }
     .carousel-slide { flex: 0 0 100%; width: 100%; }
-    .carousel-img { width: 100%; max-height: 380px; object-fit: cover; display: block; }
+    .carousel-img { width: 100%; height: 380px; object-fit: cover; display: block; }
     .carousel-arrow {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,0,0.45); color: white; border: none;
