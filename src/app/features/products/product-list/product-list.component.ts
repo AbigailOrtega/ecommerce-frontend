@@ -194,7 +194,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     /* Carousel */
     .carousel-root {
       position: relative; width: 100%; overflow: hidden;
-      background: #000; line-height: 0;
+      background: #000; line-height: 0; margin-bottom: 24px;
     }
     .carousel-track {
       display: flex; transition: transform 0.5s ease; will-change: transform;
