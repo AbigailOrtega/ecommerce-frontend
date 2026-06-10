@@ -114,7 +114,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
       overflow: hidden;
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .brand-logo { height: 36px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .brand-logo { height: 6px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
