@@ -103,6 +103,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
     </mat-toolbar>
   `,
   styles: [`
+    :host ::ng-deep mat-toolbar { min-height: 80px; }
     .brand {
       display: flex;
       align-items: center;
@@ -115,8 +116,8 @@ import { StoreInfoService } from '@core/services/store-info.service';
       white-space: nowrap;
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
-    .brand-logo { height: 48px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-    .brand-logo-wide { height: 64px; width: auto; max-width: none; }
+    .brand-logo { height: 52px; width: auto; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+    .brand-logo-wide { height: 72px !important; width: auto !important; max-height: none !important; max-width: none !important; }
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
@@ -127,8 +128,9 @@ import { StoreInfoService } from '@core/services/store-info.service';
     @media (max-width: 767px) {
       .desktop-nav { display: none !important; }
       .mobile-menu-btn { display: inline-flex !important; }
-      .brand { font-size: 1.1rem; max-width: 55vw; }
-      .brand-logo { max-height: 44px; }
+      .brand { font-size: 1.1rem; max-width: 60vw; }
+      .brand-logo { height: 40px; }
+      .brand-logo-wide { height: 52px !important; }
     }
   `],
 })
