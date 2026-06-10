@@ -18,7 +18,15 @@ import { StoreInfoService } from '@core/services/store-info.service';
     <mat-toolbar color="primary">
       <a routerLink="/" class="brand">
         @if (logoUrl()) {
-          <img [src]="logoUrl()" [class]="showName() ? 'brand-logo' : 'brand-logo-wide'" alt="Logo" />
+          <img [src]="logoUrl()"
+               [style.height]="showName() ? '48px' : '72px'"
+               [style.width]="'auto'"
+               [style.max-width]="'none'"
+               [style.max-height]="'none'"
+               [style.object-fit]="'contain'"
+               [style.border-radius]="'4px'"
+               [style.flex-shrink]="'0'"
+               alt="Logo" />
         }
         @if (showName()) {
           <span class="brand-name">{{ storeName() }}</span>
