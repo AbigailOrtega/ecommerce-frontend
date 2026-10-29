@@ -19,9 +19,10 @@ export class AuthService {
   }
 
   private loadUser(): void {
-    const token = this.getToken();
+    // The access token may have expired (it lasts 30 min); the session lives as long as the refresh token
+    const hasSession = this.getToken() || this.getRefreshToken();
     const userData = localStorage.getItem('user');
-    if (token && userData) {
+    if (hasSession && userData) {
       this.currentUser.set(JSON.parse(userData));
     }
   }
@@ -45,7 +46,7 @@ export class AuthService {
   }
 
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = this.getRefreshToken();
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/refresh`, { refreshToken })
       .pipe(tap(res => this.handleAuth(res.data)));
   }
@@ -60,6 +61,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('accessToken');
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
   }
 
   isTokenValid(): boolean {

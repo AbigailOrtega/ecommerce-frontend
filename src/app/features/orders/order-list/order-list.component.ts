@@ -103,7 +103,7 @@ export class OrderListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.authService.isTokenValid()) {
+    if (!this.authService.isLoggedIn()) {
       this.authService.logout();
       return;
     }
