@@ -307,16 +307,23 @@ describe('AdminService', () => {
       const file = new File(['img'], 'photo.png', { type: 'image/png' });
       service.uploadImage(file).subscribe();
 
-      const req = httpMock.expectOne(`${UPLOAD_API}/image`);
+      const req = httpMock.expectOne(`${UPLOAD_API}/image?type=default`);
       expect(req.request.method).toBe('POST');
       req.flush({ success: true, data: { url: 'http://cdn.example.com/photo.png' } });
+    });
+
+    it('passes the image type as a query parameter', () => {
+      const file = new File(['img'], 'photo.png', { type: 'image/png' });
+      service.uploadImage(file, 'product').subscribe();
+
+      httpMock.expectOne(`${UPLOAD_API}/image?type=product`).flush({ success: true, data: { url: 'x' } });
     });
 
     it('sends a FormData body with the file appended as "file"', () => {
       const file = new File(['img'], 'photo.png', { type: 'image/png' });
       service.uploadImage(file).subscribe();
 
-      const req = httpMock.expectOne(`${UPLOAD_API}/image`);
+      const req = httpMock.expectOne(`${UPLOAD_API}/image?type=default`);
       expect(req.request.body instanceof FormData).toBeTrue();
       expect((req.request.body as FormData).get('file')).toBe(file);
       req.flush({ success: true, data: { url: 'http://cdn.example.com/photo.png' } });
@@ -330,7 +337,7 @@ describe('AdminService', () => {
       });
 
       httpMock
-        .expectOne(`${UPLOAD_API}/image`)
+        .expectOne(`${UPLOAD_API}/image?type=default`)
         .flush({ success: true, data: { url: 'http://cdn.example.com/photo.png' } });
     });
   });

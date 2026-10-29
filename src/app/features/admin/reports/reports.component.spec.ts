@@ -345,14 +345,15 @@ describe('ReportsComponent', () => {
 
     it('outofstock: hasData = true with items', fakeAsync(() => {
       adminService.getOutOfStockProducts.and.returnValue(
-        of({ success: true, data: [makeInventoryItem({ stock: 0 })] })
+        of({ success: true, data: [makeInventoryItem({ stock: 0, outOfStockVariants: ['M / Rojo', 'L / Azul'] })] })
       );
 
       component.selectType('outofstock');
       tick(60);
 
       expect(component.hasData).toBeTrue();
-      expect(component.tableHeaders).toEqual(['Producto', 'SKU', 'Stock', 'Precio', 'Activo']);
+      expect(component.tableHeaders).toEqual(['Producto', 'SKU', 'Stock total', 'Sin existencia', 'Precio', 'Activo']);
+      expect(component.tableRows[0][3]).toBe('M / Rojo, L / Azul');
     }));
 
     it('inventory: shows "Con stock" and "Sin stock" KPIs', fakeAsync(() => {

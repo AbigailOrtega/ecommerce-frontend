@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AppComponent } from './app.component';
 import { StoreInfoService } from './core/services/store-info.service';
+import { PageviewService } from './core/services/pageview.service';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 
@@ -26,6 +27,7 @@ describe('AppComponent — WhatsApp bubble', () => {
       imports: [AppComponent],
       providers: [
         provideRouter([]),
+        { provide: PageviewService, useValue: { track: () => {} } },
         { provide: StoreInfoService, useValue: mockStoreInfoService(whatsappNumber) },
       ],
     })
@@ -84,6 +86,7 @@ describe('AppComponent — WhatsApp bubble', () => {
       imports: [AppComponent],
       providers: [
         provideRouter([]),
+        { provide: PageviewService, useValue: { track: () => {} } },
         { provide: StoreInfoService, useValue: { getPublic: () => throwError(() => new Error('network')) } },
       ],
     })
