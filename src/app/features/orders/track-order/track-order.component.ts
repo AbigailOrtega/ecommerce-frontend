@@ -225,6 +225,8 @@ export class TrackOrderComponent {
           this.errorMessage = 'No encontramos ningún pedido con ese número. Verifica que sea correcto.';
         } else if (err.status === 401 || err.status === 403) {
           this.errorMessage = 'No tienes permiso para ver este pedido.';
+        } else if (err.status === 429) {
+          this.errorMessage = 'Demasiadas búsquedas seguidas. Espera un minuto e intenta de nuevo.';
         } else {
           this.errorMessage = `Error al buscar el pedido (${err.status}). Intenta de nuevo más tarde.`;
         }

@@ -84,9 +84,10 @@ export class ForgotPasswordComponent {
         this.submitted = true;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.snackBar.open('Algo salió mal. Por favor intenta de nuevo.', 'Cerrar', { duration: 5000 });
+        const message = err.status === 429 ? err.error?.message : 'Algo salió mal. Por favor intenta de nuevo.';
+        this.snackBar.open(message || 'Algo salió mal. Por favor intenta de nuevo.', 'Cerrar', { duration: 5000 });
       },
     });
   }

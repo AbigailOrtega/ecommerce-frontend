@@ -76,4 +76,16 @@ describe('ForgotPasswordComponent', () => {
     expect(component.loading).toBeFalse();
     expect(component.submitted).toBeFalse();
   });
+
+  it('shows the server message when there were too many requests (429)', () => {
+    authService.forgotPassword.and.returnValue(throwError(() => ({
+      status: 429, error: { message: 'Demasiados intentos. Espera unos minutos e intenta de nuevo.' },
+    })));
+    component.form.setValue({ email: 'a@a.com' });
+
+    component.onSubmit();
+
+    expect(snackBarOpenSpy).toHaveBeenCalledWith(
+      'Demasiados intentos. Espera unos minutos e intenta de nuevo.', 'Cerrar', { duration: 5000 });
+  });
 });
