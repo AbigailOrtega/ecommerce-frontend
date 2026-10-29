@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -152,7 +152,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .no-data { text-align: center; color: #666; padding: 32px; }
   `],
 })
-export class BannerManagementComponent implements OnInit {
+export class BannerManagementComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   banners: PromoBanner[] = [];
@@ -162,6 +162,7 @@ export class BannerManagementComponent implements OnInit {
   uploading = false;
   saving = false;
   previewUrl: string | null = null;
+  private readonly pendingUploads = this.adminService.pendingUploads();
 
   form: FormGroup;
 
@@ -179,6 +180,10 @@ export class BannerManagementComponent implements OnInit {
     this.loadBanners();
   }
 
+  ngOnDestroy(): void {
+    this.pendingUploads.discardAll();
+  }
+
   loadBanners(): void {
     this.loading = true;
     this.adminService.getBanners().subscribe({
@@ -193,12 +198,14 @@ export class BannerManagementComponent implements OnInit {
   }
 
   resetForm(): void {
+    this.pendingUploads.discardAll();
     this.editingId = null;
     this.previewUrl = null;
     this.form.reset();
   }
 
   edit(banner: PromoBanner): void {
+    this.pendingUploads.discardAll();
     this.editingId = banner.id;
     this.previewUrl = banner.imageUrl;
     this.form.patchValue({ linkUrl: banner.linkUrl || '' });
@@ -211,7 +218,10 @@ export class BannerManagementComponent implements OnInit {
     this.uploading = true;
     this.adminService.uploadImage(file, 'banner').subscribe({
       next: (res) => {
+        // a second upload replaces the first one, which was never saved
+        this.pendingUploads.removed(this.previewUrl);
         this.previewUrl = res.data['url'];
+        this.pendingUploads.add(this.previewUrl);
         this.uploading = false;
       },
       error: () => {
@@ -237,6 +247,7 @@ export class BannerManagementComponent implements OnInit {
     obs.subscribe({
       next: () => {
         this.saving = false;
+        this.pendingUploads.committed([req.imageUrl]);
         this.showForm = false;
         this.resetForm();
         this.loadBanners();

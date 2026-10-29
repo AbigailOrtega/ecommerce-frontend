@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -282,7 +282,7 @@ interface ColorEntry { id?: number; name: string; images: string[]; sizes: SizeE
     .size-stock-input:focus { border-color: var(--theme-primary); }
   `],
 })
-export class ProductManagementComponent implements OnInit {
+export class ProductManagementComponent implements OnInit, OnDestroy {
   @ViewChild('colorFileInput')   colorFileInputRef!:   ElementRef<HTMLInputElement>;
   @ViewChild('productFileInput') productFileInputRef!: ElementRef<HTMLInputElement>;
 
@@ -298,6 +298,7 @@ export class ProductManagementComponent implements OnInit {
 
   productImages: string[] = [];
   productImagesUploading = false;
+  private readonly pendingUploads = this.adminService.pendingUploads();
 
   form: FormGroup;
   columns = ['image', 'name', 'price', 'stock', 'active', 'actions'];
@@ -334,6 +335,10 @@ export class ProductManagementComponent implements OnInit {
     this.productService.getCategories().subscribe(res => this.categories = res.data);
   }
 
+  ngOnDestroy(): void {
+    this.pendingUploads.discardAll();
+  }
+
   loadProducts(): void {
     this.loading = true;
     this.adminService.getAllProducts(this.currentPage, this.pageSize).subscribe({
@@ -343,6 +348,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   resetForm(): void {
+    this.pendingUploads.discardAll();
     this.editingId = null;
     this.colorEntries = [];
     this.productImages = [];
@@ -351,6 +357,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   editProduct(product: Product): void {
+    this.pendingUploads.discardAll();
     this.editingId = product.id;
     this.showForm = true;
 
@@ -380,6 +387,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   removeColor(index: number): void {
+    this.colorEntries[index]?.images.forEach(url => this.pendingUploads.removed(url));
     this.colorEntries = this.colorEntries.filter((_, i) => i !== index);
   }
 
@@ -420,6 +428,7 @@ export class ProductManagementComponent implements OnInit {
     this.adminService.uploadImage(file, 'product').subscribe({
       next: (res) => {
         const url = res.data.url;
+        this.pendingUploads.add(url);
         ce.images = ce.images.includes(url) ? ce.images : [...ce.images, url];
         ce.uploading = false;
       },
@@ -429,6 +438,7 @@ export class ProductManagementComponent implements OnInit {
 
   removeColorImage(colorIndex: number, imageIndex: number): void {
     const ce = this.colorEntries[colorIndex];
+    this.pendingUploads.removed(ce.images[imageIndex]);
     ce.images = ce.images.filter((_, i) => i !== imageIndex);
   }
 
@@ -449,6 +459,7 @@ export class ProductManagementComponent implements OnInit {
     this.adminService.uploadImage(input.files[0], 'product').subscribe({
       next: (res) => {
         const url = res.data.url;
+        this.pendingUploads.add(url);
         if (!this.productImages.includes(url)) {
           this.productImages = [...this.productImages, url];
         }
@@ -462,6 +473,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   removeProductImage(index: number): void {
+    this.pendingUploads.removed(this.productImages[index]);
     this.productImages = this.productImages.filter((_, i) => i !== index);
   }
 
@@ -518,6 +530,7 @@ export class ProductManagementComponent implements OnInit {
     obs.subscribe({
       next: () => {
         this.snackBar.open(`Product ${this.editingId ? 'updated' : 'created'}`, 'Cerrar', { duration: 3000 });
+        this.pendingUploads.committed([...baseImages, ...colors.flatMap(c => c.images)]);
         this.showForm = false;
         this.resetForm();
         this.loadProducts();

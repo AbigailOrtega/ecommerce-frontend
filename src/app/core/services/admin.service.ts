@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
+import { PendingUploads } from '../utils/pending-uploads';
 import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User } from '@shared/models';
 
 @Injectable({ providedIn: 'root' })
@@ -85,6 +86,16 @@ export class AdminService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<ApiResponse<{ url: string }>>(`${this.uploadUrl}/image?type=${type}`, formData);
+  }
+
+  /** Deletes an uploaded image that was never saved; the backend keeps it if anything still uses it. */
+  discardUpload(url: string): Observable<ApiResponse<{ deleted: boolean }>> {
+    return this.http.delete<ApiResponse<{ deleted: boolean }>>(`${this.uploadUrl}/image`, { params: { url } });
+  }
+
+  /** A PendingUploads whose discards go to {@link discardUpload}; failures are ignored. */
+  pendingUploads(): PendingUploads {
+    return new PendingUploads(url => this.discardUpload(url).subscribe({ error: () => {} }));
   }
 
   getPromotions(): Observable<ApiResponse<Promotion[]>> {
