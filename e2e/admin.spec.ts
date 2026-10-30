@@ -1,3 +1,4 @@
+import { createProduct } from './helpers/purchase';
 import { test, expect } from '@playwright/test';
 
 // admin-tests project provides storageState
@@ -199,7 +200,8 @@ test.describe('Admin › Products', () => {
     await page.locator('button').filter({ hasText: 'Agregar Producto' }).waitFor({ timeout: 10000 });
     await page.locator('button').filter({ hasText: 'Agregar Producto' }).click();
 
-    await page.fill('[formControlName="name"]', 'E2E Test Product');
+    // product slugs come from the name and must be unique
+    await page.fill('[formControlName="name"]', `E2E Test Product ${Date.now()}`);
     await page.fill('[formControlName="sku"]',  `E2E-${Date.now()}`);
     await page.fill('[formControlName="price"]', '25.00');
     // stockQuantity is shown when no colors are added
@@ -213,24 +215,23 @@ test.describe('Admin › Products', () => {
     ).toContainText('created', { timeout: 10000 });
   });
 
-  test('can edit a seeded product', async ({ page }) => {
+  test('can edit a product', async ({ page, request }) => {
+    // edits a product of its own: renaming a seeded one would break the tests that look for it
+    const product = await createProduct(request);
     await page.goto('/admin/products');
-    // Wait for at least one table row
-    await page.waitForSelector('td.mat-mdc-cell, td[mat-cell]', { timeout: 15000 });
+    const row = page.locator('tr', { hasText: product.name });
+    await row.waitFor({ timeout: 15000 });
+    await row.locator('button').filter({ has: page.locator('mat-icon', { hasText: 'edit' }) }).click();
 
-    // Click the first edit button
-    await page.locator('button').filter({ has: page.locator('mat-icon', { hasText: 'edit' }) }).first().click();
-    await page.waitForSelector('[formControlName="name"]', { timeout: 5000 });
-
-    // Update the name
     const nameInput = page.locator('[formControlName="name"]');
-    await nameInput.clear();
-    await nameInput.fill('Updated Product');
+    await expect(nameInput).toHaveValue(product.name);
+    await nameInput.fill(`${product.name} editado`);
     await page.locator('button[type="submit"]').filter({ hasText: 'Actualizar' }).click();
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
     ).toContainText('updated', { timeout: 10000 });
+    await expect(page.locator('tr', { hasText: `${product.name} editado` })).toBeVisible();
   });
 });
 

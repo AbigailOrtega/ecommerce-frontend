@@ -1,8 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as path from 'path';
 
-// Placeholder secrets for the e2e profile, shared with the backend's integration tests.
-const BACKEND_E2E_CONFIG = path.resolve(__dirname, '../backend/src/test/resources/application-e2e.yml');
+// The backend's compiled tests: FakePaymentService, application-e2e.yml (placeholder secrets)
+// and application-fake-payments.yml.
+const BACKEND_TEST_CLASSES = path.resolve(__dirname, '../backend/target/test-classes');
 
 export default defineConfig({
   testDir: './e2e',
@@ -14,7 +15,10 @@ export default defineConfig({
   // Set CI=true to disable if you prefer to start them manually.
   webServer: process.env['CI'] !== 'manual' ? [
     {
-      command: `mvn spring-boot:run -f ../backend/pom.xml -Dspring-boot.run.profiles=e2e "-Dspring-boot.run.arguments=--spring.config.additional-location=file:${BACKEND_E2E_CONFIG}"`,
+      // FakePaymentService stands in for Stripe and PayPal (profile "fake-payments"); it only
+      // exists in the backend's test classes, never in the production jar.
+      command: 'mvn test-compile spring-boot:run -f ../backend/pom.xml -Dspring-boot.run.profiles=e2e,fake-payments '
+        + `-Dspring-boot.run.directories=${BACKEND_TEST_CLASSES}`,
       url: 'http://localhost:8080/api/products',
       timeout: 120_000,
       reuseExistingServer: true,
@@ -56,6 +60,11 @@ export default defineConfig({
         storageState: 'e2e/.auth/admin.json',
       },
       testMatch: /admin\.spec/,
+    },
+    {
+      name: 'purchase-tests',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /purchase\.spec/,
     },
     {
       name: 'public-tests',
