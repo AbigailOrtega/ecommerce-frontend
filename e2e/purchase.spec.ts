@@ -1,8 +1,7 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
-import { loginAs } from './helpers/auth';
 import {
   API, addToCartFromDetail, adminToken, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
-  productStock, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
+  productStock, registerAndLogin, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
 } from './helpers/purchase';
 
 // Complete purchases, from the product page to a confirmed order. Each test buys a product it
@@ -27,16 +26,6 @@ function recordIntents(page: Page): () => Promise<string> {
     await expect.poll(() => ids.length).toBeGreaterThan(0);
     return ids[ids.length - 1];
   };
-}
-
-async function registerCustomer(page: Page, request: APIRequestContext): Promise<string> {
-  const email = `buyer${unique()}@test.com`;
-  const res = await request.post(`${API}/auth/register`, {
-    data: { firstName: 'Compradora', lastName: 'E2E', email, password: 'Buyer123!', marketingOptIn: false },
-  });
-  expect(res.ok()).toBeTruthy();
-  await loginAs(page, email, 'Buyer123!');
-  return email;
 }
 
 async function createCoupon(request: APIRequestContext, discountPercent: number): Promise<string> {
@@ -121,7 +110,7 @@ test.describe('Purchase — signed-in customer', () => {
   test('pays by card with a coupon → discount charged, order in "Mis pedidos", coupon used up', async ({ page, request }) => {
     const lastIntent = recordIntents(page);
     const coupon = await createCoupon(request, 10);
-    await registerCustomer(page, request);
+    await registerAndLogin(page, request);
     const product = await createProduct(request, { price: 89.99, stock: 5 });
     await addToCartFromDetail(page, product.slug);
 
@@ -161,7 +150,7 @@ test.describe('Purchase — signed-in customer', () => {
 
   test('a Stripe webhook with the wrong amount does not confirm the order', async ({ page, request }) => {
     const lastIntent = recordIntents(page);
-    await registerCustomer(page, request);
+    await registerAndLogin(page, request);
     await addToCartFromDetail(page, (await createProduct(request)).slug);
     await page.goto('/checkout');
     await goToPaymentWithNationalShipping(page);

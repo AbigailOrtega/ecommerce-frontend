@@ -15,9 +15,10 @@ export default defineConfig({
   // Set CI=true to disable if you prefer to start them manually.
   webServer: process.env['CI'] !== 'manual' ? [
     {
-      // FakePaymentService stands in for Stripe and PayPal (profile "fake-payments"); it only
-      // exists in the backend's test classes, never in the production jar.
-      command: 'mvn test-compile spring-boot:run -f ../backend/pom.xml -Dspring-boot.run.profiles=e2e,fake-payments '
+      // From the backend's test classes only, never in the production jar: FakePaymentService
+      // stands in for Stripe and PayPal ("fake-payments") and E2eSupportController exposes what
+      // a user would receive by email ("e2e-support").
+      command: 'mvn test-compile spring-boot:run -f ../backend/pom.xml -Dspring-boot.run.profiles=e2e,fake-payments,e2e-support '
         + `-Dspring-boot.run.directories=${BACKEND_TEST_CLASSES}`,
       url: 'http://localhost:8080/api/products',
       timeout: 120_000,
@@ -65,6 +66,11 @@ export default defineConfig({
       name: 'purchase-tests',
       use: { ...devices['Desktop Chrome'] },
       testMatch: /purchase\.spec/,
+    },
+    {
+      name: 'flow-tests',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /variants\.spec|account\.spec/,
     },
     {
       name: 'public-tests',

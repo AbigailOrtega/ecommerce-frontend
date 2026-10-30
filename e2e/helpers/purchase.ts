@@ -1,5 +1,6 @@
 import { APIRequestContext, Page, expect } from '@playwright/test';
 import * as crypto from 'crypto';
+import { loginAs } from './auth';
 
 export const API = 'http://localhost:8080/api';
 
@@ -25,6 +26,7 @@ window.Stripe = function () {
       return { create: function () { return element; }, _clientSecret: opts && opts.clientSecret };
     },
     confirmPayment: function (args) {
+      window.__e2eStripeConfirmations = (window.__e2eStripeConfirmations || 0) + 1;
       var id = args.elements._clientSecret.split('_secret_')[0];
       return Promise.resolve({ paymentIntent: { id: id, status: 'succeeded' } });
     },
@@ -86,11 +88,17 @@ export async function adminToken(request: APIRequestContext): Promise<string> {
  * Creates a product of its own for a test, so tests never change the seeded products that other
  * tests (running in parallel) look at. Returns its slug.
  */
-export async function createProduct(request: APIRequestContext, opts: { name?: string; price?: number; stock?: number } = {}): Promise<{ slug: string; name: string; id: number }> {
+export interface ColorSpec { name: string; sizes: { name: string; stock: number }[] }
+
+export async function createProduct(request: APIRequestContext,
+    opts: { name?: string; price?: number; stock?: number; colors?: ColorSpec[] } = {}): Promise<{ slug: string; name: string; id: number }> {
   const name = opts.name ?? `E2E Producto ${Date.now()}${Math.floor(Math.random() * 1000)}`;
   const res = await request.post(`${API}/products`, {
     headers: { Authorization: `Bearer ${await adminToken(request)}` },
-    data: { name, price: opts.price ?? 100, stockQuantity: opts.stock ?? 10, active: true },
+    data: {
+      name, price: opts.price ?? 100, stockQuantity: opts.stock ?? 10, active: true,
+      ...(opts.colors && { colors: opts.colors.map(c => ({ name: c.name, images: [], sizes: c.sizes })) }),
+    },
   });
   expect(res.ok()).toBeTruthy();
   const data = (await res.json()).data;
@@ -101,6 +109,22 @@ export async function trackOrder(request: APIRequestContext, orderNumber: string
   const res = await request.get(`${API}/orders/track/${orderNumber}`);
   expect(res.ok()).toBeTruthy();
   return (await res.json()).data;
+}
+
+export async function getProduct(request: APIRequestContext, slug: string): Promise<any> {
+  const res = await request.get(`${API}/products/slug/${slug}`);
+  expect(res.ok()).toBeTruthy();
+  return (await res.json()).data;
+}
+
+export async function registerAndLogin(page: Page, request: APIRequestContext, password = 'Buyer123!'): Promise<string> {
+  const email = `user${Date.now()}${Math.floor(Math.random() * 1000)}@test.com`;
+  const res = await request.post(`${API}/auth/register`, {
+    data: { firstName: 'Usuaria', lastName: 'E2E', email, password, marketingOptIn: false },
+  });
+  expect(res.ok()).toBeTruthy();
+  await loginAs(page, email, password);
+  return email;
 }
 
 export async function productStock(request: APIRequestContext, slug: string): Promise<number> {
