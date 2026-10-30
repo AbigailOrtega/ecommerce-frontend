@@ -1,4 +1,4 @@
-import { createProduct } from './helpers/purchase';
+import { createCoupon, createProduct } from './helpers/purchase';
 import { test, expect } from '@playwright/test';
 
 // admin-tests project provides storageState
@@ -281,24 +281,17 @@ test.describe('Admin › Coupons', () => {
     expect(isChecked).toBe(!wasCheked);
   });
 
-  test('can delete a coupon', async ({ page }) => {
+  test('can delete a coupon', async ({ page, request }) => {
+    // deletes a coupon of its own: other tests create coupons in parallel
+    const code = await createCoupon(request);
     await page.goto('/admin/coupons');
-    await page.waitForSelector('table, .empty', { timeout: 15000 });
+    const row = page.locator('table tbody tr', { hasText: code });
+    await row.waitFor({ timeout: 15000 });
 
-    const deleteBtn = page.locator('button[color="warn"]').filter({
-      has: page.locator('mat-icon', { hasText: 'delete' }),
-    }).first();
-    if (!(await deleteBtn.isVisible())) { test.skip(); return; }
-
-    const rowsBefore = await page.locator('table tbody tr').count();
-
-    // Accept the browser confirm() dialog
     page.once('dialog', dialog => dialog.accept());
-    await deleteBtn.click();
-    await page.waitForTimeout(800);
+    await row.locator('button[color="warn"]').filter({ has: page.locator('mat-icon', { hasText: 'delete' }) }).click();
 
-    const rowsAfter = await page.locator('table tbody tr').count();
-    expect(rowsAfter).toBeLessThan(rowsBefore);
+    await expect(row).toHaveCount(0);
   });
 });
 

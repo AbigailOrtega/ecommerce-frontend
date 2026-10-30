@@ -867,29 +867,23 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
           });
         });
       },
+      // The order is created first (stock is checked and reserved) and only then charged, so a
+      // buyer is never charged for an order that could not be created.
       onApprove: (data: any, _actions: any) => {
         this.processingPayment = true;
-        this.paymentService.capturePayPalOrder(data.orderID).subscribe({
-          next: (res) => {
-            const captureId = res.data.captureId || res.data.orderId;
-            this.submitOrder(captureId, () => {
-              const orderNumber = this.savedOrderNumber!;
-              this.paymentService.confirmPayPalPayment(orderNumber, captureId).subscribe({
-                next: () => {
-                  this.processingPayment = false;
-                  this.onOrderSuccess(orderNumber);
-                },
-                error: () => {
-                  this.processingPayment = false;
-                  this.onOrderSuccess(orderNumber);
-                },
-              });
-            });
-          },
-          error: (err) => {
-            this.processingPayment = false;
-            this.snackBar.open(err.error?.message || 'Error al procesar PayPal', 'Cerrar', { duration: 5000 });
-          },
+        this.submitOrder(data.orderID, () => {
+          const orderNumber = this.savedOrderNumber!;
+          this.paymentService.capturePayPalForOrder(orderNumber).subscribe({
+            next: () => {
+              this.processingPayment = false;
+              this.onOrderSuccess(orderNumber);
+            },
+            error: (err) => {
+              this.processingPayment = false;
+              this.loading = false;
+              this.snackBar.open(err.error?.message || 'PayPal no pudo completar el pago. Intenta de nuevo.', 'Cerrar', { duration: 6000 });
+            },
+          });
         });
       },
       onError: (err: any) => {
@@ -1020,6 +1014,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: (err) => {
         this.loading = false;
+        this.processingPayment = false;
         this.snackBar.open(err.error?.message || 'Error al realizar el pedido', 'Cerrar', { duration: 5000 });
       },
     });
@@ -1088,6 +1083,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       },
       error: (err) => {
         this.loading = false;
+        this.processingPayment = false;
         this.snackBar.open(err.error?.message || 'Error al realizar el pedido', 'Cerrar', { duration: 5000 });
       },
     });

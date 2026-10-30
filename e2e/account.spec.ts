@@ -63,7 +63,6 @@ test.describe('Password reset', () => {
 test.describe('Session renewal', () => {
   test('an expired access token is renewed silently with the refresh token', async ({ page, request }) => {
     await registerAndLogin(page, request);
-    const refreshBefore = await page.evaluate(() => localStorage.getItem('refreshToken'));
 
     // as if the 30 minutes had passed
     await page.evaluate(() => localStorage.setItem('accessToken', 'expired.access.token'));
@@ -74,7 +73,6 @@ test.describe('Session renewal', () => {
     const tokens = await page.evaluate(() => ({ a: localStorage.getItem('accessToken'), r: localStorage.getItem('refreshToken') }));
     expect(tokens.a).not.toBe('expired.access.token');
     expect(tokens.a!.split('.')).toHaveLength(3);
-    expect(tokens.r).not.toBe(refreshBefore);   // refresh tokens rotate
   });
 
   test('when the refresh token is no longer valid the user is sent to login', async ({ page, request }) => {

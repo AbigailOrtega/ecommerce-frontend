@@ -1,6 +1,6 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import {
-  API, addToCartFromDetail, adminToken, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
+  API, addToCartFromDetail, adminToken, createCoupon, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
   productStock, registerAndLogin, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
 } from './helpers/purchase';
 
@@ -26,17 +26,6 @@ function recordIntents(page: Page): () => Promise<string> {
     await expect.poll(() => ids.length).toBeGreaterThan(0);
     return ids[ids.length - 1];
   };
-}
-
-async function createCoupon(request: APIRequestContext, discountPercent: number): Promise<string> {
-  const code = `E2E${unique()}`;
-  const expiresAt = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-  const res = await request.post(`${API}/admin/coupons`, {
-    headers: { Authorization: `Bearer ${await adminToken(request)}` },
-    data: { code, discountPercent, expiresAt, usageLimit: 1 },
-  });
-  expect(res.ok()).toBeTruthy();
-  return code;
 }
 
 test.describe('Purchase — guest', () => {
@@ -92,6 +81,46 @@ test.describe('Purchase — guest', () => {
     expect(order.status).toBe('CONFIRMED');
     expect(order.paymentMethod).toBe('paypal');
     expect(await productStock(request, product.slug)).toBe(4);
+  });
+
+  test('PayPal declines the charge → the order is cancelled and its stock returned', async ({ page, request }) => {
+    const product = await createProduct(request, { stock: 3 });
+    await addToCartFromDetail(page, product.slug);
+    await page.goto('/checkout');
+    await fillGuestContact(page, `declined${unique()}@test.com`);
+    await goToPaymentWithNationalShipping(page);
+
+    const declined = await request.post(`${API}/e2e/paypal/decline-next-capture`, {
+      headers: { Authorization: `Bearer ${await adminToken(request)}` },
+    });
+    expect(declined.ok()).toBeTruthy();
+    const created = page.waitForResponse(r => r.url().endsWith('/orders/guest') && r.ok());
+    await payWithPayPal(page);
+    const orderNumber = (await (await created).json()).data.orderNumber;
+
+    await expect(page.locator('mat-snack-bar-container')).toContainText('PayPal no pudo completar el pago');
+    await expect(page).toHaveURL(/\/checkout/);
+    expect((await trackOrder(request, orderNumber)).status).toBe('CANCELLED');
+    expect(await productStock(request, product.slug)).toBe(3);
+  });
+
+  test('PayPal: an order that cannot be created (not enough stock) is never charged', async ({ page, request }) => {
+    const product = await createProduct(request, { stock: 1 });
+    await page.goto(`/products/${product.slug}`);
+    await page.locator('.quantity-section button').nth(1).click();   // quantity 2, stock 1
+    await page.locator('button.add-btn').click();
+
+    const captures: string[] = [];
+    page.on('request', r => { if (r.url().includes('/paypal/capture')) captures.push(r.url()); });
+
+    await page.goto('/checkout');
+    await fillGuestContact(page, `nostock${unique()}@test.com`);
+    await goToPaymentWithNationalShipping(page);
+    await payWithPayPal(page);
+
+    await expect(page.locator('mat-snack-bar-container')).toContainText('Stock insuficiente');
+    expect(captures).toEqual([]);
+    expect(await productStock(request, product.slug)).toBe(1);
   });
 
   test('cannot pay until the contact details are filled in', async ({ page, request }) => {

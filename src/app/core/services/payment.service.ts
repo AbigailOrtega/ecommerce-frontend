@@ -68,17 +68,8 @@ export class PaymentService {
     );
   }
 
-  capturePayPalOrder(orderId: string): Observable<ApiResponse<{ orderId: string; status: string; captureId: string }>> {
-    return this.http.post<ApiResponse<{ orderId: string; status: string; captureId: string }>>(
-      `${this.apiUrl}/paypal/capture-order`,
-      { orderId }
-    );
-  }
-
-  confirmPayPalPayment(orderNumber: string, captureId: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(
-      `${this.apiUrl}/paypal/confirm-payment`,
-      { orderNumber, captureId }
-    );
+  /** Charges an order already created with the approved PayPal order id. */
+  capturePayPalForOrder(orderNumber: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}/paypal/capture-for-order`, { orderNumber });
   }
 }

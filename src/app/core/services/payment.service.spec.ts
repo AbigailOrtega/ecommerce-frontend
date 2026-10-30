@@ -139,75 +139,17 @@ describe('PaymentService', () => {
     });
   });
 
-  // ── capturePayPalOrder() ───────────────────────────────────────────────
+  // ── capturePayPalForOrder() ────────────────────────────────────────────
 
-  describe('capturePayPalOrder()', () => {
-    it('sends POST to /payments/paypal/capture-order', () => {
-      service.capturePayPalOrder('PP-ORD-001').subscribe();
-
-      const req = httpMock.expectOne(`${API}/paypal/capture-order`);
-      expect(req.request.method).toBe('POST');
-      req.flush({
-        success: true,
-        data: { orderId: 'PP-ORD-001', status: 'COMPLETED', captureId: 'CAP-001' },
-      });
-    });
-
-    it('sends the orderId in the request body', () => {
-      service.capturePayPalOrder('PP-ORD-001').subscribe();
-
-      const req = httpMock.expectOne(`${API}/paypal/capture-order`);
-      expect(req.request.body).toEqual({ orderId: 'PP-ORD-001' });
-      req.flush({
-        success: true,
-        data: { orderId: 'PP-ORD-001', status: 'COMPLETED', captureId: 'CAP-001' },
-      });
-    });
-
-    it('returns orderId, status, and captureId', () => {
-      service.capturePayPalOrder('PP-ORD-001').subscribe(res => {
-        expect(res.data.status).toBe('COMPLETED');
-        expect(res.data.captureId).toBe('CAP-001');
-      });
-
-      httpMock
-        .expectOne(`${API}/paypal/capture-order`)
-        .flush({
-          success: true,
-          data: { orderId: 'PP-ORD-001', status: 'COMPLETED', captureId: 'CAP-001' },
-        });
-    });
-  });
-
-  // ── confirmPayPalPayment() ─────────────────────────────────────────────
-
-  describe('confirmPayPalPayment()', () => {
-    it('sends POST to /payments/paypal/confirm-payment', () => {
-      service.confirmPayPalPayment('ORD-010', 'CAP-001').subscribe();
-
-      const req = httpMock.expectOne(`${API}/paypal/confirm-payment`);
-      expect(req.request.method).toBe('POST');
-      req.flush({ success: true, data: undefined });
-    });
-
-    it('sends the correct body with orderNumber and captureId', () => {
-      service.confirmPayPalPayment('ORD-010', 'CAP-001').subscribe();
-
-      const req = httpMock.expectOne(`${API}/paypal/confirm-payment`);
-      expect(req.request.body).toEqual({ orderNumber: 'ORD-010', captureId: 'CAP-001' });
-      req.flush({ success: true, data: undefined });
-    });
-
-    it('completes without error on success', () => {
+  describe('capturePayPalForOrder()', () => {
+    it('sends POST to /payments/paypal/capture-for-order with the order number', () => {
       let completed = false;
+      service.capturePayPalForOrder('ORD-010').subscribe({ next: () => { completed = true; } });
 
-      service.confirmPayPalPayment('ORD-010', 'CAP-001').subscribe({
-        next: () => { completed = true; },
-      });
-
-      httpMock
-        .expectOne(`${API}/paypal/confirm-payment`)
-        .flush({ success: true, data: null });
+      const req = httpMock.expectOne(`${API}/paypal/capture-for-order`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ orderNumber: 'ORD-010' });
+      req.flush({ success: true, data: null });
 
       expect(completed).toBeTrue();
     });

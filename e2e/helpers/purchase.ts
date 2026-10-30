@@ -105,6 +105,17 @@ export async function createProduct(request: APIRequestContext,
   return { slug: data.slug, name: data.name, id: data.id };
 }
 
+export async function createCoupon(request: APIRequestContext, discountPercent = 10, usageLimit = 1): Promise<string> {
+  const code = `E2E${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  const expiresAt = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  const res = await request.post(`${API}/admin/coupons`, {
+    headers: { Authorization: `Bearer ${await adminToken(request)}` },
+    data: { code, discountPercent, expiresAt, usageLimit },
+  });
+  expect(res.ok()).toBeTruthy();
+  return code;
+}
+
 export async function trackOrder(request: APIRequestContext, orderNumber: string): Promise<any> {
   const res = await request.get(`${API}/orders/track/${orderNumber}`);
   expect(res.ok()).toBeTruthy();
@@ -154,9 +165,14 @@ export async function goToPaymentWithNationalShipping(page: Page, onReview?: () 
   await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
   await page.locator('button:has-text("Continuar")').first().click();
 
-  await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
-  await page.fill('[formControlName="shippingCity"]', 'Ciudad de México');
-  await page.locator('button:has-text("Ver opciones de envío")').click();
+  // the step may still be animating in: retry until the form has taken the address
+  const calculate = page.locator('button:has-text("Ver opciones de envío")');
+  await expect(async () => {
+    await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
+    await page.fill('[formControlName="shippingCity"]', 'Ciudad de México');
+    await expect(calculate).toBeEnabled({ timeout: 1000 });
+  }).toPass({ timeout: 15000 });
+  await calculate.click();
 
   const toReview = page.locator('button:has-text("Continuar al Pago")').first();
   await expect(toReview).toBeEnabled({ timeout: 15000 });
@@ -170,6 +186,12 @@ export async function payWithCard(page: Page): Promise<void> {
   await expect(page.getByTestId('fake-stripe-card')).toBeVisible({ timeout: 15000 });
   const placeOrder = page.locator('button:has-text("Realizar Pedido")');
   await expect(placeOrder).toBeEnabled();
+  // makes failures readable: the snackbar that explains them is gone by the time the test fails
+  page.on('response', async r => {
+    if (r.url().includes('/api/orders') && r.request().method() === 'POST' && !r.ok()) {
+      console.log(`[e2e] order creation failed ${r.status()}: ${await r.text()}`);
+    }
+  });
   await placeOrder.click();
 }
 
