@@ -67,7 +67,8 @@ test.describe('Checkout', () => {
 
     await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
     await page.fill('[formControlName="shippingCity"]',    'CDMX');
-    await page.fill('[formControlName="shippingCountry"]', 'MX');
+    // shipping is national only: the country is fixed and read-only
+    await expect(page.locator('[formControlName="shippingCountry"]')).toHaveValue('México');
 
     const calcBtn = page.locator('button:has-text("Ver opciones de envío")');
     await expect(calcBtn).toBeVisible();
@@ -105,7 +106,8 @@ test.describe('Checkout', () => {
     // Step 2: fill address and calculate shipping
     await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
     await page.fill('[formControlName="shippingCity"]',    'CDMX');
-    await page.fill('[formControlName="shippingCountry"]', 'MX');
+    // shipping is national only: the country is fixed and read-only
+    await expect(page.locator('[formControlName="shippingCountry"]')).toHaveValue('México');
 
     await page.locator('button:has-text("Ver opciones de envío")').click();
     // Wait up to 8s for shipping result (success or error)
