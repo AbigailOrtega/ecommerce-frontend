@@ -387,24 +387,28 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                               El carrier anterior no pudo generar la guía. Selecciona otra tarifa.
                             </div>
                           }
-                          <div class="rates-list">
+                          <!-- the group owns the checked state, so clicking the circle or the card selects the same rate -->
+                          <mat-radio-group class="rates-list" color="primary"
+                                           [value]="selectedRates[o.id]"
+                                           (change)="selectedRates[o.id] = $event.value">
                             @for (rate of quotations[o.id]!.rates; track rate.id) {
                               <div class="rate-item" [class.rate-selected]="selectedRates[o.id] === rate.id"
                                    (click)="selectedRates[o.id] = rate.id">
-                                <mat-radio-button [value]="rate.id" [checked]="selectedRates[o.id] === rate.id"
-                                                  color="primary" (click)="$event.stopPropagation()">
+                                <mat-radio-button [value]="rate.id" (click)="$event.stopPropagation()">
                                 </mat-radio-button>
                                 <div class="rate-info">
                                   <span class="rate-carrier">{{ rate.carrier }}</span>
                                   <span class="rate-service">{{ rate.service }}</span>
                                 </div>
-                                @if (rate.estimatedDays) {
-                                  <span class="rate-days">{{ rate.estimatedDays }} día(s)</span>
-                                }
-                                <span class="rate-price">{{ rate.price | currency }}</span>
+                                <div class="rate-meta">
+                                  <span class="rate-price">{{ rate.price | currency }}</span>
+                                  @if (rate.estimatedDays) {
+                                    <span class="rate-days">{{ rate.estimatedDays }} día(s)</span>
+                                  }
+                                </div>
                               </div>
                             }
-                          </div>
+                          </mat-radio-group>
                           <div class="rates-actions">
                             <button mat-button (click)="quotations[o.id] = null; selectedRates[o.id] = null">
                               <mat-icon>refresh</mat-icon> Nueva cotización
@@ -609,15 +613,18 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .status-chip { background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
 
     .rates-list { display: flex; flex-direction: column; gap: 6px; max-width: 600px; }
-    .rate-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: border-color 0.15s; font-size: 0.88rem; }
+    .rate-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: border-color 0.15s; font-size: 0.88rem; min-width: 0; }
     .rate-item:hover { border-color: var(--theme-primary); }
     .rate-item.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
-    .rate-info { display: flex; flex-direction: column; flex: 1; }
+    .rate-item mat-radio-button { flex-shrink: 0; }
+    .rate-info { display: flex; flex-direction: column; flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .rate-carrier { font-weight: 600; color: #1a1a2e; }
     .rate-service { font-size: 0.8rem; color: #666; }
+    .rate-meta { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; margin-left: auto; }
     .rate-days { color: #888; font-size: 0.82rem; white-space: nowrap; }
-    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; margin-left: auto; }
-    .rates-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; }
+    .rates-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .rates-actions button { white-space: nowrap; }
     .rate-preselected { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: #2e7d32; margin: 0 0 4px; }
     .rate-preselected mat-icon { font-size: 16px; width: 16px; height: 16px; }
     .carrier-error-banner { display: flex; align-items: center; gap: 8px; background: #fff3e0; border-left: 3px solid #e65100; border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 0.85rem; color: #bf360c; }
@@ -649,8 +656,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       .totals-summary { min-width: 0; width: 100%; align-self: stretch; }
       .totals-row { width: 100%; }
       .rates-list { max-width: 100%; }
-      .rate-item { flex-wrap: wrap; gap: 6px; }
-      .rate-price { margin-left: 0; }
+      .rate-item { gap: 6px; }
       .shipment-row { flex-wrap: wrap; }
     }
   `],
