@@ -1,4 +1,5 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import { sessionToken } from './helpers/auth';
 import {
   API, addToCartFromDetail, adminToken, createCoupon, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
   productStock, registerAndLogin, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
@@ -172,7 +173,7 @@ test.describe('Purchase — signed-in customer', () => {
 
     // usageLimit was 1: the coupon no longer validates
     const again = await request.post(`${API}/coupons/validate?code=${coupon}`, {
-      headers: { Authorization: `Bearer ${await page.evaluate(() => localStorage.getItem('accessToken'))}` },
+      headers: { Authorization: `Bearer ${await sessionToken(page)}` },
     });
     expect(again.ok()).toBeFalsy();
   });

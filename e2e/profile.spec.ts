@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { hasSessionCookie } from './helpers/auth';
 
 // user-tests project provides storageState
 test.use({ storageState: 'e2e/.auth/user.json' });
@@ -52,7 +53,7 @@ test.describe('User Profile', () => {
     await page.locator('button:has-text("Cerrar sesión")').click();
 
     await page.waitForURL(url => url.toString().includes('/login'), { timeout: 10000 });
-    const token = await page.evaluate(() => localStorage.getItem('accessToken'));
-    expect(token).toBeNull();
+    await expect.poll(() => hasSessionCookie(page)).toBe(false);
+    expect(await page.evaluate(() => localStorage.getItem('user'))).toBeNull();
   });
 });

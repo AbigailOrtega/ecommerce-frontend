@@ -29,17 +29,23 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
+  const authResp = {
+    success: true,
+    data: {
+      accessToken: 'h.' + btoa(JSON.stringify({ role: 'ADMIN', exp: Date.now() / 1000 + 600 })) + '.s',
+      user: { id: 1, firstName: 'Ana', lastName: 'L', email: 'a@a.com', role: 'ADMIN' },
+    },
+  };
+
   // ── isLoggedIn ────────────────────────────────────────────────────────────
 
   describe('isLoggedIn', () => {
-    it('returns false when no token in localStorage', () => {
+    it('returns false when no user is stored', () => {
       expect(service.isLoggedIn()).toBeFalse();
     });
 
-    it('returns true when token and user are in localStorage', () => {
-      localStorage.setItem('accessToken', 'tok');
+    it('returns true when the user profile is stored', () => {
       localStorage.setItem('user', JSON.stringify({ id: 1, email: 'a@a.com', role: 'CUSTOMER' }));
-      // Reload service to trigger loadUser()
       service['loadUser']();
       expect(service.isLoggedIn()).toBeTrue();
     });
@@ -48,41 +54,88 @@ describe('AuthService', () => {
   // ── login ─────────────────────────────────────────────────────────────────
 
   describe('login', () => {
-    it('stores tokens and user in localStorage on success', () => {
-      const mockResp = {
-        success: true,
-        data: {
-          accessToken: 'access',
-          refreshToken: 'refresh',
-          user: { id: 1, firstName: 'Ana', lastName: 'L', email: 'a@a.com', role: 'CUSTOMER' },
-        },
-      };
-
-      service.login({ email: 'a@a.com', password: 'pass' }).subscribe(() => {
-        expect(localStorage.getItem('accessToken')).toBe('access');
-        expect(localStorage.getItem('refreshToken')).toBe('refresh');
-        expect(service.isLoggedIn()).toBeTrue();
-      });
+    it('keeps the access token in memory only and sends credentials so the cookie is set', () => {
+      service.login({ email: 'a@a.com', password: 'pass' }).subscribe();
 
       const req = httpMock.expectOne(`${API}/login`);
       expect(req.request.method).toBe('POST');
+      expect(req.request.withCredentials).toBeTrue();
       expect(req.request.body).toEqual({ email: 'a@a.com', password: 'pass' });
-      req.flush(mockResp);
+      req.flush(authResp);
+
+      expect(service.getToken()).toBe(authResp.data.accessToken);
+      expect(service.isLoggedIn()).toBeTrue();
+      expect(service.isAdmin()).toBeTrue();
+      expect(localStorage.getItem('accessToken')).toBeNull();
+      expect(localStorage.getItem('refreshToken')).toBeNull();
+      expect(JSON.parse(localStorage.getItem('user')!).email).toBe('a@a.com');
+    });
+  });
+
+  // ── restoreSession ────────────────────────────────────────────────────────
+
+  describe('restoreSession', () => {
+    it('does not call the server for visitors without a session', async () => {
+      await service.restoreSession();
+      httpMock.expectNone(`${API}/refresh`);
+    });
+
+    it('renews the access token with the cookie when a user is stored', async () => {
+      localStorage.setItem('user', JSON.stringify(authResp.data.user));
+      service['loadUser']();
+
+      const done = service.restoreSession();
+      const req = httpMock.expectOne(`${API}/refresh`);
+      expect(req.request.withCredentials).toBeTrue();
+      expect(req.request.body).toEqual({});
+      req.flush(authResp);
+      await done;
+
+      expect(service.getToken()).toBe(authResp.data.accessToken);
+    });
+
+    it('moves a session from before the cookie: sends the stored refresh token once, then forgets it', async () => {
+      localStorage.setItem('accessToken', 'old-access');
+      localStorage.setItem('refreshToken', 'old-refresh');
+
+      const done = service.restoreSession();
+      const req = httpMock.expectOne(`${API}/refresh`);
+      expect(req.request.body).toEqual({ refreshToken: 'old-refresh' });
+      req.flush(authResp);
+      await done;
+
+      expect(localStorage.getItem('accessToken')).toBeNull();
+      expect(localStorage.getItem('refreshToken')).toBeNull();
+      expect(service.isLoggedIn()).toBeTrue();
+    });
+
+    it('ends the session when the cookie is no longer valid', async () => {
+      localStorage.setItem('user', JSON.stringify(authResp.data.user));
+      service['loadUser']();
+
+      const done = service.restoreSession();
+      httpMock.expectOne(`${API}/refresh`).flush({}, { status: 400, statusText: 'Bad Request' });
+      await done;
+
+      expect(service.isLoggedIn()).toBeFalse();
+      expect(localStorage.getItem('user')).toBeNull();
     });
   });
 
   // ── logout ────────────────────────────────────────────────────────────────
 
   describe('logout', () => {
-    it('clears localStorage and navigates to /login', () => {
-      localStorage.setItem('accessToken', 'tok');
-      localStorage.setItem('refreshToken', 'ref');
-      localStorage.setItem('user', '{}');
+    it('asks the server to drop the cookie, clears the session and navigates to /login', () => {
+      service.login({ email: 'a@a.com', password: 'pass' }).subscribe();
+      httpMock.expectOne(`${API}/login`).flush(authResp);
 
       service.logout();
 
-      expect(localStorage.getItem('accessToken')).toBeNull();
-      expect(localStorage.getItem('refreshToken')).toBeNull();
+      const req = httpMock.expectOne(`${API}/logout`);
+      expect(req.request.withCredentials).toBeTrue();
+      req.flush({ success: true });
+      expect(service.getToken()).toBeNull();
+      expect(service.isLoggedIn()).toBeFalse();
       expect(localStorage.getItem('user')).toBeNull();
       expect(router.navigate).toHaveBeenCalledWith(['/login']);
     });
@@ -117,13 +170,13 @@ describe('AuthService', () => {
   // ── getToken ──────────────────────────────────────────────────────────────
 
   describe('getToken', () => {
-    it('returns null when no token stored', () => {
+    it('returns null before logging in', () => {
       expect(service.getToken()).toBeNull();
     });
 
-    it('returns token from localStorage', () => {
+    it('never reads a token from localStorage', () => {
       localStorage.setItem('accessToken', 'my-token');
-      expect(service.getToken()).toBe('my-token');
+      expect(service.getToken()).toBeNull();
     });
   });
 });

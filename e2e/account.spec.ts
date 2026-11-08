@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers/auth';
+import { dropSession, loginAs } from './helpers/auth';
 import { API, adminToken, registerAndLogin } from './helpers/purchase';
 
 test.describe('Password reset', () => {
@@ -11,7 +11,7 @@ test.describe('Password reset', () => {
     const otherPage = await otherDevice.newPage();
     await loginAs(otherPage, email, 'OldPass123!');
 
-    await page.evaluate(() => localStorage.clear());
+    await dropSession(page);
     await page.goto('/forgot-password');
     await page.fill('[formControlName="email"]', email);
     await page.locator('button[type="submit"]').click();
@@ -41,7 +41,7 @@ test.describe('Password reset', () => {
     await otherDevice.close();
 
     // the link works only once
-    await page.evaluate(() => localStorage.clear());
+    await dropSession(page);
     await page.goto(`/reset-password?token=${token}`);
     await page.fill('[formControlName="newPassword"]', 'Another123!');
     await page.fill('[formControlName="confirmPassword"]', 'Another123!');
@@ -64,23 +64,31 @@ test.describe('Session renewal', () => {
   test('an expired access token is renewed silently with the refresh token', async ({ page, request }) => {
     await registerAndLogin(page, request);
 
-    // as if the 30 minutes had passed
-    await page.evaluate(() => localStorage.setItem('accessToken', 'expired.access.token'));
-    await page.goto('/orders');
+    // as if the 30 minutes had passed: the server rejects the access token once
+    let rejected = false;
+    await page.route('**/api/orders**', route => {
+      if (rejected) return route.continue();
+      rejected = true;
+      return route.fulfill({ status: 401, body: '' });
+    });
+    let refreshes = 0;
+    page.on('response', r => { if (r.url().includes('/api/auth/refresh') && r.ok()) refreshes++; });
 
+    // the reload renews once from the cookie, the rejected request renews again and is retried
+    const retried = page.waitForResponse(r => r.url().includes('/api/orders') && r.ok());
+    await page.goto('/orders');
+    await retried;
     await expect(page.locator('h1')).toHaveText('Mis Pedidos');
     await expect(page).toHaveURL(/\/orders/);
-    const tokens = await page.evaluate(() => ({ a: localStorage.getItem('accessToken'), r: localStorage.getItem('refreshToken') }));
-    expect(tokens.a).not.toBe('expired.access.token');
-    expect(tokens.a!.split('.')).toHaveLength(3);
+    expect(rejected).toBe(true);
+    expect(refreshes).toBeGreaterThanOrEqual(2);
   });
 
   test('when the refresh token is no longer valid the user is sent to login', async ({ page, request }) => {
     await registerAndLogin(page, request);
-    await page.evaluate(() => {
-      localStorage.setItem('accessToken', 'expired.access.token');
-      localStorage.setItem('refreshToken', 'revoked.refresh.token');
-    });
+    // a refresh token that no longer verifies (e.g. signed with a rotated secret)
+    await page.context().addCookies([{ name: 'refresh_token', value: 'revoked.refresh.token',
+      domain: 'localhost', path: '/api/auth', httpOnly: true, sameSite: 'Strict' }]);
     await page.goto('/orders');
     await expect(page).toHaveURL(/\/login/, { timeout: 15000 });
   });

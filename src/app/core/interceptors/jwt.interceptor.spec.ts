@@ -13,7 +13,7 @@ describe('jwtInterceptor', () => {
   let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
-    authService = jasmine.createSpyObj('AuthService', ['getToken', 'getRefreshToken', 'refreshToken', 'logout']);
+    authService = jasmine.createSpyObj('AuthService', ['getToken', 'isLoggedIn', 'refreshToken', 'logout']);
     router = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
@@ -34,11 +34,29 @@ describe('jwtInterceptor', () => {
   it('adds Authorization header when token exists', () => {
     authService.getToken.and.returnValue('my-jwt-token');
 
-    http.get('/api/products').subscribe();
+    http.get('/api/cart').subscribe();
 
-    const req = httpMock.expectOne('/api/products');
+    const req = httpMock.expectOne('/api/cart');
     expect(req.request.headers.get('Authorization')).toBe('Bearer my-jwt-token');
     req.flush({});
+  });
+
+  it('sends public catalog reads without the token, so they can be cached', () => {
+    authService.getToken.and.returnValue('my-jwt-token');
+
+    for (const url of ['/api/products', '/api/products/slug/cojin', '/api/categories', '/api/banner/active', '/api/store-info']) {
+      http.get(url).subscribe();
+      expect(httpMock.expectOne(url).request.headers.has('Authorization')).withContext(url).toBeFalse();
+    }
+  });
+
+  it('keeps the token on reviews and on catalog writes', () => {
+    authService.getToken.and.returnValue('my-jwt-token');
+
+    http.get('/api/products/1/reviews').subscribe();
+    expect(httpMock.expectOne('/api/products/1/reviews').request.headers.get('Authorization')).toBe('Bearer my-jwt-token');
+    http.post('/api/products', {}).subscribe();
+    expect(httpMock.expectOne('/api/products').request.headers.get('Authorization')).toBe('Bearer my-jwt-token');
   });
 
   it('does not add Authorization header when no token', () => {
@@ -86,13 +104,13 @@ describe('jwtInterceptor', () => {
     expect(authService.logout).not.toHaveBeenCalled();
   });
 
-  describe('when the access token expired (401) and there is a refresh token', () => {
+  describe('when the access token expired (401) and the user has a session', () => {
     let refresh$: Subject<any>;
 
     beforeEach(() => {
       let current = 'expired-token';
       authService.getToken.and.callFake(() => current);
-      authService.getRefreshToken.and.returnValue('refresh-token');
+      authService.isLoggedIn.and.returnValue(true);
       refresh$ = new Subject<any>();
       authService.refreshToken.and.callFake(() => refresh$.asObservable());
       // emulate AuthService.handleAuth storing the new token

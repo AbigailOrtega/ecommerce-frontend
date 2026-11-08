@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { TEST_USER } from './helpers/auth';
+import { TEST_USER, dropSession, hasSessionCookie } from './helpers/auth';
 
 // ── Register ──────────────────────────────────────────────────────────────────
 
@@ -121,8 +121,8 @@ test.describe('Register', () => {
     await page.click('button[type="submit"]');
     await page.waitForURL(url => !url.toString().includes('/register'), { timeout: 15000 });
 
-    // Log out (clear localStorage) before logging back in
-    await page.evaluate(() => localStorage.clear());
+    // Log out (drop the session) before logging back in
+    await dropSession(page);
     await page.goto('/login');
     await page.fill('[formControlName="email"]', uniqueEmail);
     await page.fill('[formControlName="password"]', password);
@@ -182,8 +182,8 @@ test.describe('Auth flows', () => {
     await page.locator('button:has-text("Logout")').click();
 
     await page.waitForURL(url => url.toString().includes('/login'));
-    const token = await page.evaluate(() => localStorage.getItem('accessToken'));
-    expect(token).toBeNull();
+    await expect.poll(() => hasSessionCookie(page)).toBe(false);
+    expect(await page.evaluate(() => localStorage.getItem('user'))).toBeNull();
   });
 
   // ── Forgot password ───────────────────────────────────────────────────────
