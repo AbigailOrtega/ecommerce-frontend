@@ -169,7 +169,8 @@ account and admin pages render in the browser only (see `src/app/app.routes.serv
 - build: `npm run build` → `dist/ecommerce-frontend/{browser,server}`
 - static files are served from `dist/ecommerce-frontend/browser`
 - `/api/*` is proxied to the backend on Render
-- every other path is rendered by the `api/ssr.mjs` function (it wraps `src/server.ts`)
+- every other path is rendered by the `api/ssr.mjs` function (it wraps `src/server.ts`), which also
+  serves `/robots.txt` and `/sitemap.xml` (built from the catalog, cached by Vercel for an hour)
 
 Environment variables:
 
@@ -177,6 +178,7 @@ Environment variables:
 |----------|---------|-------------|
 | `STRIPE_PUBLIC_KEY` | - | Stripe publishable key (written into `environment.prod.ts` at build) |
 | `API_ORIGIN` | `https://ecommerce-backend-sv5n.onrender.com` | Backend the server-side renderer calls directly |
+| `SENTRY_DSN` | - | Sentry DSN for browser errors (written into `environment.prod.ts` at build); empty = off |
 
 If the backend is asleep, a server render waits at most 4 s for its data
 (`SSR_HTTP_TIMEOUT_MS` in `src/app/core/ssr.ts`) and then the browser loads it after hydration.
