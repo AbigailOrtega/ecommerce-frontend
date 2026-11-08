@@ -27,6 +27,8 @@ export default defineConfig({
     },
     {
       command: 'npx ng serve --configuration development',
+      // sitemap.xml is built by the SSR server from the catalog API
+      env: { API_ORIGIN: 'http://localhost:8080' },
       url: 'http://localhost:4200',
       timeout: 120_000,
       reuseExistingServer: true,

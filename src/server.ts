@@ -4,8 +4,9 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
-import express from 'express';
+import express, { Request } from 'express';
 import { join } from 'node:path';
+import { fetchProductSlugs, robotsTxt, sitemapXml } from './seo-files';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -17,17 +18,32 @@ const angularApp = new AngularNodeAppEngine({
   trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-for'],
 });
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+const apiOrigin = process.env['API_ORIGIN'] ?? 'https://ecommerce-backend-sv5n.onrender.com';
+
+/** The site as the visitor sees it (Vercel's edge sets the forwarded headers). */
+function siteOrigin(req: Request): string {
+  const proto = (req.get('x-forwarded-proto') ?? req.protocol).split(',')[0].trim();
+  const host = (req.get('x-forwarded-host') ?? req.get('host') ?? 'localhost').split(',')[0].trim();
+  return `${proto}://${host}`;
+}
+
+// Kept by Vercel's CDN for an hour, so the catalog API is asked at most once an hour
+const CDN_HOUR = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400';
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').set('Cache-Control', CDN_HOUR).send(robotsTxt(siteOrigin(req)));
+});
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const products = await fetchProductSlugs(apiOrigin);
+    res.type('application/xml').set('Cache-Control', CDN_HOUR).send(sitemapXml(siteOrigin(req), products));
+  } catch (error) {
+    // no stale or partial sitemap: search engines retry a 503 later
+    console.error('sitemap.xml: could not read the catalog', error);
+    res.status(503).set('Retry-After', '600').send('Catalog unavailable, try again later');
+  }
+});
 
 /**
  * Serve static files from /browser

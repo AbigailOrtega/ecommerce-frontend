@@ -59,6 +59,26 @@ test.describe('Server-side rendering', () => {
   });
 });
 
+test.describe('robots.txt and sitemap.xml', () => {
+  test('robots.txt keeps private pages out and points to the sitemap', async ({ request }) => {
+    const res = await request.get('/robots.txt', { headers: VERCEL_HEADERS });
+    expect(res.status()).toBe(200);
+    const txt = await res.text();
+    expect(txt).toContain('Disallow: /checkout');
+    expect(txt).toMatch(/Sitemap: https?:\/\/[^\s]+\/sitemap\.xml/);
+  });
+
+  test('sitemap.xml lists the public pages and the seeded products', async ({ request }) => {
+    const res = await request.get('/sitemap.xml', { headers: VERCEL_HEADERS });
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('xml');
+    const xml = await res.text();
+    expect(xml).toContain('<urlset');
+    expect(xml).toContain('/sobre-nosotros</loc>');
+    for (const slug of ['test-t-shirt', 'test-jeans', 'test-sneakers']) expect(xml).toContain(`/products/${slug}</loc>`);
+  });
+});
+
 test.describe('Hydration', () => {
   async function collectProblems(page: Page): Promise<string[]> {
     const problems: string[] = [];

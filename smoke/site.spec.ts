@@ -46,6 +46,14 @@ test('an unknown URL answers 404', async ({ request }) => {
   expect((await request.get('/smoke-pagina-que-no-existe')).status()).toBe(404);
 });
 
+test('robots.txt and sitemap.xml are served, the sitemap with products', async ({ request }) => {
+  const { slug } = await firstProduct(request);
+  expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap: ');
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).toContain(`/products/${slug}</loc>`);
+});
+
 test('security headers are sent', async ({ request }) => {
   const headers = (await request.get('/')).headers();
   expect(headers['strict-transport-security']).toContain('max-age=');
