@@ -1,7 +1,8 @@
 name: Smoke test
 
-# Read-only checks against a deployed site: after every successful Vercel deployment (preview or
-# production), every hour against production, or by hand with any URL.
+# Read-only checks against a deployed site: after every successful production deployment on
+# Vercel, every hour, or by hand with any URL. Preview deployments are skipped: their own URLs sit
+# behind Vercel's login (Deployment Protection), so the checks would only see a redirect.
 on:
   deployment_status:
   schedule:
@@ -14,13 +15,16 @@ on:
 
 jobs:
   smoke:
-    if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Playwright's own image: browsers and their system libraries preinstalled, same version as package-lock
     container: mcr.microsoft.com/playwright:v1.58.2-noble
     env:
-      BASE_URL: ${{ github.event.deployment_status.environment_url || inputs.base_url || 'https://www.mareatextiles.com' }}
+      # the store's domain, not the deployment's own *.vercel.app URL (protected)
+      BASE_URL: ${{ inputs.base_url || 'https://www.mareatextiles.com' }}
       # optional repository secrets: an existing customer account for the sign-in check
       SMOKE_EMAIL: ${{ secrets.SMOKE_EMAIL }}
       SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
