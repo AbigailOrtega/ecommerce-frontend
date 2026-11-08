@@ -17,6 +17,8 @@ jobs:
     if: github.event_name != 'deployment_status' || github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Playwright's own image: browsers and their system libraries preinstalled, same version as package-lock
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     env:
       BASE_URL: ${{ github.event.deployment_status.environment_url || inputs.base_url || 'https://www.mareatextiles.com' }}
       # optional repository secrets: an existing customer account for the sign-in check
@@ -29,6 +31,5 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: echo "Checking $BASE_URL"
       - run: npm run test:smoke

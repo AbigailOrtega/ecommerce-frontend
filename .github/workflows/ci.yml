@@ -30,6 +30,8 @@ jobs:
     name: Playwright (with the backend)
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # Playwright's own image: browsers and their system libraries preinstalled, same version as package-lock
+    container: mcr.microsoft.com/playwright:v1.58.2-noble
     steps:
       # playwright.config.ts starts the backend from ../backend
       - uses: actions/checkout@v4
@@ -51,8 +53,6 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-        working-directory: frontend
-      - run: npx playwright install --with-deps chromium
         working-directory: frontend
       - run: npx playwright test
         working-directory: frontend
