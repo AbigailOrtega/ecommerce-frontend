@@ -9,16 +9,16 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
 import { StoreInfoService } from '@core/services/store-info.service';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
-  selector: 'app-navbar',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, MatMenuModule, MatDividerModule],
-  template: `
+    selector: 'app-navbar',
+    imports: [CloudinaryPipe, RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, MatMenuModule, MatDividerModule],
+    template: `
     <mat-toolbar color="primary" [class.toolbar-logo-only]="!showName()"  >
       <a routerLink="/" class="brand">
         @if (logoUrl()) {
-          <img [src]="logoUrl()"
+          <img [src]="logoUrl() | cloudinary: 400"
                [style.height]="showName() ? '48px' : '100px'"
                [style.width]="'auto'"
                [style.max-width]="'none'"
@@ -48,7 +48,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
 
       <!-- Cart (always visible) -->
       <a mat-icon-button routerLink="/cart">
-        <mat-icon [matBadge]="cart.itemCount()" matBadgeColor="accent"
+        <mat-icon aria-hidden="false" [matBadge]="cart.itemCount()" matBadgeColor="accent"
                   [matBadgeHidden]="cart.itemCount() === 0">shopping_cart</mat-icon>
       </a>
 
@@ -110,7 +110,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
       </mat-menu>
     </mat-toolbar>
   `,
-  styles: [`
+    styles: [`
     :host ::ng-deep mat-toolbar { min-height: 80px; }
     :host ::ng-deep mat-toolbar.toolbar-logo-only { min-height: 116px !important; height: 116px !important; }
     .brand {
@@ -141,7 +141,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
       .brand-logo { height: 40px; }
       .brand-logo-wide { height: 52px !important; }
     }
-  `],
+  `]
 })
 export class NavbarComponent implements OnInit {
   readonly storeName = signal('ShopHub');

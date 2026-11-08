@@ -1,0 +1,496 @@
+<div class="container">
+  <div class="header">
+    <h1>Gestión de Pedidos</h1>
+    <a mat-button routerLink="/admin">&larr; Panel</a>
+  </div>
+
+
+  @if (isMobile) {
+    <div class="mobile-filter-bar">
+      <button mat-stroked-button (click)="showMobileFilters = !showMobileFilters" class="mobile-filter-toggle">
+        <mat-icon>{{ showMobileFilters ? 'expand_less' : 'filter_list' }}</mat-icon>
+        Filtros
+        @if (hasActiveFilters()) { <span class="active-dot"></span> }
+      </button>
+      @if (hasActiveFilters()) {
+        <button mat-button class="clear-mob-btn" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon> Limpiar
+        </button>
+      }
+    </div>
+    @if (showMobileFilters) {
+      <div class="mobile-filters-panel">
+        <div class="mf-row">
+          <label class="mf-label">Buscar</label>
+          <div class="fi-wrap">
+            <input class="fi" [(ngModel)]="filterSearch" (ngModelChange)="onSearchChange()" placeholder="# pedido, nombre, email…">
+            @if (filterSearch) {
+              <button mat-icon-button class="fi-clear" (click)="filterSearch=''; applyFilters()"><mat-icon>close</mat-icon></button>
+            }
+          </div>
+        </div>
+        <div class="mf-row">
+          <label class="mf-label">Estado</label>
+          <select class="fi" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+        </div>
+        <div class="mf-row">
+          <label class="mf-label">Tipo de envío</label>
+          <select class="fi" [(ngModel)]="filterShippingType" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            <option value="NATIONAL">Nacional</option>
+            <option value="PICKUP">Recolección</option>
+          </select>
+        </div>
+        <div class="mf-row">
+          <label class="mf-label">Pago</label>
+          <select class="fi" [(ngModel)]="filterPayment" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            <option value="stripe">Stripe</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </div>
+        <div class="mf-row">
+          <label class="mf-label">Desde</label>
+          <input class="fi" type="date" [(ngModel)]="filterDateFrom" (ngModelChange)="applyFilters()">
+        </div>
+        <div class="mf-row">
+          <label class="mf-label">Hasta</label>
+          <input class="fi" type="date" [(ngModel)]="filterDateTo" (ngModelChange)="applyFilters()">
+        </div>
+      </div>
+    }
+  }
+
+  @if (loading) {
+    <app-loading />
+  } @else {
+    <div class="table-wrap">
+    <table mat-table [dataSource]="orders" [multiTemplateDataRows]="true" class="order-table">
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let o">
+          <button mat-icon-button (click)="toggleExpand(o); $event.stopPropagation()">
+            <mat-icon>{{ expandedOrderId === o.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="orderNumber">
+        <th mat-header-cell *matHeaderCellDef>Pedido #</th>
+        <td mat-cell *matCellDef="let o">{{ o.orderNumber }}</td>
+      </ng-container>
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef>Cliente</th>
+        <td mat-cell *matCellDef="let o">{{ o.user?.firstName }} {{ o.user?.lastName }}</td>
+      </ng-container>
+      <ng-container matColumnDef="shippingType">
+        <th mat-header-cell *matHeaderCellDef>Envío</th>
+        <td mat-cell *matCellDef="let o">
+          @if (o.shippingType === 'NATIONAL') {
+            <span class="shipping-chip chip-national">
+              <mat-icon>local_shipping</mat-icon> Nacional
+            </span>
+          } @else if (o.shippingType === 'PICKUP') {
+            <span class="shipping-chip chip-pickup">
+              <mat-icon>store</mat-icon> Recolección
+            </span>
+          } @else {
+            <span class="shipping-chip chip-unknown">—</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let o">
+          {{ o.totalAmount | currency }}
+          @if (o.discountAmount > 0) {
+            <span class="discount-badge" [title]="'Coupon: ' + o.couponCode">
+              -{{ o.discountAmount | currency }}
+            </span>
+          }
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let o">
+          <mat-select [value]="o.status" (selectionChange)="updateStatus(o.id, $event.value)" class="status-select">
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="payment">
+        <th mat-header-cell *matHeaderCellDef>Pago</th>
+        <td mat-cell *matCellDef="let o">{{ o.paymentMethod }}</td>
+      </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef>Fecha</th>
+        <td mat-cell *matCellDef="let o">{{ o.createdAt | date:'short' }}</td>
+      </ng-container>
+
+      <!-- Expandable detail row -->
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let o" [attr.colspan]="visibleColumns.length">
+          @if (expandedOrderId === o.id) {
+            <div class="items-panel">
+              <div class="panel-header">
+                <button mat-icon-button (click)="toggleExpand(o); $event.stopPropagation()" title="Cerrar">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              <div class="panel-content">
+              @for (item of o.items; track item.id) {
+                <div class="item-row">
+                  <span class="item-name">{{ item.productName }}</span>
+                  @if (item.selectedColorName || item.selectedSizeName) {
+                    <span class="item-variant">
+                      @if (item.selectedColorName) { Color: {{ item.selectedColorName }} }
+                      @if (item.selectedColorName && item.selectedSizeName) { &middot; }
+                      @if (item.selectedSizeName) { Talla: {{ item.selectedSizeName }} }
+                    </span>
+                  }
+                  <span class="item-qty">× {{ item.quantity }}</span>
+                  <span class="item-subtotal">{{ item.subtotal | currency }}</span>
+                </div>
+              }
+              <div class="totals-summary">
+                <div class="totals-row">
+                  <span>Subtotal</span>
+                  <span>{{ itemsSubtotal(o) | currency }}</span>
+                </div>
+                @if (o.discountAmount > 0) {
+                  <div class="totals-row discount">
+                    <span>Descuento <span class="coupon-code">{{ o.couponCode }}</span></span>
+                    <span>-{{ o.discountAmount | currency }}</span>
+                  </div>
+                }
+                @if (o.shippingCost > 0) {
+                  <div class="totals-row">
+                    <span>Envío ({{ o.shippingMethodName }})</span>
+                    <span>{{ o.shippingCost | currency }}</span>
+                  </div>
+                }
+                <div class="totals-row total-final">
+                  <span>Total pagado</span>
+                  <span>{{ o.totalAmount | currency }}</span>
+                </div>
+              </div>
+
+              <!-- Customer info -->
+              <div class="detail-block">
+                <span class="block-title">Cliente</span>
+                <div class="detail-row">
+                  <mat-icon>person</mat-icon>
+                  <span>
+                    @if (o.user) { {{ o.user.firstName }} {{ o.user.lastName }} }
+                    @else { {{ o.guestFirstName }} {{ o.guestLastName }} <em class="guest-tag">invitado</em> }
+                  </span>
+                </div>
+                <div class="detail-row">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ o.user?.email ?? o.guestEmail }}</span>
+                </div>
+                @if (o.guestPhone) {
+                  <div class="detail-row">
+                    <mat-icon>phone</mat-icon>
+                    <span>{{ o.guestPhone }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Shipping / pickup info -->
+              <div class="detail-block">
+                @if (o.shippingType === 'PICKUP') {
+                  <span class="block-title">
+                    Punto de retiro
+                    @if (o.pickupCancelled) {
+                      <span class="cancelled-badge">RECOLECCIÓN CANCELADA</span>
+                    }
+                  </span>
+                  <div class="detail-row">
+                    <mat-icon>store</mat-icon>
+                    <span>{{ o.pickupLocationName }}</span>
+                  </div>
+                  @if (o.pickupDate) {
+                    <div class="detail-row">
+                      <mat-icon>event</mat-icon>
+                      <span>{{ o.pickupDate | date:'dd/MM/yyyy':'UTC' }}</span>
+                    </div>
+                  }
+                  @if (o.pickupTimeSlotLabel && !o.pickupCancelled) {
+                    <div class="detail-row">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{ o.pickupTimeSlotLabel }}</span>
+                    </div>
+                  }
+                  @if (!o.pickupCancelled && o.status !== 'CANCELLED' && o.status !== 'DELIVERED' && o.status !== 'REFUNDED') {
+                    <button mat-stroked-button color="warn" class="cancel-pickup-btn"
+                            (click)="cancelPickup(o); $event.stopPropagation()"
+                            [disabled]="cancellingPickupSet.has(o.id)">
+                      <mat-icon>event_busy</mat-icon>
+                      {{ cancellingPickupSet.has(o.id) ? 'Cancelando...' : 'Cancelar recolección' }}
+                    </button>
+                  }
+                } @else {
+                  <span class="block-title">Dirección de envío</span>
+                  <div class="detail-row">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{ o.shippingAddress }}, {{ o.shippingCity }}, {{ o.shippingState }} {{ o.shippingZipCode }}, {{ o.shippingCountry }}</span>
+                  </div>
+                }
+              </div>
+
+              <!-- ── Skydropx Panel (only for NATIONAL orders) ── -->
+              @if (o.shippingType === 'NATIONAL') {
+                <mat-divider style="margin: 12px 0;"></mat-divider>
+                <div class="skydropx-panel">
+                  <span class="panel-title">
+                    <mat-icon class="panel-icon">local_shipping</mat-icon> Guía Skydropx
+                  </span>
+
+                  @if (o.skydropxShipmentId) {
+                    <!-- Existing shipment -->
+                    <div class="shipment-info">
+                      @if (o.status === 'SHIPMENT_PENDING') {
+                        <div class="shipment-pending-alert">
+                          <mat-icon style="color:#e65100;vertical-align:middle;">warning</mat-icon>
+                          <span>Skydropx no devolvió el label ni el tracking en 60s. Reintenta para obtenerlos.</span>
+                        </div>
+                      }
+                      <div class="shipment-row">
+                        <span class="info-label">Carrier:</span>
+                        <span>{{ o.carrierName }}</span>
+                      </div>
+                      <div class="shipment-row">
+                        <span class="info-label">Tracking:</span>
+                        <span class="tracking-number">{{ o.trackingNumber || '—' }}</span>
+                      </div>
+                      <div class="shipment-row">
+                        <span class="info-label">Estado Skydropx:</span>
+                        <span class="status-chip">{{ shipmentStatusLabel(o.shipmentStatus) }}</span>
+                      </div>
+                      @if (o.status !== 'SHIPMENT_PENDING') {
+                        <button mat-raised-button color="primary"
+                                (click)="downloadLabel(o)"
+                                [disabled]="downloadingSet.has(o.id)">
+                          @if (downloadingSet.has(o.id)) {
+                            <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                          } @else {
+                            <mat-icon>download</mat-icon>
+                          }
+                          {{ downloadingSet.has(o.id) ? 'Descargando...' : 'Descargar guía' }}
+                        </button>
+                      }
+                      @if (carrierErrorOrders.has(o.id)) {
+                        <div class="carrier-error-banner">
+                          <mat-icon>error</mat-icon>
+                          La paquetería rechazó esta guía de forma permanente. Cancela y elige otra.
+                        </div>
+                        <button mat-raised-button color="primary"
+                                (click)="cancelAndRequote(o)"
+                                [disabled]="cancellingSet.has(o.id)">
+                          @if (cancellingSet.has(o.id)) {
+                            <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                          } @else {
+                            <mat-icon>swap_horiz</mat-icon>
+                          }
+                          {{ cancellingSet.has(o.id) ? 'Cancelando...' : 'Cambiar paquetería' }}
+                        </button>
+                      } @else if (o.status === 'SHIPMENT_PENDING') {
+                        <button mat-raised-button color="warn" (click)="refreshShipment(o)"
+                                [disabled]="refreshingSet.has(o.id)">
+                          @if (refreshingSet.has(o.id)) {
+                            <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                          } @else {
+                            <mat-icon>refresh</mat-icon>
+                          }
+                          {{ refreshingSet.has(o.id) ? 'Consultando...' : 'Reintentar guía' }}
+                        </button>
+                      }
+                      @if (!carrierErrorOrders.has(o.id)) {
+                        <button mat-stroked-button color="warn" (click)="cancelShipment(o)"
+                                [disabled]="cancellingSet.has(o.id)">
+                          <mat-icon>cancel</mat-icon>
+                          {{ cancellingSet.has(o.id) ? 'Cancelando...' : 'Cancelar guía' }}
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <!-- No shipment yet -->
+                    @if (o.skydropxRateId && !quotations[o.id]) {
+                      <!-- Customer already selected a rate at checkout -->
+                      <p class="rate-preselected">
+                        <mat-icon>check_circle</mat-icon>
+                        Tarifa elegida por el cliente: <strong>{{ o.shippingMethodName }}</strong>
+                      </p>
+                      <div class="rates-actions">
+                        <button mat-stroked-button (click)="getQuotation(o)" [disabled]="quotingSet.has(o.id)">
+                          <mat-icon>search</mat-icon> Cambiar tarifa
+                        </button>
+                        <button mat-raised-button color="primary"
+                                [disabled]="creatingSet.has(o.id)"
+                                (click)="createShipmentDirect(o)">
+                          @if (creatingSet.has(o.id)) {
+                            <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                          } @else {
+                            <mat-icon>receipt_long</mat-icon>
+                          }
+                          Generar guía
+                        </button>
+                      </div>
+                    } @else if (!quotations[o.id]) {
+                      <button mat-stroked-button color="primary" (click)="getQuotation(o)"
+                              [disabled]="quotingSet.has(o.id)">
+                        @if (quotingSet.has(o.id)) {
+                          <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                        } @else {
+                          <mat-icon>search</mat-icon>
+                        }
+                        Cotizar con Skydropx
+                      </button>
+                    } @else {
+                      <!-- Rate selection after manual quote -->
+                      @if (carrierErrorOrders.has(o.id)) {
+                        <div class="carrier-error-banner">
+                          <mat-icon>warning</mat-icon>
+                          El carrier anterior no pudo generar la guía. Selecciona otra tarifa.
+                        </div>
+                      }
+                      <!-- the group owns the checked state, so clicking the circle or the card selects the same rate -->
+                      <mat-radio-group class="rates-list" color="primary"
+                                       [value]="selectedRates[o.id]"
+                                       (change)="selectedRates[o.id] = $event.value">
+                        @for (rate of quotations[o.id]!.rates; track rate.id) {
+                          <div class="rate-item" [class.rate-selected]="selectedRates[o.id] === rate.id"
+                               (click)="selectedRates[o.id] = rate.id">
+                            <mat-radio-button [value]="rate.id" (click)="$event.stopPropagation()">
+                            </mat-radio-button>
+                            <div class="rate-info">
+                              <span class="rate-carrier">{{ rate.carrier }}</span>
+                              <span class="rate-service">{{ rate.service }}</span>
+                            </div>
+                            <div class="rate-meta">
+                              <span class="rate-price">{{ rate.price | currency }}</span>
+                              @if (rate.estimatedDays) {
+                                <span class="rate-days">{{ rate.estimatedDays }} día(s)</span>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </mat-radio-group>
+                      <div class="rates-actions">
+                        <button mat-button (click)="quotations[o.id] = null; selectedRates[o.id] = null">
+                          <mat-icon>refresh</mat-icon> Nueva cotización
+                        </button>
+                        <button mat-raised-button color="primary"
+                                [disabled]="!selectedRates[o.id] || creatingSet.has(o.id)"
+                                (click)="createShipment(o)">
+                          @if (creatingSet.has(o.id)) {
+                            <mat-spinner diameter="18" style="display:inline-block;margin-right:6px;"></mat-spinner>
+                          } @else {
+                            <mat-icon>receipt_long</mat-icon>
+                          }
+                          Generar guía
+                        </button>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+
+              </div><!-- /panel-content -->
+            </div><!-- /items-panel -->
+          }
+        </td>
+      </ng-container>
+
+      <!-- ── Filter row column defs ── -->
+      <ng-container matColumnDef="f-expand">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          @if (hasActiveFilters()) {
+            <button mat-icon-button class="clear-filters-btn" (click)="clearFilters()" title="Limpiar filtros">
+              <mat-icon>filter_alt_off</mat-icon>
+            </button>
+          }
+        </th>
+      </ng-container>
+      <ng-container matColumnDef="f-orderNumber">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          <div class="fi-wrap">
+            <input class="fi" [(ngModel)]="filterSearch" (ngModelChange)="onSearchChange()"
+                   placeholder="# pedido / cliente…">
+            @if (filterSearch) {
+              <button mat-icon-button class="fi-clear" (click)="filterSearch=''; applyFilters()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        </th>
+      </ng-container>
+      <ng-container matColumnDef="f-customer">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
+      </ng-container>
+      <ng-container matColumnDef="f-shippingType">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          <select class="fi" [(ngModel)]="filterShippingType" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            <option value="NATIONAL">Nacional</option>
+            <option value="PICKUP">Recolección</option>
+          </select>
+        </th>
+      </ng-container>
+      <ng-container matColumnDef="f-total">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
+      </ng-container>
+      <ng-container matColumnDef="f-status">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          <select class="fi" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </th>
+      </ng-container>
+      <ng-container matColumnDef="f-payment">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          <select class="fi" [(ngModel)]="filterPayment" (ngModelChange)="applyFilters()">
+            <option value="">Todos</option>
+            <option value="stripe">Stripe</option>
+            <option value="paypal">PayPal</option>
+          </select>
+        </th>
+      </ng-container>
+      <ng-container matColumnDef="f-date">
+        <th mat-header-cell *matHeaderCellDef class="filter-cell">
+          <div class="date-fi">
+            <input class="fi" type="date" [(ngModel)]="filterDateFrom" (ngModelChange)="applyFilters()" title="Desde">
+            <input class="fi" type="date" [(ngModel)]="filterDateTo" (ngModelChange)="applyFilters()" title="Hasta">
+          </div>
+        </th>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+      <tr mat-header-row *matHeaderRowDef="visibleFilterColumns" class="filter-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: visibleColumns;" class="main-row"
+          (click)="toggleExpand(row)"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail'];" class="detail-row"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" [attr.colspan]="visibleColumns.length">
+          Sin pedidos con los filtros aplicados.
+        </td>
+      </tr>
+
+    </table>
+    </div><!-- /table-wrap -->
+    @if (orders.length > 0) {
+      <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
+    }
+  }
+</div>

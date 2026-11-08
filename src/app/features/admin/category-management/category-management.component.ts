@@ -13,11 +13,10 @@ import { Category } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-category-management',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, RouterLink, MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule, LoadingComponent],
-  template: `
+    selector: 'app-category-management',
+    imports: [FormsModule, ReactiveFormsModule, RouterLink, MatTableModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule, LoadingComponent],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Gestión de Categorías</h1>
@@ -146,7 +145,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .form-card { padding: 24px; margin: 16px 0; }
     .full-width { width: 100%; }
@@ -178,7 +177,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       .row mat-form-field { width: 100%; }
       .form-card { padding: 14px; }
     }
-  `],
+  `]
 })
 export class CategoryManagementComponent implements OnInit {
   categories: Category[] = [];

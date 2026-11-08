@@ -1,0 +1,194 @@
+<div class="container">
+  <div class="header">
+    <h1>Gestión de Productos</h1>
+    <a mat-button routerLink="/admin">&larr; Panel</a>
+  </div>
+
+  <button mat-raised-button color="primary" (click)="showForm = !showForm; resetForm()">
+    <mat-icon>add</mat-icon> {{ showForm ? 'Cancelar' : 'Agregar Producto' }}
+  </button>
+
+  @if (showForm) {
+    <mat-card class="form-card">
+      <h2>{{ editingId ? 'Editar' : 'Nuevo' }} Producto</h2>
+      <form [formGroup]="form" (ngSubmit)="saveProduct()">
+
+        <div class="row">
+          <mat-form-field appearance="outline"><mat-label>Nombre</mat-label><input matInput formControlName="name"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>SKU</mat-label><input matInput formControlName="sku"></mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+
+        <div class="row">
+          <mat-form-field appearance="outline"><mat-label>Precio</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Precio comparativo</mat-label><input matInput formControlName="compareAtPrice" type="number"></mat-form-field>
+          @if (colorEntries.length === 0) {
+            <mat-form-field appearance="outline"><mat-label>Stock</mat-label><input matInput formControlName="stockQuantity" type="number"></mat-form-field>
+          }
+        </div>
+
+        <!-- Product images (only when no colors) -->
+        @if (colorEntries.length === 0) {
+          <div class="colors-section">
+            <label class="section-label">Imágenes del producto</label>
+            <div class="images-grid">
+              @for (img of productImages; track img; let ii = $index) {
+                <div class="image-slot filled">
+                  <img [src]="img" class="slot-img" [alt]="'Imagen ' + (ii + 1)">
+                  @if (ii === 0) { <span class="main-badge">Principal</span> }
+                  <button type="button" mat-icon-button class="slot-delete" (click)="removeProductImage(ii)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+              @if (productImages.length < maxColorImages) {
+                <div class="image-slot empty" (click)="triggerProductImageUpload()">
+                  @if (productImagesUploading) { <mat-spinner diameter="28"></mat-spinner> }
+                  @else { <mat-icon>add_photo_alternate</mat-icon><span>Agregar foto</span> }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Colors Section -->
+        <div class="colors-section">
+          <div class="section-header">
+            <label class="section-label">Colores e imágenes (opcional)</label>
+            <button type="button" mat-stroked-button (click)="addColor()">
+              <mat-icon>add</mat-icon> Agregar color
+            </button>
+          </div>
+
+          @for (ce of colorEntries; track ce; let ci = $index) {
+            <div class="color-card">
+              <div class="color-card-header">
+                <input class="color-name-input" [(ngModel)]="ce.name" [ngModelOptions]="{standalone: true}"
+                  placeholder="Nombre del color (ej. Rojo, Azul...)">
+                <button type="button" mat-icon-button color="warn" (click)="removeColor(ci)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <!-- Per-color images -->
+              <div class="images-grid">
+                @for (img of ce.images; track img; let ii = $index) {
+                  <div class="image-slot filled">
+                    <img [src]="img" class="slot-img" [alt]="'Image ' + (ii + 1)">
+                    @if (ii === 0) { <span class="main-badge">Principal</span> }
+                    <button type="button" mat-icon-button class="slot-delete" (click)="removeColorImage(ci, ii)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+                @if (ce.images.length < maxColorImages) {
+                  <div class="image-slot empty" (click)="triggerColorImageUpload(ci)">
+                    @if (ce.uploading) { <mat-spinner diameter="28"></mat-spinner> }
+                    @else { <mat-icon>add_photo_alternate</mat-icon><span>Agregar foto</span> }
+                  </div>
+                }
+              </div>
+
+              <!-- Per-color sizes -->
+              <div class="sizes-section">
+                <span class="sizes-label">Tallas</span>
+                <div class="sizes-list">
+                  @for (se of ce.sizes; track se; let si = $index) {
+                    <div class="size-row">
+                      <input class="size-name-input" [(ngModel)]="se.name" [ngModelOptions]="{standalone: true}" placeholder="Talla">
+                      <input class="size-stock-input" [(ngModel)]="se.stock" [ngModelOptions]="{standalone: true}" type="number" min="0" placeholder="Stock">
+                      <button type="button" mat-icon-button (click)="removeSize(ci, si)"><mat-icon>close</mat-icon></button>
+                    </div>
+                  }
+                  <div class="add-size-row">
+                    <input class="size-name-input" [(ngModel)]="ce.newSizeName" [ngModelOptions]="{standalone: true}"
+                      placeholder="Agregar talla... " (keydown.enter)="$event.preventDefault(); addSize(ci)">
+                    <button type="button" mat-stroked-button (click)="addSize(ci)">Agregar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Hidden file inputs -->
+        <input #colorFileInput   type="file" accept="image/*" hidden (change)="onColorFileSelected($event)">
+        <input #productFileInput type="file" accept="image/*" hidden (change)="onProductFileSelected($event)">
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Categorías</mat-label>
+          <mat-select formControlName="categoryIds" multiple>
+            @for (cat of categories; track cat.id) {
+              <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="toggles">
+          <mat-slide-toggle formControlName="featured">Destacado</mat-slide-toggle>
+          <mat-slide-toggle formControlName="active">Activo</mat-slide-toggle>
+        </div>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || isAnyUploading()">
+          {{ editingId ? 'Actualizar' : 'Crear' }}
+        </button>
+      </form>
+    </mat-card>
+  }
+
+  @if (loading) {
+    <app-loading />
+  } @else {
+    <div class="table-wrap">
+      <table mat-table [dataSource]="products" class="product-table">
+        <ng-container matColumnDef="image">
+          <th mat-header-cell *matHeaderCellDef>Imagen</th>
+          <td mat-cell *matCellDef="let p">
+            @if (p.imageUrl) { <img [src]="p.imageUrl | cloudinary: 120" loading="lazy" class="table-thumb" [alt]="p.name"> }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let p">{{ p.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef>Precio</th>
+          <td mat-cell *matCellDef="let p">{{ p.price | currency }}</td>
+        </ng-container>
+        <ng-container matColumnDef="stock">
+          <th mat-header-cell *matHeaderCellDef>Stock</th>
+          <td mat-cell *matCellDef="let p">
+            @if (p.colors && p.colors.length > 0) {
+              <div class="stock-cell">
+                <span [class.no-stock]="totalColorStock(p) === 0">{{ totalColorStock(p) }}</span>
+                @for (v of outOfStockVariants(p); track v) {
+                  <span class="out-of-stock-badge">{{ v }}</span>
+                }
+              </div>
+            } @else {
+              <span [class.no-stock]="p.stockQuantity === 0">{{ p.stockQuantity }}</span>
+            }
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Activo</th>
+          <td mat-cell *matCellDef="let p">{{ p.active ? 'Sí' : 'No' }}</td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let p">
+            <button mat-icon-button (click)="editProduct(p)"><mat-icon>edit</mat-icon></button>
+            <button mat-icon-button color="warn" (click)="deleteProduct(p.id)"><mat-icon>delete</mat-icon></button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: visibleColumns;"></tr>
+      </table>
+    </div>
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
+  }
+</div>

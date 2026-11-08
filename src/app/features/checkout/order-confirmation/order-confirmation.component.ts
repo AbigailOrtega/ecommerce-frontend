@@ -6,10 +6,9 @@ import { MatCardModule } from '@angular/material/card';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-order-confirmation',
-  standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, CurrencyPipe],
-  template: `
+    selector: 'app-order-confirmation',
+    imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, CurrencyPipe],
+    template: `
     <div class="container confirmation-container">
       <mat-card class="confirmation-card">
         <mat-icon class="success-icon">check_circle</mat-icon>
@@ -36,7 +35,7 @@ import { CurrencyPipe } from '@angular/common';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .confirmation-container { max-width: 560px; margin: 48px auto; padding: 16px; }
     .confirmation-card { text-align: center; padding: 48px 32px; }
     .success-icon { font-size: 72px; width: 72px; height: 72px; color: #2e7d32; margin-bottom: 16px; }
@@ -46,7 +45,7 @@ import { CurrencyPipe } from '@angular/common';
     .total-notice { color: #333; font-size: 1.05rem; margin: 8px 0; }
     .hint { color: #888; font-size: 0.9rem; margin: 16px 0 32px; }
     .actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-  `],
+  `]
 })
 export class OrderConfirmationComponent implements OnInit {
   orderNumber: string | null = null;
@@ -56,7 +55,7 @@ export class OrderConfirmationComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    const state = this.router.getCurrentNavigation()?.extras?.state
+    const state = this.router.currentNavigation()?.extras?.state
       ?? history.state;
     if (state) {
       this.orderNumber = state['orderNumber'] ?? null;

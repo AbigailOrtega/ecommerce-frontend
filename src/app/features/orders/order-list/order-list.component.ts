@@ -13,10 +13,9 @@ import { Order } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-order-list',
-  standalone: true,
-  imports: [RouterLink, MatTableModule, MatButtonModule, MatChipsModule, MatCardModule, MatIconModule, CurrencyPipe, DatePipe, LoadingComponent],
-  template: `
+    selector: 'app-order-list',
+    imports: [RouterLink, MatTableModule, MatButtonModule, MatChipsModule, MatCardModule, MatIconModule, CurrencyPipe, DatePipe, LoadingComponent],
+    template: `
     <div class="container">
       <h1>Mis Pedidos</h1>
 
@@ -69,7 +68,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .empty { text-align: center; padding: 48px; }
     .empty-icon { font-size: 64px; width: 64px; height: 64px; color: #ccc; }
     .order-card { margin-bottom: 16px; padding: 20px; }
@@ -90,7 +89,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .status-delivered { background: #e8f5e9 !important; color: #2e7d32 !important; }
     .status-cancelled { background: #ffebee !important; color: #c62828 !important; }
     .status-refunded { background: #fce4ec !important; color: #ad1457 !important; }
-  `],
+  `]
 })
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];

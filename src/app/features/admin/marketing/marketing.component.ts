@@ -10,11 +10,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdminService } from '@core/services/admin.service';
 
 @Component({
-  selector: 'app-marketing',
-  standalone: true,
-  imports: [RouterLink, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatIconModule, MatProgressSpinnerModule, MatSnackBarModule],
-  template: `
+    selector: 'app-marketing',
+    imports: [RouterLink, FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule,
+        MatIconModule, MatProgressSpinnerModule, MatSnackBarModule],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Email Marketing</h1>
@@ -82,7 +81,7 @@ import { AdminService } from '@core/services/admin.service';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .subscribers-badge { display: inline-flex; align-items: center; gap: 8px; background: #e3f2fd;
       color: #1565c0; border-radius: 20px; padding: 8px 16px; margin: 12px 0 24px; font-size: 0.95rem; }
@@ -105,7 +104,7 @@ import { AdminService } from '@core/services/admin.service';
       border-radius: 8px; background: #e8f5e9; color: #2e7d32; font-size: 0.9rem; }
     .result-banner mat-icon { font-size: 20px; width: 20px; height: 20px; }
     .result-banner.result-error { background: #fce4ec; color: #c62828; }
-  `],
+  `]
 })
 export class MarketingComponent implements OnInit {
   subscriberCount = 0;

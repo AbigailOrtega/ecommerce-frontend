@@ -18,8 +18,9 @@ export default defineConfig({
       // From the backend's test classes only, never in the production jar: FakePaymentService
       // stands in for Stripe and PayPal ("fake-payments") and E2eSupportController exposes what
       // a user would receive by email ("e2e-support").
-      command: 'mvn test-compile spring-boot:run -f ../backend/pom.xml -Dspring-boot.run.profiles=e2e,fake-payments,e2e-support '
-        + `-Dspring-boot.run.directories=${BACKEND_TEST_CLASSES}`,
+      // the Maven wrapper pins the Maven version Spring Boot needs, whatever is installed
+      command: 'cd ../backend && ./mvnw -q test-compile spring-boot:run -Dspring-boot.run.profiles=e2e,fake-payments,e2e-support '
+        + `-Dspring-boot.run.additional-classpath-elements=${BACKEND_TEST_CLASSES}`,
       url: 'http://localhost:8080/api/products',
       timeout: 120_000,
       reuseExistingServer: true,

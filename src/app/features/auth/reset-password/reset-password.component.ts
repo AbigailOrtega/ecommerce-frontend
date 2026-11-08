@@ -17,10 +17,9 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
 }
 
 @Component({
-  selector: 'app-reset-password',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSnackBarModule],
-  template: `
+    selector: 'app-reset-password',
+    imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatSnackBarModule],
+    template: `
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
@@ -69,7 +68,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .auth-container {
       display: flex;
       justify-content: center;
@@ -86,7 +85,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
     mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
     .error-message { color: #c62828; font-size: 0.95rem; }
-  `],
+  `]
 })
 export class ResetPasswordComponent implements OnInit {
   form: FormGroup;

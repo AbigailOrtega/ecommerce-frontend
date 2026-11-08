@@ -16,12 +16,11 @@ import { AdminService } from '@core/services/admin.service';
 import { Ticket, TicketUpdateRequest } from '@shared/models';
 
 @Component({
-  selector: 'app-ticket-management',
-  standalone: true,
-  imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule,
-    MatSnackBarModule, MatTooltipModule, DatePipe],
-  template: `
+    selector: 'app-ticket-management',
+    imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+        MatFormFieldModule, MatInputModule, MatSelectModule, MatChipsModule,
+        MatSnackBarModule, MatTooltipModule, DatePipe],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Tickets de Soporte</h1>
@@ -128,7 +127,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .detail-card { padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--theme-primary); }
     .detail-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -146,7 +145,7 @@ import { Ticket, TicketUpdateRequest } from '@shared/models';
     .status-in_progress { background: #e3f2fd !important; color: #1565c0 !important; }
     .status-resolved { background: #e8f5e9 !important; color: #2e7d32 !important; }
     .status-closed { background: #f5f5f5 !important; color: #757575 !important; }
-  `],
+  `]
 })
 export class TicketManagementComponent implements OnInit {
   tickets: Ticket[] = [];

@@ -7,10 +7,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-unsubscribe',
-  standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
-  template: `
+    selector: 'app-unsubscribe',
+    imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+    template: `
     <div class="unsub-container">
       @if (loading) {
         <mat-spinner diameter="48"></mat-spinner>
@@ -29,7 +28,7 @@ import { environment } from '../../../environments/environment';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .unsub-container {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 60vh; padding: 40px 24px; text-align: center; gap: 16px;
@@ -40,7 +39,7 @@ import { environment } from '../../../environments/environment';
     p { font-size: 1rem; color: #555; max-width: 420px; margin: 0; }
     .sub-text { font-size: 0.88rem; color: #888; }
     .status-text { color: #888; }
-  `],
+  `]
 })
 export class UnsubscribeComponent implements OnInit {
   loading = true;

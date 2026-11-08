@@ -16,15 +16,14 @@ import { Promotion, PromotionRequest, Product } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-promotion-management',
-  standalone: true,
-  imports: [
-    FormsModule, ReactiveFormsModule, RouterLink,
-    MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatCardModule, MatSnackBarModule, CurrencyPipe, DatePipe, LoadingComponent,
-  ],
-  template: `
+    selector: 'app-promotion-management',
+    imports: [
+        FormsModule, ReactiveFormsModule, RouterLink,
+        MatTableModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatSelectModule,
+        MatCardModule, MatSnackBarModule, CurrencyPipe, DatePipe, LoadingComponent,
+    ],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Gestión de Promociones</h1>
@@ -128,7 +127,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .form-card { padding: 24px; margin: 16px 0; }
     .row { display: flex; gap: 16px; }
@@ -145,7 +144,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       .row mat-form-field { width: 100%; }
       .form-card { padding: 14px; }
     }
-  `],
+  `]
 })
 export class PromotionManagementComponent implements OnInit {
   promotions: Promotion[] = [];

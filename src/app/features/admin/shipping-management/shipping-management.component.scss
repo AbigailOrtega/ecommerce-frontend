@@ -1,0 +1,64 @@
+.container { }
+.header { display: flex; justify-content: space-between; align-items: center; }
+.config-card { padding: 24px; margin-bottom: 24px; }
+.full-width { width: 100%; }
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.row mat-form-field { flex: 1; min-width: 180px; }
+.toggle-row { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 8px; }
+.sub-title { font-size: 0.95rem; font-weight: 600; color: #444; margin: 8px 0 12px; }
+.api-key-row { display: flex; align-items: flex-start; gap: 12px; }
+.api-key-row mat-form-field { flex: 1; }
+.api-badge { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 600; padding: 6px 10px; border-radius: 16px; background: #ffebee; color: #c62828; white-space: nowrap; margin-top: 10px; }
+.api-badge.configured { background: #e8f5e9; color: #2e7d32; }
+.api-badge mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.form-actions { display: flex; gap: 12px; margin-top: 12px; }
+.hint { color: #888; font-size: 0.9rem; margin: 8px 0 16px; }
+.empty { color: #666; margin-top: 16px; }
+.locations-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.inline-form { padding: 16px; margin-bottom: 16px; border: 1px solid #e3f2fd; }
+.location-item { padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--theme-primary); }
+.location-item.inactive { border-left-color: #bbb; opacity: 0.75; }
+.location-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.location-info { display: flex; flex-direction: column; gap: 2px; }
+.location-info strong { font-size: 1rem; }
+.location-meta { font-size: 0.85rem; color: #666; }
+.slot-count { font-size: 0.8rem; color: var(--theme-primary); }
+.location-actions { display: flex; align-items: center; gap: 4px; }
+.slots-section { margin-top: 12px; }
+.slots-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.slot-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 6px; background: #f8f8f8; font-size: 0.9rem; }
+.slot-item.slot-inactive { opacity: 0.6; }
+.slot-actions { display: flex; align-items: center; gap: 2px; }
+.add-slot-row { display: flex; align-items: center; gap: 8px; }
+.slot-input { flex: 1; }
+.add-slot-btn { font-size: 0.85rem; }
+.section-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.section-header-row .sub-title { margin: 0; }
+.sub-label { font-size: 0.82rem; font-weight: 600; color: #555; margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+/* Availability */
+.avail-section { margin-top: 8px; }
+.avail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.avail-title { font-size: 0.875rem; color: #555; }
+.avail-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: #f1f8e9; margin-bottom: 4px; font-size: 0.875rem; }
+.avail-item.avail-inactive { opacity: 0.55; background: #f5f5f5; }
+.avail-icon { font-size: 18px; width: 18px; height: 18px; color: #558b2f; flex-shrink: 0; }
+.avail-label { flex: 1; }
+.avail-actions { display: flex; align-items: center; gap: 4px; }
+.add-avail-form { margin-top: 10px; padding: 12px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; }
+.type-toggle { margin-bottom: 12px; }
+.avail-field { min-width: 200px; }
+.avail-time-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.avail-time-field { min-width: 130px; }
+.avail-cap-field { min-width: 110px; }
+.avail-form-actions { display: flex; gap: 8px; margin-top: 8px; }
+/* Exceptions */
+.exc-section { margin-top: 6px; padding-left: 4px; }
+.exc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.exc-title { font-size: 0.8rem; color: #888; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+.exc-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 6px; background: #fce4ec; margin-bottom: 4px; font-size: 0.85rem; }
+.exc-icon { font-size: 16px; width: 16px; height: 16px; color: #c62828; flex-shrink: 0; }
+.exc-label { flex: 1; color: #555; }
+.exc-empty { font-size: 0.8rem; color: #bbb; margin: 4px 0 6px; }
+.add-exc-form { margin-top: 8px; padding: 12px; background: #fff3f3; border-radius: 8px; border: 1px solid #ffcdd2; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+.exc-date-field { min-width: 180px; }
+.exc-reason-field { flex: 1; min-width: 180px; }

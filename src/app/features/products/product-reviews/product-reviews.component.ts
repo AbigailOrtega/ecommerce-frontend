@@ -13,15 +13,14 @@ import { AuthService } from '@core/services/auth.service';
 import { Review, ReviewSummary } from '@shared/models';
 
 @Component({
-  selector: 'app-product-reviews',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule, DatePipe,
-    MatCardModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatDividerModule,
-    MatSnackBarModule,
-  ],
-  template: `
+    selector: 'app-product-reviews',
+    imports: [
+        ReactiveFormsModule, DatePipe,
+        MatCardModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatDividerModule,
+        MatSnackBarModule,
+    ],
+    template: `
     <div class="reviews-section">
       <h2 class="section-title">Reseñas de clientes</h2>
 
@@ -135,7 +134,7 @@ import { Review, ReviewSummary } from '@shared/models';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .reviews-section { padding: 32px 0; }
     .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 24px; }
     .summary-card { display: flex; gap: 40px; align-items: flex-start; margin-bottom: 32px; background: #f9f9f9; padding: 24px; border-radius: 8px; flex-wrap: wrap; }
@@ -175,7 +174,7 @@ import { Review, ReviewSummary } from '@shared/models';
     .review-title { font-weight: 600; margin: 0 0 4px; }
     .review-comment { color: #555; margin: 0 0 8px; line-height: 1.5; }
     .load-more { text-align: center; margin-top: 24px; }
-  `],
+  `]
 })
 export class ProductReviewsComponent implements OnInit {
   @Input() productId!: number;

@@ -7,10 +7,9 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  imports: [MatCardModule, MatIconModule, MatListModule, MatButtonModule, RouterLink],
-  template: `
+    selector: 'app-profile',
+    imports: [MatCardModule, MatIconModule, MatListModule, MatButtonModule, RouterLink],
+    template: `
     <div class="container profile-container">
       <h1>Mi Perfil</h1>
 
@@ -58,7 +57,7 @@ import { AuthService } from '@core/services/auth.service';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .profile-container { max-width: 600px; }
     mat-card { padding: 24px; }
     .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
@@ -66,7 +65,7 @@ import { AuthService } from '@core/services/auth.service';
     .profile-header h2 { margin: 0; }
     .profile-header p { color: #666; margin: 4px 0 0; }
     .profile-actions { display: flex; gap: 12px; margin-top: 24px; }
-  `],
+  `]
 })
 export class ProfileComponent {
   constructor(public auth: AuthService) {}

@@ -1,0 +1,113 @@
+<div class="container">
+  <div class="header">
+    <h1>Reportes</h1>
+    <a mat-button routerLink="/admin">&larr; Panel</a>
+  </div>
+
+  <!-- ── Type selector ───────────────────────────────────── -->
+  <mat-card class="selector-card">
+    <div class="type-row">
+      <button mat-stroked-button [class.active-type]="reportType === 'sales'"
+              (click)="selectType('sales')">
+        <mat-icon>show_chart</mat-icon> Ventas
+      </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'top'"
+              (click)="selectType('top')">
+        <mat-icon>emoji_events</mat-icon> Más vendidos
+      </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'least'"
+              (click)="selectType('least')">
+        <mat-icon>trending_down</mat-icon> Menos vendidos
+      </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'inventory'"
+              (click)="selectType('inventory')">
+        <mat-icon>inventory_2</mat-icon> Inventario
+      </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'outofstock'"
+              (click)="selectType('outofstock')">
+        <mat-icon>warning</mat-icon> Sin stock
+      </button>
+    </div>
+
+    @if (reportType === 'sales') {
+      <div class="period-row">
+        <span class="period-label">Período:</span>
+        <button mat-stroked-button [class.active-period]="period === 'week'"
+                (click)="setPeriod('week')">Semana</button>
+        <button mat-stroked-button [class.active-period]="period === 'month'"
+                (click)="setPeriod('month')">Mes</button>
+        <button mat-stroked-button [class.active-period]="period === 'year'"
+                (click)="setPeriod('year')">Año</button>
+      </div>
+    }
+  </mat-card>
+
+  <!-- ── Loading ─────────────────────────────────────────── -->
+  @if (loading) {
+    <app-loading />
+  }
+
+  <!-- ── Summary KPIs ────────────────────────────────────── -->
+  @if (!loading && hasData) {
+    <div class="kpi-row">
+      @for (kpi of kpis; track kpi.label) {
+        <mat-card class="kpi-card">
+          <mat-icon>{{ kpi.icon }}</mat-icon>
+          <div>
+            <p class="kpi-value">{{ kpi.value }}</p>
+            <p class="kpi-label">{{ kpi.label }}</p>
+          </div>
+        </mat-card>
+      }
+    </div>
+
+    <!-- ── Chart ──────────────────────────────────────────── -->
+    <mat-card class="chart-card">
+      <canvas #chart></canvas>
+    </mat-card>
+
+    <!-- ── Download row ────────────────────────────────────── -->
+    <div class="download-row">
+      <button mat-raised-button color="primary" (click)="downloadPDF()">
+        <mat-icon>picture_as_pdf</mat-icon> PDF
+      </button>
+      <button mat-raised-button color="accent" (click)="downloadExcel()">
+        <mat-icon>table_chart</mat-icon> Excel
+      </button>
+      <button mat-raised-button (click)="downloadImage()">
+        <mat-icon>image</mat-icon> Imagen
+      </button>
+    </div>
+
+    <!-- ── Data table ──────────────────────────────────────── -->
+    <mat-card class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              @for (h of tableHeaders; track h) {
+                <th>{{ h }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of tableRows; track $index) {
+              <tr>
+                @for (cell of row; track $index) {
+                  <td>{{ cell }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+  }
+
+  @if (!loading && !hasData && dataLoaded) {
+    <div class="empty-state">
+      <mat-icon>bar_chart</mat-icon>
+      <p>No hay datos disponibles para este reporte.</p>
+    </div>
+  }
+</div>

@@ -1,0 +1,105 @@
+/* Carousel */
+.carousel-root {
+  position: relative; width: 100%; overflow: hidden;
+  background: #000; line-height: 0; margin-bottom: 24px;
+}
+.carousel-track {
+  display: flex; transition: transform 0.5s ease; will-change: transform;
+}
+.carousel-slide { flex: 0 0 100%; width: 100%; }
+.carousel-img { width: 100%; height: 380px; object-fit: cover; display: block; }
+@media (max-width: 767px) { .carousel-img { height: 200px; } }
+.carousel-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,0.45); color: white; border: none;
+  font-size: 2.5rem; line-height: 1; padding: 4px 14px;
+  cursor: pointer; z-index: 10; border-radius: 4px;
+  transition: background 0.2s;
+}
+.carousel-arrow:hover { background: rgba(0,0,0,0.7); }
+.carousel-arrow.left { left: 12px; }
+.carousel-arrow.right { right: 12px; }
+.carousel-dots {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 10;
+}
+.dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,0.5); cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.dot.active { background: white; transform: scale(1.2); }
+
+.filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.search-field { flex: 1; min-width: 250px; }
+
+.category-nav {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 24px; padding: 4px 0;
+}
+.cat-chip {
+  padding: 7px 18px;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 999px;
+  background: white;
+  color: #444;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.cat-chip:hover:not(.active) {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+  background: rgba(0,0,0,0.06);
+}
+.cat-chip.active {
+  background: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.product-card { cursor: pointer; transition: transform 0.2s; }
+.product-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.product-image { width: 100%; height: 200px; object-fit: cover; object-position: center; display: block; }
+.product-name h3 { margin: 8px 0 4px; font-size: 1.1rem; color: #333; }
+.category-tag { color: #666; font-size: 0.85rem; margin: 0 0 8px; }
+.price-row { display: flex; align-items: center; gap: 8px; }
+.price { font-size: 1.25rem; font-weight: 700; color: var(--theme-primary); }
+.price.discounted { color: #e53935; }
+.compare-price { font-size: 0.95rem; color: #999; text-decoration: line-through; }
+.promo-badge { background: #ff5722; color: white; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+.no-results { text-align: center; padding: 48px; color: #666; font-size: 1.1rem; grid-column: 1 / -1; }
+mat-card-actions { padding: 8px 16px 16px; }
+
+/* Popup */
+.popup-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.popup-panel {
+  background: white; border-radius: 12px; padding: 24px;
+  min-width: 320px; max-width: 480px; width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.popup-header h3 { margin: 0; font-size: 1.1rem; }
+.popup-product-name { font-weight: 600; font-size: 1rem; margin: 0 0 2px; color: #333; }
+.popup-price { color: var(--theme-primary); font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
+.discounted-popup { color: #e53935; }
+.original-popup { font-size: 0.9rem; color: #999; text-decoration: line-through; margin-left: 4px; }
+.popup-group { margin-bottom: 16px; }
+.popup-label { margin: 0 0 8px; font-size: 0.9rem; color: #555; }
+.popup-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt-btn {
+  padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px;
+  background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
+}
+.opt-btn:hover:not(.oos) { border-color: var(--theme-primary); color: var(--theme-primary); }
+.opt-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: white; }
+.opt-btn.oos { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
+.popup-stock { font-size: 0.85rem; color: #2e7d32; margin: -8px 0 8px; }
+.popup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }

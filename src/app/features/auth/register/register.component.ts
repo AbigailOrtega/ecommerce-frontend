@@ -11,11 +11,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatCheckboxModule, MatSnackBarModule],
-  template: `
+    selector: 'app-register',
+    imports: [ReactiveFormsModule, RouterLink, MatCardModule, MatFormFieldModule, MatInputModule,
+        MatButtonModule, MatIconModule, MatCheckboxModule, MatSnackBarModule],
+    template: `
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
@@ -71,7 +70,7 @@ import { AuthService } from '@core/services/auth.service';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .auth-container {
       display: flex;
       justify-content: center;
@@ -86,7 +85,7 @@ import { AuthService } from '@core/services/auth.service';
     mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
     .marketing-check { display: block; margin-bottom: 16px; font-size: 0.9rem; color: #555; }
     .submit-btn { margin-top: 4px; }
-  `],
+  `]
 })
 export class RegisterComponent {
   form: FormGroup;

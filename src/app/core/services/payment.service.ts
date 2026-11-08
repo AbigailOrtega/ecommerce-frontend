@@ -5,6 +5,20 @@ import { environment } from '@env/environment';
 import { ApiResponse } from '@shared/models';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 
+/** The part of PayPal's JS SDK (window.paypal) the checkout uses. */
+export interface PayPalButtonsOptions {
+  createOrder: () => Promise<string>;
+  onApprove: (data: { orderID: string }) => void;
+  onError: (err: unknown) => void;
+}
+export interface PayPalSdk {
+  Buttons(options: PayPalButtonsOptions): { render(container: HTMLElement): Promise<void> };
+}
+
+export function paypalSdk(): PayPalSdk | undefined {
+  return (window as Window & { paypal?: PayPalSdk }).paypal;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly apiUrl = `${environment.apiUrl}/payments`;
@@ -49,7 +63,7 @@ export class PaymentService {
 
   loadPayPalSdk(clientId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if ((window as any).paypal) {
+      if (paypalSdk()) {
         resolve();
         return;
       }

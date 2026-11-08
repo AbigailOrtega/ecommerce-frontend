@@ -1,0 +1,41 @@
+.container { margin: 0 auto; padding: 24px 16px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.header h1 { margin: 0; }
+
+/* Selector */
+.selector-card { padding: 16px 20px; margin-bottom: 20px; }
+.type-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.type-row button { display: flex; align-items: center; gap: 6px; }
+.type-row mat-icon { font-size: 18px; width: 18px; height: 18px; }
+.period-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
+.period-label { font-size: 0.9rem; color: #666; }
+.active-type { background: var(--theme-primary) !important; color: white !important; }
+.active-period { background: #1565c0 !important; color: white !important; }
+
+/* KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.kpi-card { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+.kpi-card mat-icon { font-size: 32px; width: 32px; height: 32px; color: var(--theme-primary); }
+.kpi-value { margin: 0; font-size: 1.3rem; font-weight: 700; color: #212121; }
+.kpi-label { margin: 2px 0 0; font-size: 0.8rem; color: #777; }
+
+/* Chart */
+.chart-card { padding: 16px; margin-bottom: 16px; overflow: hidden; }
+canvas { display: block; width: 100%; }
+
+/* Downloads */
+.download-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+
+/* Table */
+.table-card { padding: 0; overflow: hidden; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th { background: #1565c0; color: white; padding: 10px 14px; text-align: left; white-space: nowrap; }
+td { padding: 8px 14px; border-bottom: 1px solid #f0f0f0; }
+tr:nth-child(even) td { background: #fafafa; }
+tr:hover td { background: #f5f5f5; }
+
+/* Empty */
+.empty-state { text-align: center; padding: 60px 16px; color: #aaa; }
+.empty-state mat-icon { font-size: 56px; width: 56px; height: 56px; margin-bottom: 12px; }
+.empty-state p { font-size: 1rem; margin: 0; }

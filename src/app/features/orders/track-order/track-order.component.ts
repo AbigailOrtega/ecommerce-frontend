@@ -13,15 +13,14 @@ import { Order } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-track-order',
-  standalone: true,
-  imports: [
-    FormsModule,
-    MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatIconModule, MatChipsModule, MatDividerModule,
-    CurrencyPipe, DatePipe, TitleCasePipe, LoadingComponent,
-  ],
-  template: `
+    selector: 'app-track-order',
+    imports: [
+        FormsModule,
+        MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule,
+        MatIconModule, MatChipsModule, MatDividerModule,
+        CurrencyPipe, DatePipe, TitleCasePipe, LoadingComponent,
+    ],
+    template: `
     <div class="track-container">
       <mat-card class="search-card">
         <mat-icon class="search-icon">search</mat-icon>
@@ -159,7 +158,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .track-container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
     .search-card { padding: 32px; text-align: center; margin-bottom: 32px; }
     .search-icon { font-size: 48px; width: 48px; height: 48px; color: var(--theme-primary); margin-bottom: 8px; }
@@ -193,7 +192,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .status-delivered { background: #e8f5e9 !important; color: #2e7d32 !important; }
     .status-cancelled { background: #ffebee !important; color: #c62828 !important; }
     @media (max-width: 768px) { .order-grid { grid-template-columns: 1fr; } }
-  `],
+  `]
 })
 export class TrackOrderComponent {
   orderNumber = '';

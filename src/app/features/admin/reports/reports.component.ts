@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RouterLink } from '@angular/router';
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,178 +8,23 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from '@core/services/admin.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
-import { InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
+import { ApiResponse, InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
+
+type ReportData = SalesReport | ProductSalesItem[] | InventoryItem[];
 
 type ReportType = 'sales' | 'top' | 'least' | 'inventory' | 'outofstock';
 type SalesPeriod = 'week' | 'month' | 'year';
 
 @Component({
-  selector: 'app-reports',
-  standalone: true,
-  imports: [
-    RouterLink, CurrencyPipe, DatePipe, DecimalPipe,
-    MatCardModule, MatButtonModule, MatIconModule,
-    MatProgressSpinnerModule, MatTooltipModule,
-    LoadingComponent,
-  ],
-  template: `
-    <div class="container">
-      <div class="header">
-        <h1>Reportes</h1>
-        <a mat-button routerLink="/admin">&larr; Panel</a>
-      </div>
-
-      <!-- ── Type selector ───────────────────────────────────── -->
-      <mat-card class="selector-card">
-        <div class="type-row">
-          <button mat-stroked-button [class.active-type]="reportType === 'sales'"
-                  (click)="selectType('sales')">
-            <mat-icon>show_chart</mat-icon> Ventas
-          </button>
-          <button mat-stroked-button [class.active-type]="reportType === 'top'"
-                  (click)="selectType('top')">
-            <mat-icon>emoji_events</mat-icon> Más vendidos
-          </button>
-          <button mat-stroked-button [class.active-type]="reportType === 'least'"
-                  (click)="selectType('least')">
-            <mat-icon>trending_down</mat-icon> Menos vendidos
-          </button>
-          <button mat-stroked-button [class.active-type]="reportType === 'inventory'"
-                  (click)="selectType('inventory')">
-            <mat-icon>inventory_2</mat-icon> Inventario
-          </button>
-          <button mat-stroked-button [class.active-type]="reportType === 'outofstock'"
-                  (click)="selectType('outofstock')">
-            <mat-icon>warning</mat-icon> Sin stock
-          </button>
-        </div>
-
-        @if (reportType === 'sales') {
-          <div class="period-row">
-            <span class="period-label">Período:</span>
-            <button mat-stroked-button [class.active-period]="period === 'week'"
-                    (click)="setPeriod('week')">Semana</button>
-            <button mat-stroked-button [class.active-period]="period === 'month'"
-                    (click)="setPeriod('month')">Mes</button>
-            <button mat-stroked-button [class.active-period]="period === 'year'"
-                    (click)="setPeriod('year')">Año</button>
-          </div>
-        }
-      </mat-card>
-
-      <!-- ── Loading ─────────────────────────────────────────── -->
-      @if (loading) {
-        <app-loading />
-      }
-
-      <!-- ── Summary KPIs ────────────────────────────────────── -->
-      @if (!loading && hasData) {
-        <div class="kpi-row">
-          @for (kpi of kpis; track kpi.label) {
-            <mat-card class="kpi-card">
-              <mat-icon>{{ kpi.icon }}</mat-icon>
-              <div>
-                <p class="kpi-value">{{ kpi.value }}</p>
-                <p class="kpi-label">{{ kpi.label }}</p>
-              </div>
-            </mat-card>
-          }
-        </div>
-
-        <!-- ── Chart ──────────────────────────────────────────── -->
-        <mat-card class="chart-card">
-          <canvas #chart></canvas>
-        </mat-card>
-
-        <!-- ── Download row ────────────────────────────────────── -->
-        <div class="download-row">
-          <button mat-raised-button color="primary" (click)="downloadPDF()">
-            <mat-icon>picture_as_pdf</mat-icon> PDF
-          </button>
-          <button mat-raised-button color="accent" (click)="downloadExcel()">
-            <mat-icon>table_chart</mat-icon> Excel
-          </button>
-          <button mat-raised-button (click)="downloadImage()">
-            <mat-icon>image</mat-icon> Imagen
-          </button>
-        </div>
-
-        <!-- ── Data table ──────────────────────────────────────── -->
-        <mat-card class="table-card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  @for (h of tableHeaders; track h) {
-                    <th>{{ h }}</th>
-                  }
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of tableRows; track $index) {
-                  <tr>
-                    @for (cell of row; track $index) {
-                      <td>{{ cell }}</td>
-                    }
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </mat-card>
-      }
-
-      @if (!loading && !hasData && dataLoaded) {
-        <div class="empty-state">
-          <mat-icon>bar_chart</mat-icon>
-          <p>No hay datos disponibles para este reporte.</p>
-        </div>
-      }
-    </div>
-  `,
-  styles: [`
-    .container { margin: 0 auto; padding: 24px 16px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .header h1 { margin: 0; }
-
-    /* Selector */
-    .selector-card { padding: 16px 20px; margin-bottom: 20px; }
-    .type-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .type-row button { display: flex; align-items: center; gap: 6px; }
-    .type-row mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    .period-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
-    .period-label { font-size: 0.9rem; color: #666; }
-    .active-type { background: var(--theme-primary) !important; color: white !important; }
-    .active-period { background: #1565c0 !important; color: white !important; }
-
-    /* KPIs */
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
-    .kpi-card { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
-    .kpi-card mat-icon { font-size: 32px; width: 32px; height: 32px; color: var(--theme-primary); }
-    .kpi-value { margin: 0; font-size: 1.3rem; font-weight: 700; color: #212121; }
-    .kpi-label { margin: 2px 0 0; font-size: 0.8rem; color: #777; }
-
-    /* Chart */
-    .chart-card { padding: 16px; margin-bottom: 16px; overflow: hidden; }
-    canvas { display: block; width: 100%; }
-
-    /* Downloads */
-    .download-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-
-    /* Table */
-    .table-card { padding: 0; overflow: hidden; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    th { background: #1565c0; color: white; padding: 10px 14px; text-align: left; white-space: nowrap; }
-    td { padding: 8px 14px; border-bottom: 1px solid #f0f0f0; }
-    tr:nth-child(even) td { background: #fafafa; }
-    tr:hover td { background: #f5f5f5; }
-
-    /* Empty */
-    .empty-state { text-align: center; padding: 60px 16px; color: #aaa; }
-    .empty-state mat-icon { font-size: 56px; width: 56px; height: 56px; margin-bottom: 12px; }
-    .empty-state p { font-size: 1rem; margin: 0; }
-  `],
+    selector: 'app-reports',
+    imports: [
+        RouterLink,
+        MatCardModule, MatButtonModule, MatIconModule,
+        MatProgressSpinnerModule, MatTooltipModule,
+        LoadingComponent,
+    ],
+    templateUrl: './reports.component.html',
+    styleUrl: './reports.component.scss'
 })
 export class ReportsComponent implements OnInit {
   @ViewChild('chart') chartRef!: ElementRef<HTMLCanvasElement>;
@@ -220,14 +64,14 @@ export class ReportsComponent implements OnInit {
     this.hasData = false;
     this.dataLoaded = false;
 
-    const obs: Observable<any> = this.reportType === 'sales'   ? this.adminService.getSalesReport(this.period)
+    const obs: Observable<ApiResponse<ReportData>> = this.reportType === 'sales'   ? this.adminService.getSalesReport(this.period)
               : this.reportType === 'top'     ? this.adminService.getTopSellingProducts()
               : this.reportType === 'least'   ? this.adminService.getLeastSellingProducts()
               : this.reportType === 'inventory' ? this.adminService.getInventoryReport()
               : this.adminService.getOutOfStockProducts();
 
     obs.subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.loading = false;
         this.dataLoaded = true;
         this.processData(res.data);
@@ -237,7 +81,7 @@ export class ReportsComponent implements OnInit {
     });
   }
 
-  private processData(data: any): void {
+  private processData(data: ReportData): void {
     if (this.reportType === 'sales') {
       this.salesReport = data as SalesReport;
       const points = this.salesReport.data;

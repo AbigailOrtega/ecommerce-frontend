@@ -3,10 +3,9 @@ import { StoreInfoService } from '@core/services/store-info.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-privacy',
-  standalone: true,
-  imports: [LoadingComponent],
-  template: `
+    selector: 'app-privacy',
+    imports: [LoadingComponent],
+    template: `
     <div class="container privacy-page">
       <h1>Aviso de Privacidad</h1>
       @if (loading) {
@@ -18,7 +17,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .privacy-page { padding: 32px 16px 64px; max-width: 800px; }
     h1 { font-size: 1.8rem; color: #1a1a2e; margin-bottom: 28px; }
     .privacy-body {
@@ -28,7 +27,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       border-radius: 10px; padding: 28px 32px;
     }
     .empty-msg { color: #888; }
-  `],
+  `]
 })
 export class PrivacyComponent implements OnInit {
   text: string | null = null;

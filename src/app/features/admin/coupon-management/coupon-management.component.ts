@@ -15,11 +15,10 @@ import { AdminService } from '@core/services/admin.service';
 import { Coupon, CouponRequest } from '@shared/models';
 
 @Component({
-  selector: 'app-coupon-management',
-  standalone: true,
-  imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatSlideToggleModule, MatSnackBarModule, MatTooltipModule, DatePipe],
-  template: `
+    selector: 'app-coupon-management',
+    imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+        MatFormFieldModule, MatInputModule, MatSlideToggleModule, MatSnackBarModule, MatTooltipModule, DatePipe],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Gestión de Cupones</h1>
@@ -110,7 +109,7 @@ import { Coupon, CouponRequest } from '@shared/models';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .form-card { padding: 24px; margin-bottom: 24px; }
     .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -119,7 +118,7 @@ import { Coupon, CouponRequest } from '@shared/models';
     .full-width { width: 100%; }
     .empty { text-align: center; padding: 24px; color: #888; }
     @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
-  `],
+  `]
 })
 export class CouponManagementComponent implements OnInit {
   coupons: Coupon[] = [];

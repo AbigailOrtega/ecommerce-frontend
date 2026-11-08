@@ -2,10 +2,9 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-footer',
-  standalone: true,
-  imports: [RouterLink],
-  template: `
+    selector: 'app-footer',
+    imports: [RouterLink],
+    template: `
     <footer>
       <div class="container footer-inner">
         <p>&copy; 2025 ShopHub. Todos los derechos reservados.</p>
@@ -13,7 +12,7 @@ import { RouterLink } from '@angular/router';
       </div>
     </footer>
   `,
-  styles: [`
+    styles: [`
     footer {
       background: #333;
       color: #aaa;
@@ -34,6 +33,6 @@ import { RouterLink } from '@angular/router';
       transition: color 0.15s;
     }
     a:hover { color: #fff; }
-  `],
+  `]
 })
 export class FooterComponent {}

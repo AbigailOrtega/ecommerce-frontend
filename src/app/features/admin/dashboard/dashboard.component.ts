@@ -10,10 +10,9 @@ import { DashboardStats } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatTableModule, CurrencyPipe, DatePipe, KeyValuePipe, LoadingComponent],
-  template: `
+    selector: 'app-dashboard',
+    imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatTableModule, CurrencyPipe, DatePipe, KeyValuePipe, LoadingComponent],
+    template: `
     <div class="container">
       <h1>Panel de Administración</h1>
 
@@ -113,7 +112,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .admin-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .admin-nav a { flex: 0 1 auto; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -143,7 +142,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       .recent-orders h2, .status-breakdown h2 { font-size: 1rem; margin: 0 0 10px; }
       .table-scroll table td, .table-scroll table th { font-size: 0.78rem; padding: 6px 8px !important; white-space: nowrap; }
     }
-  `],
+  `]
 })
 export class DashboardComponent implements OnInit {
   stats: DashboardStats | null = null;

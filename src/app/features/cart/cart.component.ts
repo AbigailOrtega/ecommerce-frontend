@@ -12,13 +12,13 @@ import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
 import { ShippingService } from '@core/services/shipping.service';
 import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
-  selector: 'app-cart',
-  standalone: true,
-  imports: [FormsModule, RouterLink, MatButtonModule, MatIconModule, MatCardModule,
-    MatFormFieldModule, MatInputModule, MatSnackBarModule, CurrencyPipe],
-  template: `
+    selector: 'app-cart',
+    imports: [CloudinaryPipe, FormsModule, RouterLink, MatButtonModule, MatIconModule, MatCardModule,
+        MatFormFieldModule, MatInputModule, MatSnackBarModule, CurrencyPipe],
+    template: `
     <div class="container">
       <h1>Mi Carrito</h1>
 
@@ -51,7 +51,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
               @for (item of cart.items(); track item.id) {
                 <mat-card class="cart-item">
                   <div class="item-content">
-                    <img [src]="item.product.imageUrl || 'https://placehold.co/80'" [alt]="item.product.name">
+                    <img [src]="(item.product.imageUrl | cloudinary: 160) || 'https://placehold.co/80'" loading="lazy" decoding="async" [alt]="item.product.name">
                     <div class="item-info">
                       <a [routerLink]="['/products', item.product.slug]" class="item-name">{{ item.product.name }}</a>
                       @if (item.selectedColorName || item.selectedSizeName) {
@@ -91,7 +91,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
               @for (item of cart.localItems(); track item.tempId) {
                 <mat-card class="cart-item">
                   <div class="item-content">
-                    <img [src]="item.imageUrl || 'https://placehold.co/80'" [alt]="item.productName">
+                    <img [src]="(item.imageUrl | cloudinary: 160) || 'https://placehold.co/80'" loading="lazy" decoding="async" [alt]="item.productName">
                     <div class="item-info">
                       <span class="item-name">{{ item.productName }}</span>
                       @if (item.selectedColorName || item.selectedSizeName) {
@@ -181,7 +181,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .empty-cart { text-align: center; padding: 48px; }
     .empty-icon { font-size: 64px; width: 64px; height: 64px; color: #ccc; }
     .cart-layout { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
@@ -235,7 +235,7 @@ import { CartItem, LocalCartItem, ShippingConfig } from '@shared/models';
       .coupon-row { flex-wrap: wrap; }
       .coupon-field { min-width: 0; }
     }
-  `],
+  `]
 })
 export class CartComponent implements OnInit {
   couponCode = '';

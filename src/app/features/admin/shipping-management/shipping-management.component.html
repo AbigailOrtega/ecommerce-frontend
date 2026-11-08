@@ -1,0 +1,335 @@
+<div class="container">
+  <div class="header">
+    <h1>Configuración de Entregas</h1>
+    <a mat-button routerLink="/admin">&larr; Panel</a>
+  </div>
+
+  <!-- ── Configuración ── -->
+  <mat-card class="config-card">
+    <h2>Configuración de Envío por paquetería</h2>
+    @if (configLoading) {
+      <p class="hint">Cargando configuración...</p>
+    } @else if (configForm) {
+      <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
+
+        <!-- ── 1. Paquetería ── -->
+        <div class="section-header-row">
+          <h3 class="sub-title">Envío por paquetería</h3>
+          <mat-slide-toggle formControlName="nationalEnabled" color="primary">Habilitado</mat-slide-toggle>
+        </div>
+
+        @if (configForm.get('nationalEnabled')?.value) {
+          <p class="sub-label">Dirección de origen para guías</p>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Calle y número</mat-label>
+            <input matInput formControlName="skydropxOriginStreet" placeholder="Ej. Reforma 222 Int. 5">
+          </mat-form-field>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>Código Postal</mat-label>
+              <input matInput formControlName="skydropxOriginPostalCode">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Ciudad</mat-label>
+              <input matInput formControlName="skydropxOriginCity">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <input matInput formControlName="skydropxOriginState">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>País (ISO)</mat-label>
+              <input matInput formControlName="skydropxOriginCountry" placeholder="MX">
+            </mat-form-field>
+          </div>
+
+          <p class="sub-label">Datos del remitente</p>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="skydropxSenderName">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="skydropxSenderEmail">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Teléfono</mat-label>
+              <input matInput formControlName="skydropxSenderPhone">
+            </mat-form-field>
+          </div>
+
+          <p class="sub-label">Dimensiones de paquete por defecto</p>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>Peso (kg)</mat-label>
+              <input matInput type="number" min="0.1" step="0.1" formControlName="skydropxDefaultWeight">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Largo (cm)</mat-label>
+              <input matInput type="number" min="1" formControlName="skydropxDefaultLength">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Ancho (cm)</mat-label>
+              <input matInput type="number" min="1" formControlName="skydropxDefaultWidth">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Alto (cm)</mat-label>
+              <input matInput type="number" min="1" formControlName="skydropxDefaultHeight">
+            </mat-form-field>
+          </div>
+        }
+
+        <!-- ── 2. Envío gratis por monto mínimo ── -->
+        <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+        <div class="section-header-row">
+          <h3 class="sub-title">Envío gratis por monto mínimo</h3>
+          <mat-slide-toggle formControlName="freeShippingEnabled" color="primary">Habilitado</mat-slide-toggle>
+        </div>
+        @if (configForm.get('freeShippingEnabled')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Monto mínimo para envío gratis ($)</mat-label>
+            <input matInput type="number" min="0" step="0.01" formControlName="freeShippingMinAmount">
+            <mat-hint>El cliente obtiene envío gratis al superar este monto en su compra</mat-hint>
+          </mat-form-field>
+        }
+
+        <!-- ── 3. Pick Up ── -->
+        <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+        <div class="section-header-row">
+          <h3 class="sub-title">Pick Up</h3>
+          <mat-slide-toggle formControlName="pickupEnabled" color="primary">Habilitado</mat-slide-toggle>
+        </div>
+
+        @if (configForm.get('pickupEnabled')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Costo de Pick Up ($)</mat-label>
+            <input matInput type="number" min="0" step="0.01" formControlName="pickupCost">
+          </mat-form-field>
+        }
+
+      </form>
+
+      <!-- ── Puntos de Pick Up (misma card) ── -->
+      @if (configForm.get('pickupEnabled')?.value) {
+        <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+        <div class="locations-header">
+          <h3 class="sub-title" style="margin:0;">Puntos de Pick Up</h3>
+          <button mat-raised-button color="primary" (click)="openLocationForm()">
+            <mat-icon>add</mat-icon> Agregar Punto
+          </button>
+        </div>
+
+      @if (showLocationForm) {
+        <mat-card class="inline-form">
+          <h3>{{ editingLocation ? 'Editar' : 'Nuevo' }} Punto de Pick Up</h3>
+          <form [formGroup]="locationForm" (ngSubmit)="saveLocation()">
+            <div class="row">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="name" placeholder="Ej. Sucursal Centro">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Ciudad</mat-label>
+                <input matInput formControlName="city">
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Dirección</mat-label>
+              <input matInput formControlName="address">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <input matInput formControlName="state">
+            </mat-form-field>
+            <div class="form-actions">
+              <button mat-button type="button" (click)="cancelLocationForm()">Cancelar</button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="locationForm.invalid || savingLocation">
+                {{ savingLocation ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        </mat-card>
+      }
+
+      @if (locationsLoading) {
+        <p class="hint">Cargando puntos...</p>
+      } @else if (locations.length === 0) {
+        <p class="empty">No hay puntos de retiro aún.</p>
+      } @else {
+        @for (loc of locations; track loc.id) {
+          <mat-card class="location-item" [class.inactive]="!loc.active">
+            <div class="location-header">
+              <div class="location-info">
+                <strong>{{ loc.name }}</strong>
+                <span class="location-meta">{{ loc.address }} · {{ loc.city }}, {{ loc.state }}</span>
+                <span class="slot-count">{{ (loc.availabilities || []).length }} regla(s) de disponibilidad</span>
+              </div>
+              <div class="location-actions">
+                <mat-slide-toggle [checked]="loc.active" (change)="toggleLocation(loc)" color="primary"
+                                  [matTooltip]="loc.active ? 'Desactivar' : 'Activar'"></mat-slide-toggle>
+                <button mat-icon-button color="primary" (click)="openLocationForm(loc)" matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteLocation(loc)" matTooltip="Eliminar">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- ── Disponibilidad ── -->
+            <mat-divider style="margin: 12px 0;"></mat-divider>
+            <div class="avail-section">
+              <div class="avail-header">
+                <strong class="avail-title">Disponibilidad (calendario)</strong>
+                <button mat-stroked-button color="primary" (click)="startAddAvailability(loc)"
+                        [disabled]="addingAvailForLocationId === loc.id">
+                  <mat-icon>add</mat-icon> Agregar regla
+                </button>
+              </div>
+
+              <!-- List existing rules with inline exceptions -->
+              @for (rule of (loc.availabilities || []); track rule.id) {
+                <div class="avail-item" [class.avail-inactive]="!rule.active">
+                  <mat-icon class="avail-icon">{{ rule.type === 'RECURRING' ? 'repeat' : 'event' }}</mat-icon>
+                  <span class="avail-label">{{ availabilityLabel(rule) }}</span>
+                  <div class="avail-actions">
+                    <mat-slide-toggle [checked]="rule.active"
+                                      (change)="toggleAvailability(loc, rule)"
+                                      color="primary"
+                                      [matTooltip]="rule.active ? 'Desactivar' : 'Activar'">
+                    </mat-slide-toggle>
+                    <button mat-icon-button color="warn" (click)="deleteAvailability(loc, rule)" matTooltip="Eliminar">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Excepciones inline under each rule -->
+                <div class="exc-section">
+                  <div class="exc-header">
+                    <span class="exc-title">Excepciones</span>
+                    <button mat-button color="warn" style="font-size:0.78rem;"
+                            (click)="startAddException(rule.id)"
+                            [disabled]="addingExceptionForRuleId === rule.id">
+                      <mat-icon style="font-size:16px;height:16px;width:16px;">block</mat-icon> Bloquear fecha
+                    </button>
+                  </div>
+
+                  @for (exc of (rule.exceptions || []); track exc.id) {
+                    <div class="exc-item">
+                      <mat-icon class="exc-icon">event_busy</mat-icon>
+                      <span class="exc-label">{{ exceptionDateLabel(exc.date) }}{{ exc.reason ? ' — ' + exc.reason : '' }}</span>
+                      <button mat-icon-button color="warn" (click)="removeException(loc.id, rule.id, exc.id)" matTooltip="Eliminar excepción">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+
+                  @if ((rule.exceptions || []).length === 0 && addingExceptionForRuleId !== rule.id) {
+                    <p class="exc-empty">Sin excepciones.</p>
+                  }
+
+                  @if (addingExceptionForRuleId === rule.id) {
+                    <div class="add-exc-form">
+                      <mat-form-field appearance="outline" class="exc-date-field">
+                        <mat-label>Fecha a bloquear</mat-label>
+                        <input matInput [matDatepicker]="excPicker"
+                               [min]="today"
+                               [ngModel]="newExcDate"
+                               (ngModelChange)="newExcDate = $event"
+                               [ngModelOptions]="{standalone: true}">
+                        <mat-datepicker-toggle matSuffix [for]="excPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #excPicker></mat-datepicker>
+                      </mat-form-field>
+                      <mat-form-field appearance="outline" class="exc-reason-field">
+                        <mat-label>Motivo (opcional)</mat-label>
+                        <input matInput [(ngModel)]="newExcReason" [ngModelOptions]="{standalone: true}" placeholder="Ej. Día festivo">
+                      </mat-form-field>
+                      <div class="avail-form-actions">
+                        <button mat-raised-button color="warn"
+                                (click)="saveException(loc.id, rule.id)"
+                                [disabled]="!newExcDate">
+                          Guardar
+                        </button>
+                        <button mat-button (click)="cancelAddException()">Cancelar</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Add availability form (inline) -->
+              @if (addingAvailForLocationId === loc.id) {
+                <div class="add-avail-form">
+                  <mat-button-toggle-group [(ngModel)]="newAvail.type" [ngModelOptions]="{standalone: true}"
+                                           class="type-toggle">
+                    <mat-button-toggle value="RECURRING">↻ Recurrente</mat-button-toggle>
+                    <mat-button-toggle value="SPECIFIC_DATE">📅 Fecha específica</mat-button-toggle>
+                  </mat-button-toggle-group>
+
+                  @if (newAvail.type === 'RECURRING') {
+                    <mat-form-field appearance="outline" class="avail-field">
+                      <mat-label>Día de la semana</mat-label>
+                      <mat-select [(ngModel)]="newAvail.dayOfWeek" [ngModelOptions]="{standalone: true}">
+                        <mat-option value="MONDAY">Lunes</mat-option>
+                        <mat-option value="TUESDAY">Martes</mat-option>
+                        <mat-option value="WEDNESDAY">Miércoles</mat-option>
+                        <mat-option value="THURSDAY">Jueves</mat-option>
+                        <mat-option value="FRIDAY">Viernes</mat-option>
+                        <mat-option value="SATURDAY">Sábado</mat-option>
+                        <mat-option value="SUNDAY">Domingo</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  } @else {
+                    <mat-form-field appearance="outline" class="avail-field">
+                      <mat-label>Fecha específica</mat-label>
+                      <input matInput [matDatepicker]="availPicker"
+                             [ngModel]="newAvailSpecificDate"
+                             (ngModelChange)="onAvailDateChange($event)"
+                             [ngModelOptions]="{standalone: true}">
+                      <mat-datepicker-toggle matSuffix [for]="availPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #availPicker></mat-datepicker>
+                    </mat-form-field>
+                  }
+
+                  <div class="avail-time-row">
+                    <mat-form-field appearance="outline" class="avail-time-field">
+                      <mat-label>Hora inicio</mat-label>
+                      <input matInput type="time" [(ngModel)]="newAvail.startTime" [ngModelOptions]="{standalone: true}">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="avail-time-field">
+                      <mat-label>Hora fin</mat-label>
+                      <input matInput type="time" [(ngModel)]="newAvail.endTime" [ngModelOptions]="{standalone: true}">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="avail-cap-field">
+                      <mat-label>Cap. máx.</mat-label>
+                      <input matInput type="number" min="1" [(ngModel)]="newAvail.maxCapacity" [ngModelOptions]="{standalone: true}">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="avail-form-actions">
+                    <button mat-raised-button color="primary"
+                            (click)="saveAvailability(loc)"
+                            [disabled]="!isNewAvailValid()">
+                      Agregar
+                    </button>
+                    <button mat-button (click)="cancelAddAvailability()">Cancelar</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card>
+        }
+      }
+      }
+
+      <mat-divider style="margin: 24px 0 16px;"></mat-divider>
+      <div class="form-actions">
+        <button mat-raised-button color="primary" (click)="saveConfig()" [disabled]="savingConfig">
+          {{ savingConfig ? 'Guardando...' : 'Guardar configuración' }}
+        </button>
+      </div>
+    }
+  </mat-card>
+</div>

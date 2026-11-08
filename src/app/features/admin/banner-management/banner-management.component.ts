@@ -15,15 +15,14 @@ import { PromoBanner, PromoBannerRequest } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-banner-management',
-  standalone: true,
-  imports: [
-    FormsModule, ReactiveFormsModule, RouterLink,
-    MatTableModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatCardModule,
-    MatSnackBarModule, MatProgressSpinnerModule, DatePipe, LoadingComponent,
-  ],
-  template: `
+    selector: 'app-banner-management',
+    imports: [
+        FormsModule, ReactiveFormsModule, RouterLink,
+        MatTableModule, MatButtonModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, MatCardModule,
+        MatSnackBarModule, MatProgressSpinnerModule, DatePipe, LoadingComponent,
+    ],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Banners Promocionales</h1>
@@ -109,7 +108,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .form-card { padding: 24px; margin: 16px 0; }
     .full-width { width: 100%; margin-top: 16px; }
@@ -150,7 +149,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .badge-active { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
     .badge-inactive { background: #ffebee; color: #c62828; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
     .no-data { text-align: center; color: #666; padding: 32px; }
-  `],
+  `]
 })
 export class BannerManagementComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;

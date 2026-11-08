@@ -12,11 +12,10 @@ import { AdminService } from '@core/services/admin.service';
 import { Review } from '@shared/models';
 
 @Component({
-  selector: 'app-review-management',
-  standalone: true,
-  imports: [RouterLink, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
-    MatSnackBarModule, MatTooltipModule, MatChipsModule, DatePipe],
-  template: `
+    selector: 'app-review-management',
+    imports: [RouterLink, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+        MatSnackBarModule, MatTooltipModule, MatChipsModule, DatePipe],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Moderación de Reseñas</h1>
@@ -87,7 +86,7 @@ import { Review } from '@shared/models';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .header { display: flex; justify-content: space-between; align-items: center; }
     .subtitle { color: #666; margin: -8px 0 24px; }
     .table-card { padding: 16px; }
@@ -97,7 +96,7 @@ import { Review } from '@shared/models';
     .rating-num { color: #888; font-size: 0.8rem; margin-left: 4px; }
     .empty-state { text-align: center; padding: 48px; color: #888; }
     .empty-icon { font-size: 48px; width: 48px; height: 48px; color: #4caf50; display: block; margin: 0 auto 12px; }
-  `],
+  `]
 })
 export class ReviewManagementComponent implements OnInit {
   reviews: Review[] = [];

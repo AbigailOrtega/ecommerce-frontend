@@ -1,0 +1,42 @@
+.checkout-container { max-width: 700px; }
+.full-width { width: 100%; }
+.row { display: flex; gap: 16px; }
+.row mat-form-field { flex: 1; }
+.section-label { margin: 16px 0 12px; font-size: 1rem; color: #333; }
+.hint { color: #888; font-size: 0.9rem; margin: 8px 0 16px; }
+.guest-card { margin-bottom: 24px; padding: 16px 24px; }
+.type-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.type-card { display: flex; align-items: center; gap: 16px; padding: 16px; border: 2px solid #ddd; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+.type-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
+.type-card.selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
+.type-icon { font-size: 2rem; }
+.type-info { display: flex; flex-direction: column; }
+.type-info strong { font-size: 1rem; }
+.type-info span { font-size: 0.85rem; color: #666; margin-top: 2px; }
+.calc-result { display: flex; align-items: center; gap: 8px; margin: 16px 0; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; color: #2e7d32; font-size: 0.95rem; }
+.slot-info { background: #e3f2fd; color: #1565c0; }
+.rates-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+.rate-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: border-color 0.15s; font-size: 0.9rem; }
+.rate-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
+.rate-card.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
+.rate-info { display: flex; align-items: center; gap: 10px; }
+.rate-info mat-icon { color: var(--theme-primary); }
+.rate-carrier { font-weight: 600; color: #1a1a2e; }
+.rate-days { color: #888; font-size: 0.82rem; }
+.rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; }
+.calc-error { color: #d32f2f; font-size: 0.875rem; margin-top: 8px; }
+.payment-options { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
+.step-actions { display: flex; gap: 12px; margin-top: 16px; }
+.free-shipping-notice { display: flex; align-items: center; gap: 10px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 12px 16px; margin-top: 12px; color: #2e7d32; font-size: 0.95rem; }
+.free-shipping-notice mat-icon { color: #2e7d32; flex-shrink: 0; }
+.card-form { margin-bottom: 24px; padding: 16px; }
+.card-form h4 { margin: 0 0 16px; }
+.processing-overlay { display: flex; align-items: center; gap: 16px; margin: 16px 0; padding: 16px; background: #f5f5f5; border-radius: 8px; }
+.stripe-loading { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.stripe-error { color: #d32f2f; margin-top: 8px; font-size: 0.875rem; }
+.guest-paypal-hint { color: #e65100; background: #fff3e0; border-radius: 8px; padding: 10px 14px; font-size: 0.875rem; margin: 0; }
+.slot-selector { margin: 0 0 16px; }
+.slot-selector-label { margin: 0 0 8px; font-size: 0.9rem; color: #555; }
+.slot-option { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.15s; }
+.slot-option:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
+.slot-option.slot-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); font-weight: 600; }

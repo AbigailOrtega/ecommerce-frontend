@@ -12,10 +12,9 @@ type Period = 'hour' | 'day' | 'week' | 'month' | 'year';
 interface ChartRow { label: string; count: number; }
 
 @Component({
-  selector: 'app-analytics',
-  standalone: true,
-  imports: [RouterLink, DecimalPipe, MatCardModule, MatButtonModule, MatIconModule, LoadingComponent],
-  template: `
+    selector: 'app-analytics',
+    imports: [RouterLink, DecimalPipe, MatCardModule, MatButtonModule, MatIconModule, LoadingComponent],
+    template: `
     <div class="container">
       <div class="header">
         <h1>Analítica de Visitas</h1>
@@ -120,7 +119,7 @@ interface ChartRow { label: string; count: number; }
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     h1 { margin: 0; }
@@ -188,7 +187,7 @@ interface ChartRow { label: string; count: number; }
     .bar-count { font-size: 0.82rem; font-weight: 600; text-align: right; }
 
     .empty { color: #999; text-align: center; padding: 24px 0; }
-  `],
+  `]
 })
 export class AnalyticsComponent implements OnInit {
   summary: Record<string, number> = {};

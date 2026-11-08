@@ -1,0 +1,269 @@
+<div class="container">
+  <div class="page-header">
+    <h1>Agenda de envíos</h1>
+    <button mat-icon-button (click)="load()" title="Actualizar">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <a mat-button routerLink="/admin">&larr; Panel</a>
+  </div>
+
+  @if (loading) {
+    <app-loading />
+  } @else {
+    <mat-tab-group>
+
+      <!-- ── Envíos nacionales ───────────────────────────── -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">local_shipping</mat-icon>
+          Envíos pendientes
+          @if (schedule?.shipments?.length) {
+            <span class="tab-badge">{{ schedule!.shipments.length }}</span>
+          }
+        </ng-template>
+
+        @if (!schedule?.shipments?.length) {
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>No hay envíos nacionales pendientes.</p>
+          </div>
+        } @else {
+          <div class="cards-grid">
+            @for (order of schedule!.shipments; track order.id) {
+              <mat-card class="order-card">
+                <mat-card-header>
+                  <div class="card-title-row">
+                    <span class="order-number">{{ order.orderNumber }}</span>
+                    <span class="status-chip" [class]="'status-' + order.status.toLowerCase()">
+                      {{ statusLabel(order.status) }}
+                    </span>
+                  </div>
+                </mat-card-header>
+
+                <mat-card-content>
+                  <div class="info-row">
+                    <mat-icon>person</mat-icon>
+                    <span>
+                      @if (order.user) {
+                        {{ order.user.firstName }} {{ order.user.lastName }}
+                      } @else {
+                        {{ order.guestFirstName }} {{ order.guestLastName }}
+                        <em class="guest-tag">invitado</em>
+                      }
+                    </span>
+                  </div>
+
+                  <div class="info-row">
+                    <mat-icon>email</mat-icon>
+                    <span>{{ order.user?.email ?? order.guestEmail }}</span>
+                  </div>
+
+                  @if (order.shippingAddress) {
+                    <div class="info-row">
+                      <mat-icon>location_on</mat-icon>
+                      <span>
+                        {{ order.shippingAddress }},
+                        {{ order.shippingCity }},
+                        {{ order.shippingState }}
+                        {{ order.shippingZipCode }}
+                      </span>
+                    </div>
+                  }
+
+                  @if (order.shippingMethodName) {
+                    <div class="info-row">
+                      <mat-icon>inventory_2</mat-icon>
+                      <span>{{ order.shippingMethodName }}</span>
+                    </div>
+                  }
+
+                  @if (order.trackingNumber) {
+                    <div class="info-row tracking">
+                      <mat-icon>qr_code</mat-icon>
+                      <span>Tracking: <strong>{{ order.trackingNumber }}</strong></span>
+                      @if (order.carrierName) {
+                        <span class="carrier">{{ order.carrierName }}</span>
+                      }
+                    </div>
+                  }
+
+                  <mat-divider />
+
+                  <div class="items-list">
+                    @for (item of order.items; track item.id) {
+                      <div class="item-row">
+                        <span class="item-name">{{ item.productName }}</span>
+                        <span class="item-qty">x{{ item.quantity }}</span>
+                        @if (item.selectedSizeName) {
+                          <span class="item-size">{{ item.selectedColorName }} / {{ item.selectedSizeName }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <div class="card-footer">
+                    <span class="total">{{ order.totalAmount | currency:'MXN':'symbol-narrow' }}</span>
+                    <span class="date">{{ order.createdAt | date:'dd MMM yyyy' }}</span>
+                  </div>
+                </mat-card-content>
+
+                <mat-card-actions>
+                  <a mat-button color="primary" routerLink="/admin/orders">
+                    <mat-icon>open_in_new</mat-icon> Ver en pedidos
+                  </a>
+                </mat-card-actions>
+              </mat-card>
+            }
+          </div>
+        }
+      </mat-tab>
+
+      <!-- ── Pickups ─────────────────────────────────────── -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">store</mat-icon>
+          Pickups
+          @if (totalPickups) {
+            <span class="tab-badge">{{ totalPickups }}</span>
+          }
+        </ng-template>
+
+        <!-- Filtros -->
+        <div class="filter-bar">
+          <mat-form-field appearance="outline" class="date-filter-field">
+            <mat-label>Filtrar por fecha</mat-label>
+            <input matInput [matDatepicker]="filterPicker"
+                   [ngModel]="filterDate"
+                   (ngModelChange)="filterDate = $event"
+                   [ngModelOptions]="{standalone: true}"
+                   placeholder="Seleccionar fecha">
+            <mat-datepicker-toggle matSuffix [for]="filterPicker"></mat-datepicker-toggle>
+            <mat-datepicker #filterPicker></mat-datepicker>
+          </mat-form-field>
+
+          @if (uniqueTimeSlots.length > 0) {
+            <mat-form-field appearance="outline" class="slot-filter-field">
+              <mat-label>Horario</mat-label>
+              <mat-select [(ngModel)]="filterTimeSlot" [ngModelOptions]="{standalone: true}">
+                <mat-option value="">Todos los horarios</mat-option>
+                @for (slot of uniqueTimeSlots; track slot) {
+                  <mat-option [value]="slot">{{ slot }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+
+          @if (filterDate || filterTimeSlot) {
+            <button mat-button (click)="clearFilters()">
+              <mat-icon>clear</mat-icon> Limpiar filtros
+            </button>
+          }
+        </div>
+
+        @if (!schedule?.pickups?.length) {
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>No hay pickups pendientes.</p>
+          </div>
+        } @else if (filteredPickups.length === 0) {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Sin recolecciones para los filtros seleccionados.</p>
+          </div>
+        } @else {
+          @for (group of filteredPickups; track group.locationName) {
+            <div class="location-group">
+              <div class="location-header">
+                <mat-icon>store_mall_directory</mat-icon>
+                <h2>{{ group.locationName }}</h2>
+                <span class="count-badge">{{ group.orders.length }}</span>
+              </div>
+
+              <div class="cards-grid">
+                @for (order of group.orders; track order.id) {
+                  <mat-card class="order-card">
+                    <mat-card-header>
+                      <div class="card-title-row">
+                        <span class="order-number">{{ order.orderNumber }}</span>
+                        <span class="status-chip" [class]="'status-' + order.status.toLowerCase()">
+                          {{ statusLabel(order.status) }}
+                        </span>
+                      </div>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                      <div class="info-row">
+                        <mat-icon>person</mat-icon>
+                        <span>
+                          @if (order.user) {
+                            {{ order.user.firstName }} {{ order.user.lastName }}
+                          } @else {
+                            {{ order.guestFirstName }} {{ order.guestLastName }}
+                            <em class="guest-tag">invitado</em>
+                          }
+                        </span>
+                      </div>
+
+                      <div class="info-row">
+                        <mat-icon>email</mat-icon>
+                        <span>{{ order.user?.email ?? order.guestEmail }}</span>
+                      </div>
+
+                      @if (order.pickupDate) {
+                        <div class="info-row date-row">
+                          <mat-icon>event</mat-icon>
+                          <span><strong>{{ order.pickupDate | date:'EEEE dd/MM/yyyy':'UTC' }}</strong></span>
+                        </div>
+                      }
+
+                      @if (order.pickupTimeSlotLabel) {
+                        <div class="info-row slot-row">
+                          <mat-icon>schedule</mat-icon>
+                          <span><strong>{{ order.pickupTimeSlotLabel }}</strong></span>
+                        </div>
+                      }
+
+                      <mat-divider />
+
+                      <div class="items-list">
+                        @for (item of order.items; track item.id) {
+                          <div class="item-row">
+                            <span class="item-name">{{ item.productName }}</span>
+                            <span class="item-qty">x{{ item.quantity }}</span>
+                            @if (item.selectedSizeName) {
+                              <span class="item-size">{{ item.selectedColorName }} / {{ item.selectedSizeName }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <div class="card-footer">
+                        <span class="total">{{ order.totalAmount | currency:'MXN':'symbol-narrow' }}</span>
+                        <span class="date">{{ order.createdAt | date:'dd MMM yyyy' }}</span>
+                      </div>
+                    </mat-card-content>
+
+                    <mat-card-actions>
+                      <a mat-button color="primary" routerLink="/admin/orders">
+                        <mat-icon>open_in_new</mat-icon> Ver en pedidos
+                      </a>
+                      @if (!order.pickupCancelled && order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && order.status !== 'REFUNDED') {
+                        <button mat-button color="warn"
+                                (click)="cancelPickup(order)"
+                                [disabled]="cancellingPickupSet.has(order.id)">
+                          <mat-icon>event_busy</mat-icon>
+                          {{ cancellingPickupSet.has(order.id) ? 'Cancelando...' : 'Cancelar recolección' }}
+                        </button>
+                      }
+                    </mat-card-actions>
+                  </mat-card>
+                }
+              </div>
+            </div>
+          }
+        }
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+</div>

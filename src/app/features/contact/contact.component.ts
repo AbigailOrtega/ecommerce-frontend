@@ -6,10 +6,9 @@ import { StoreInfo } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
-  selector: 'app-contact',
-  standalone: true,
-  imports: [MatIconModule, MatButtonModule, LoadingComponent],
-  template: `
+    selector: 'app-contact',
+    imports: [MatIconModule, MatButtonModule, LoadingComponent],
+    template: `
     <div class="container contact-page">
       <h1>Contacto</h1>
 
@@ -97,7 +96,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .contact-page { padding-top: 32px; padding-bottom: 48px; }
     h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 32px; }
     .contact-grid { display: flex; flex-direction: column; gap: 40px; max-width: 560px; }
@@ -138,7 +137,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .facebook-btn  { background: #1877F2; color: #fff; }
 
     .empty-msg { color: #888; margin-top: 24px; }
-  `],
+  `]
 })
 export class ContactComponent implements OnInit {
   info: StoreInfo | null = null;
