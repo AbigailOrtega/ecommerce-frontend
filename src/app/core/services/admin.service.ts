@@ -78,8 +78,10 @@ export class AdminService {
     return this.http.get<ApiResponse<Page<Product>>>(`${this.apiUrl}/products`, { params });
   }
 
-  getAllUsers(): Observable<ApiResponse<User[]>> {
-    return this.http.get<ApiResponse<User[]>>(`${this.apiUrl}/users`);
+  getAllUsers(page = 0, size = 20, search = ''): Observable<ApiResponse<Page<User>>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (search.trim()) params = params.set('q', search.trim());
+    return this.http.get<ApiResponse<Page<User>>>(`${this.apiUrl}/users`, { params });
   }
 
   uploadImage(file: File, type: 'product' | 'banner' | 'default' = 'default'): Observable<ApiResponse<{ url: string }>> {

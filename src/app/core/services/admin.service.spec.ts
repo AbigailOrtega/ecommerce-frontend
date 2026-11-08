@@ -278,25 +278,37 @@ describe('AdminService', () => {
   // ── getAllUsers() ──────────────────────────────────────────────────────
 
   describe('getAllUsers()', () => {
-    it('sends GET to /admin/users', () => {
-      service.getAllUsers().subscribe();
+    it('sends GET to /admin/users with page, size and search', () => {
+      service.getAllUsers(2, 10, ' ana ').subscribe();
 
-      const req = httpMock.expectOne(`${API}/users`);
+      const req = httpMock.expectOne(r => r.url === `${API}/users`);
       expect(req.request.method).toBe('GET');
-      req.flush({ success: true, data: [] });
+      expect(req.request.params.get('page')).toBe('2');
+      expect(req.request.params.get('size')).toBe('10');
+      expect(req.request.params.get('q')).toBe('ana');
+      req.flush({ success: true, data: { content: [] } });
     });
 
-    it('returns list of users', () => {
+    it('leaves q out when there is no search', () => {
+      service.getAllUsers().subscribe();
+
+      const req = httpMock.expectOne(r => r.url === `${API}/users`);
+      expect(req.request.params.has('q')).toBeFalse();
+      req.flush({ success: true, data: { content: [] } });
+    });
+
+    it('returns a page of users', () => {
       const mockUsers: User[] = [
         { id: 1, firstName: 'Ana', lastName: 'Ruiz', email: 'ana@test.com', role: 'USER' },
       ];
 
       service.getAllUsers().subscribe(res => {
-        expect(res.data.length).toBe(1);
-        expect(res.data[0].email).toBe('ana@test.com');
+        expect(res.data.content.length).toBe(1);
+        expect(res.data.content[0].email).toBe('ana@test.com');
       });
 
-      httpMock.expectOne(`${API}/users`).flush({ success: true, data: mockUsers });
+      httpMock.expectOne(r => r.url === `${API}/users`)
+        .flush({ success: true, data: { content: mockUsers, totalElements: 1, totalPages: 1, size: 20, number: 0, first: true, last: true } });
     });
   });
 
