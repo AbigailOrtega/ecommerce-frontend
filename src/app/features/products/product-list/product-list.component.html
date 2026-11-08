@@ -1,0 +1,167 @@
+@if (banners.length > 0) {
+  <div class="carousel-root">
+    <!-- Slides strip -->
+    <div class="carousel-track" [style.transform]="'translateX(-' + carouselIndex * 100 + '%)'">
+      @for (banner of banners; track banner.id) {
+        <div class="carousel-slide">
+          @if (banner.linkUrl) {
+            <a [href]="banner.linkUrl" target="_blank" rel="noopener">
+              <img [src]="banner.imageUrl | cloudinary: 1600" alt="Banner promocional" class="carousel-img" [attr.loading]="$first ? null : 'lazy'" decoding="async">
+            </a>
+          } @else {
+            <img [src]="banner.imageUrl | cloudinary: 1600" alt="Banner promocional" class="carousel-img" [attr.loading]="$first ? null : 'lazy'" decoding="async">
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Arrows (only when > 1 banner) -->
+    @if (banners.length > 1) {
+      <button class="carousel-arrow left" (click)="prevSlide()" aria-label="Previous">&#8249;</button>
+      <button class="carousel-arrow right" (click)="nextSlide()" aria-label="Next">&#8250;</button>
+
+      <!-- Dots -->
+      <div class="carousel-dots">
+        @for (b of banners; track b.id; let i = $index) {
+          <span class="dot" [class.active]="i === carouselIndex" (click)="goToSlide(i)"></span>
+        }
+      </div>
+    }
+  </div>
+}
+
+<div class="container">
+  <div class="filters">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar productos...</mat-label>
+      <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+      <button mat-icon-button matSuffix (click)="onSearch()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  @if (categories.length > 0) {
+    <nav class="category-nav">
+      <button class="cat-chip" [class.active]="selectedCategory === 0"
+              (click)="selectCategory(0)">
+        Todos
+      </button>
+      @for (cat of categories; track cat.id) {
+        <button class="cat-chip" [class.active]="selectedCategory === cat.id"
+                (click)="selectCategory(cat.id)">
+          {{ cat.name }}
+        </button>
+      }
+    </nav>
+  }
+
+  @if (loading) {
+    <app-loading />
+  } @else {
+    <div class="product-grid">
+      @for (product of products; track product.id) {
+        <mat-card class="product-card">
+          <a [routerLink]="['/products', product.slug]">
+            <img mat-card-image [src]="(product.imageUrl | cloudinary: 600) || 'https://placehold.co/300x200?text=No+Image'" [attr.loading]="$index < 4 ? null : 'lazy'" decoding="async"
+                 [alt]="product.name" class="product-image">
+          </a>
+          <mat-card-content>
+            <a [routerLink]="['/products', product.slug]" class="product-name">
+              <h3>{{ product.name }}</h3>
+            </a>
+            @if (product.categories && product.categories.length > 0) {
+              <p class="category-tag">{{ product.categories[0].name }}@if (product.categories.length > 1) { +{{ product.categories.length - 1 }}}</p>
+            }
+            <div class="price-row">
+              @if (product.discountedPrice) {
+                <span class="price discounted">{{ product.discountedPrice | currency }}</span>
+                <span class="compare-price">{{ product.price | currency }}</span>
+                <span class="promo-badge">{{ product.activePromotionName }} -{{ product.activePromotionDiscount }}%</span>
+              } @else {
+                <span class="price">{{ product.price | currency }}</span>
+                @if (product.compareAtPrice) {
+                  <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
+                }
+              }
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="onAddToCartClick(product)"
+                    [disabled]="!hasAnyStock(product)">
+              <mat-icon>add_shopping_cart</mat-icon>
+              {{ cartBtnLabel(product) }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      } @empty {
+        <p class="no-results">No se encontraron productos.</p>
+      }
+    </div>
+
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageIndex]="currentPage"
+                   [pageSizeOptions]="[12, 24, 48]" (page)="onPageChange($event)" />
+  }
+</div>
+
+<!-- Color/Size selection popup -->
+@if (popupProduct) {
+  <div class="popup-backdrop" (click)="closePopup()">
+    <div class="popup-panel" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>Seleccionar opciones</h3>
+        <button mat-icon-button (click)="closePopup()"><mat-icon>close</mat-icon></button>
+      </div>
+
+      <p class="popup-product-name">{{ popupProduct.name }}</p>
+      @if (popupProduct.discountedPrice) {
+        <p class="popup-price"><span class="discounted-popup">{{ popupProduct.discountedPrice | currency }}</span> <span class="original-popup">{{ popupProduct.price | currency }}</span></p>
+      } @else {
+        <p class="popup-price">{{ popupProduct.price | currency }}</p>
+      }
+
+      <!-- Color selection -->
+      <div class="popup-group">
+        <p class="popup-label">Color: <strong>{{ popupSelectedColor?.name || 'Selecciona un color' }}</strong></p>
+        <div class="popup-options">
+          @for (c of popupProduct.colors; track c.id) {
+            <button class="opt-btn" [class.selected]="popupSelectedColor === c"
+              [class.oos]="!colorHasStock(c)"
+              (click)="popupSelectColor(c)">
+              {{ c.name }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Size selection (only if selected color has sizes) -->
+      @if (popupSelectedColor && popupSelectedColor.sizes.length > 0) {
+        <div class="popup-group">
+          <p class="popup-label">Talla: <strong>{{ popupSelectedSize?.name || 'Selecciona una talla' }}</strong></p>
+          <div class="popup-options">
+            @for (s of popupSelectedColor.sizes; track s.id) {
+              <button class="opt-btn" [class.selected]="popupSelectedSize === s"
+                [class.oos]="s.stock === 0"
+                (click)="s.stock > 0 && popupSelectSize(s)">
+                {{ s.name }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Stock info -->
+      @if (popupSelectedColor && popupSelectedSize) {
+        <p class="popup-stock">{{ popupSelectedSize.stock }} disponible(s)</p>
+      }
+
+      <div class="popup-actions">
+        <button mat-button (click)="closePopup()">Cancelar</button>
+        <button mat-raised-button color="primary" [disabled]="!canConfirmPopup() || addingToCart"
+          (click)="confirmAddToCart()">
+          {{ addingToCart ? 'Agregando...' : 'Agregar al carrito' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

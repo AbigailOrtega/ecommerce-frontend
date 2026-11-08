@@ -6,10 +6,10 @@ Angular 18 single-page application for the ShopHub e-commerce platform.
 
 | Technology | Version | Purpose |
 |---|---|---|
-| Angular | 18.x | Framework |
+| Angular | 21.x | Framework (SSR + hydration) |
 | TypeScript | 5.4 | Language |
-| Angular Material | 18.x | UI Component Library |
-| Angular CDK | 18.x | Component Dev Kit |
+| Angular Material | 21.x | UI Component Library |
+| Angular CDK | 21.x | Component Dev Kit |
 | RxJS | 7.8 | Reactive Programming |
 | SCSS | - | Styling |
 | Karma + Jasmine | - | Unit Testing |
@@ -158,39 +158,34 @@ Update `environment.prod.ts` with your production API URL before deploying.
 
 ## Deployment
 
+The app is server-side rendered (Angular SSR) for the public pages: home/catalog, product pages,
+"Sobre nosotros", "Contacto", "Aviso de privacidad" and the 404 page. Login, cart, checkout,
+account and admin pages render in the browser only (see `src/app/app.routes.server.ts`).
+
 ### Vercel
 
-1. Connect your GitHub repository
-2. Set build command: `ng build --configuration production`
-3. Set output directory: `dist/ecommerce-frontend/browser`
-4. Deploy
+`vercel.json` holds the whole setup:
 
-### Netlify
+- build: `npm run build` → `dist/ecommerce-frontend/{browser,server}`
+- static files are served from `dist/ecommerce-frontend/browser`
+- `/api/*` is proxied to the backend on Render
+- every other path is rendered by the `api/ssr.mjs` function (it wraps `src/server.ts`)
 
-1. Connect your GitHub repository
-2. Set build command: `ng build --configuration production`
-3. Set publish directory: `dist/ecommerce-frontend/browser`
-4. Add a `_redirects` file for SPA routing:
-   ```
-   /*    /index.html   200
-   ```
+Environment variables:
 
-### Nginx
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `STRIPE_PUBLIC_KEY` | - | Stripe publishable key (written into `environment.prod.ts` at build) |
+| `API_ORIGIN` | `https://ecommerce-backend-sv5n.onrender.com` | Backend the server-side renderer calls directly |
 
-```nginx
-server {
-    listen 80;
-    root /var/www/ecommerce-frontend/browser;
-    index index.html;
+If the backend is asleep, a server render waits at most 4 s for its data
+(`SSR_HTTP_TIMEOUT_MS` in `src/app/core/ssr.ts`) and then the browser loads it after hydration.
 
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
+### Run the SSR build locally
 
-    location /api/ {
-        proxy_pass http://localhost:8080;
-    }
-}
+```bash
+npm run build
+API_ORIGIN=http://localhost:8080 npm run serve:ssr:ecommerce-frontend   # http://localhost:4000
 ```
 
 ## Development Notes

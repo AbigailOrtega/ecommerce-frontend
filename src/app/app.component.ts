@@ -6,12 +6,12 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { StoreInfoService } from './core/services/store-info.service';
 import { ThemeService } from './core/services/theme.service';
 import { PageviewService } from './core/services/pageview.service';
+import { SeoService } from './core/services/seo.service';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
-  template: `
+    selector: 'app-root',
+    imports: [RouterOutlet, NavbarComponent, FooterComponent],
+    template: `
     <app-navbar />
     <main class="page-container">
       <router-outlet />
@@ -30,7 +30,7 @@ import { PageviewService } from './core/services/pageview.service';
       </a>
     }
   `,
-  styles: [`
+    styles: [`
     :host {
       display: flex;
       flex-direction: column;
@@ -58,7 +58,7 @@ import { PageviewService } from './core/services/pageview.service';
       transform: scale(1.1);
       box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
-  `],
+  `]
 })
 export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
@@ -67,6 +67,7 @@ export class AppComponent implements OnInit {
     private storeInfoService: StoreInfoService,
     private themeService: ThemeService,
     private pageviewService: PageviewService,
+    private seo: SeoService,
     private router: Router,
   ) {}
 
@@ -82,6 +83,7 @@ export class AppComponent implements OnInit {
     this.storeInfoService.getPublic().subscribe({
       next: (res) => {
         this.themeService.apply(res.data?.themeKey, res.data?.fontKey);
+        this.seo.setStoreName(res.data?.name);
         if (res.data?.whatsappNumber) {
           this.whatsappNumber.set(res.data.whatsappNumber);
         }

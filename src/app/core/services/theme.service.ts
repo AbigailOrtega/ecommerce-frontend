@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { THEMES, DEFAULT_THEME_KEY } from '../themes';
 import { FONTS, DEFAULT_FONT_KEY } from '../fonts';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
+  // DOCUMENT works on the server too, so the theme is already in the server-rendered HTML;
+  // the browser then reuses those elements (found by id) instead of adding a second copy
+  private readonly document = inject(DOCUMENT);
   private styleEl: HTMLStyleElement | null = null;
   private fontLinkEl: HTMLLinkElement | null = null;
 
@@ -27,8 +30,8 @@ export class ThemeService {
       }
       .mat-mdc-raised-button.mat-primary,
       .mat-mdc-unelevated-button.mat-primary {
-        --mdc-filled-button-container-color: var(--theme-primary) !important;
-        --mdc-protected-button-container-color: var(--theme-primary) !important;
+        --mat-button-filled-container-color: var(--theme-primary) !important;
+        --mat-button-protected-container-color: var(--theme-primary) !important;
       }
       .mat-mdc-fab.mat-primary,
       .mat-mdc-mini-fab.mat-primary {
@@ -50,10 +53,11 @@ export class ThemeService {
       }
     `;
 
+    this.styleEl ??= this.document.getElementById('app-dynamic-theme') as HTMLStyleElement | null;
     if (!this.styleEl) {
-      this.styleEl = document.createElement('style');
+      this.styleEl = this.document.createElement('style');
       this.styleEl.id = 'app-dynamic-theme';
-      document.head.appendChild(this.styleEl);
+      this.document.head.appendChild(this.styleEl);
     }
     this.styleEl.textContent = css;
   }
@@ -63,15 +67,16 @@ export class ThemeService {
     const f = FONTS[key];
 
     // Inject or update the Google Fonts <link>
+    this.fontLinkEl ??= this.document.getElementById('app-dynamic-font') as HTMLLinkElement | null;
     if (!this.fontLinkEl) {
-      this.fontLinkEl = document.createElement('link');
+      this.fontLinkEl = this.document.createElement('link');
       this.fontLinkEl.id = 'app-dynamic-font';
       this.fontLinkEl.rel = 'stylesheet';
-      document.head.appendChild(this.fontLinkEl);
+      this.document.head.appendChild(this.fontLinkEl);
     }
     this.fontLinkEl.href = f.googleUrl;
 
     // Apply font-family to body
-    document.body.style.fontFamily = f.fontFamily;
+    this.document.body.style.fontFamily = f.fontFamily;
   }
 }

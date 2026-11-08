@@ -2,15 +2,16 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { NgIf, NgFor } from '@angular/common';
+
 import { StoreInfoService } from '@core/services/store-info.service';
 import { StoreInfo, StoreImage } from '@shared/models';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
+import { isBrowser } from '@core/ssr';
 
 @Component({
-  selector: 'app-about',
-  standalone: true,
-  imports: [MatCardModule, MatIconModule, MatButtonModule, NgIf, NgFor],
-  template: `
+    selector: 'app-about',
+    imports: [CloudinaryPipe, MatCardModule, MatIconModule, MatButtonModule],
+    template: `
     <div class="about-container">
 
       <!-- Carousel -->
@@ -19,7 +20,7 @@ import { StoreInfo, StoreImage } from '@shared/models';
           <div class="carousel-track" [style.transform]="'translateX(-' + (currentIndex * 100) + '%)'">
             @for (img of images; track img.id) {
               <div class="carousel-slide">
-                <img [src]="img.url" [alt]="info?.name || 'Store image'" />
+                <img [src]="img.url | cloudinary: 1200" [alt]="info?.name || 'Imagen de la tienda'" loading="lazy" decoding="async" />
               </div>
             }
           </div>
@@ -112,7 +113,7 @@ import { StoreInfo, StoreImage } from '@shared/models';
       }
     </div>
   `,
-  styles: [`
+    styles: [`
     .about-container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
 
     /* Carousel */
@@ -172,7 +173,7 @@ import { StoreInfo, StoreImage } from '@shared/models';
       .carousel-slide img { height: 240px; }
       .carousel { max-height: 240px; }
     }
-  `],
+  `]
 })
 export class AboutComponent implements OnInit, OnDestroy {
   info: StoreInfo | null = null;
@@ -180,6 +181,8 @@ export class AboutComponent implements OnInit, OnDestroy {
   loading = true;
   currentIndex = 0;
   private autoplayTimer: ReturnType<typeof setInterval> | null = null;
+  // a running interval would keep a server render from ever finishing
+  private readonly browser = isBrowser();
 
   constructor(private storeInfoService: StoreInfoService) {}
 
@@ -215,6 +218,7 @@ export class AboutComponent implements OnInit, OnDestroy {
   }
 
   private startAutoplay(): void {
+    if (!this.browser) return;
     this.autoplayTimer = setInterval(() => this.next(), 5000);
   }
 

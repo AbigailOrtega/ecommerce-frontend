@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
 import { ApiResponse, CartItem, Coupon, LocalCartItem } from '@shared/models';
 import { AuthService } from './auth.service';
+import { isBrowser } from '../ssr';
 
 const LOCAL_CART_KEY = 'guest_cart';
 
@@ -12,6 +13,7 @@ export class CartService {
   private readonly apiUrl = `${environment.apiUrl}/cart`;
   private readonly couponApiUrl = `${environment.apiUrl}/coupons`;
 
+  private readonly browser = isBrowser();
   private cartItems = signal<CartItem[]>([]);
   private localCartItems = signal<LocalCartItem[]>(this.loadLocalCart());
   private appliedCoupon = signal<Coupon | null>(null);
@@ -43,6 +45,7 @@ export class CartService {
   constructor(private http: HttpClient) {}
 
   private loadLocalCart(): LocalCartItem[] {
+    if (!this.browser) return [];
     try {
       const raw = localStorage.getItem(LOCAL_CART_KEY);
       return raw ? JSON.parse(raw) : [];
@@ -116,8 +119,8 @@ export class CartService {
   }
 
   addToCart(productId: number, quantity = 1, sizeId?: number): Observable<ApiResponse<CartItem>> {
-    const body: any = { productId, quantity };
-    if (sizeId != null) body['sizeId'] = sizeId;
+    const body: { productId: number; quantity: number; sizeId?: number } = { productId, quantity };
+    if (sizeId != null) body.sizeId = sizeId;
     return this.http.post<ApiResponse<CartItem>>(this.apiUrl, body)
       .pipe(tap(() => this.loadCart()));
   }

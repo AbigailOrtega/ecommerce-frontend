@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,215 +9,19 @@ import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '@core/services/product.service';
 import { CartService } from '@core/services/cart.service';
 import { AuthService } from '@core/services/auth.service';
+import { SeoService } from '@core/services/seo.service';
 import { Product, ProductColor, ProductSize } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 import { ProductReviewsComponent } from '../product-reviews/product-reviews.component';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
-  selector: 'app-product-detail',
-  standalone: true,
-  imports: [RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent, ProductReviewsComponent],
-  template: `
-    @if (loading) {
-      <app-loading />
-    } @else if (product) {
-      <div class="container detail-grid">
-        <div class="image-section">
-          <!-- Carousel -->
-          <div class="carousel">
-            <div class="zoom-container" (mousemove)="onZoomMove($event)" (mouseleave)="zoomActive = false" (mouseenter)="zoomActive = true">
-              <img [src]="carouselImages[activeIndex]" [alt]="product.name" class="main-image"
-                [style.transform-origin]="zoomOrigin"
-                [class.zoomed]="zoomActive">
-            </div>
-
-            @if (carouselImages.length > 1) {
-              <button mat-icon-button class="carousel-btn prev" (click)="prev()" [disabled]="activeIndex === 0">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button mat-icon-button class="carousel-btn next" (click)="next()" [disabled]="activeIndex === carouselImages.length - 1">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-
-              <div class="carousel-dots">
-                @for (img of carouselImages; track img; let i = $index) {
-                  <span class="dot" [class.active]="i === activeIndex" (click)="activeIndex = i"></span>
-                }
-              </div>
-            }
-          </div>
-
-          <!-- Thumbnails -->
-          @if (carouselImages.length > 1) {
-            <div class="thumbnail-row">
-              @for (img of carouselImages; track img; let i = $index) {
-                <img [src]="img" class="thumbnail" [class.selected]="i === activeIndex" (click)="activeIndex = i" [alt]="'Image ' + (i + 1)">
-              }
-            </div>
-          }
-        </div>
-
-        <div class="info-section">
-          @if (product.categories && product.categories.length > 0) {
-            <div class="breadcrumbs">
-              @for (cat of product.categories; track cat.id; let last = $last) {
-                <a [routerLink]="['/']" [queryParams]="{category: cat.id}" class="breadcrumb">{{ cat.name }}</a>@if (!last) {<span class="separator">/</span>}
-              }
-            </div>
-          }
-          <h1>{{ product.name }}</h1>
-          <div class="price-section">
-            @if (product.discountedPrice) {
-              <span class="price promo-price">{{ product.discountedPrice | currency }}</span>
-              <span class="compare-price">{{ product.price | currency }}</span>
-              <mat-chip class="promo-chip">{{ product.activePromotionName }} &minus;{{ product.activePromotionDiscount }}%</mat-chip>
-            } @else {
-              <span class="price">{{ product.price | currency }}</span>
-              @if (product.compareAtPrice) {
-                <span class="compare-price">{{ product.compareAtPrice | currency }}</span>
-                <mat-chip class="sale-chip">Oferta</mat-chip>
-              }
-            }
-          </div>
-          <p class="description">{{ product.description }}</p>
-
-          <div class="stock-info">
-            @if (colors.length === 0) {
-              @if (product.stockQuantity > 0) {
-                <mat-chip class="in-stock"><mat-icon>check_circle</mat-icon> En existencia ({{ product.stockQuantity }})</mat-chip>
-              } @else {
-                <mat-chip class="out-of-stock"><mat-icon>cancel</mat-icon> Sin existencia</mat-chip>
-              }
-            }
-          </div>
-
-          @if (product.sku) {
-            <p class="sku">SKU: {{ product.sku }}</p>
-          }
-
-          <!-- Color & Size variants -->
-          @if (colors.length > 0) {
-            <div class="variants-section">
-              <div class="variant-group">
-                <p class="variant-label">Color: <strong>{{ selectedColor?.name ?? '' }}</strong></p>
-                <div class="variant-options">
-                  @for (c of colors; track c.id) {
-                    <button class="variant-btn" [class.selected]="selectedColor === c" (click)="selectColor(c)">
-                      {{ c.name }}
-                    </button>
-                  }
-                </div>
-              </div>
-
-              @if (selectedColor && selectedColor.sizes.length > 0) {
-                <div class="variant-group">
-                  <p class="variant-label">Talla: <strong>{{ selectedSize?.name ?? '' }}</strong></p>
-                  <div class="variant-options">
-                    @for (s of selectedColor.sizes; track s.id) {
-                      <button class="variant-btn" [class.selected]="selectedSize === s"
-                        [class.out-of-stock-btn]="s.stock === 0"
-                        (click)="selectSize(s)">
-                        {{ s.name }}
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-
-              @if (selectedColor && selectedSize) {
-                @if (selectedSize.stock > 0) {
-                  <p class="variant-stock in-stock-text">{{ selectedSize.stock }} disponible(s) para {{ selectedColor.name }} / {{ selectedSize.name }}</p>
-                } @else {
-                  <p class="variant-stock out-of-stock-text">Sin existencia para {{ selectedColor.name }} / {{ selectedSize.name }}</p>
-                }
-              }
-            </div>
-          }
-
-          <div class="quantity-section">
-            <button mat-icon-button (click)="quantity > 1 && quantity = quantity - 1"><mat-icon>remove</mat-icon></button>
-            <span class="quantity">{{ quantity }}</span>
-            <button mat-icon-button (click)="quantity = quantity + 1"><mat-icon>add</mat-icon></button>
-          </div>
-
-          @if (colors.length > 0 && (!selectedColor || (selectedColor.sizes.length > 0 && !selectedSize))) {
-            <p class="selection-warning">Por favor selecciona color y talla antes de agregar al carrito.</p>
-          }
-          <button mat-raised-button color="primary" class="add-btn" (click)="addToCart()" [disabled]="isAddToCartDisabled()">
-            <mat-icon>add_shopping_cart</mat-icon>
-            {{ addToCartLabel() }}
-          </button>
-        </div>
-      </div>
-
-      <div class="container">
-        <app-product-reviews [productId]="product.id" />
-      </div>
-    }
-  `,
-  styles: [`
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 32px 16px; }
-
-    /* Carousel */
-    .carousel { position: relative; }
-    .zoom-container { overflow: hidden; border-radius: 8px; cursor: zoom-in; }
-    .main-image { width: 100%; object-fit: cover; max-height: 500px; display: block; transition: transform 0.1s ease; }
-    .main-image.zoomed { transform: scale(2); }
-    .carousel-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      background: rgba(255,255,255,0.9) !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .carousel-btn.prev { left: 8px; }
-    .carousel-btn.next { right: 8px; }
-    .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; cursor: pointer; transition: background 0.2s; }
-    .dot.active { background: var(--theme-primary); }
-
-    /* Thumbnails */
-    .thumbnail-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    .thumbnail { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; }
-    .thumbnail:hover { border-color: var(--theme-primary); }
-    .thumbnail.selected { border-color: var(--theme-primary); }
-
-    /* Info */
-    .breadcrumbs { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-    .breadcrumb { color: #666; font-size: 0.9rem; }
-    .separator { color: #ccc; font-size: 0.9rem; }
-    h1 { margin: 8px 0 16px; }
-    .price-section { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-    .price { font-size: 1.8rem; font-weight: 700; color: var(--theme-primary); }
-    .price.promo-price { color: #e53935; }
-    .compare-price { font-size: 1.2rem; color: #999; text-decoration: line-through; }
-    .sale-chip { background: #ff5722 !important; color: white !important; }
-    .promo-chip { background: #e53935 !important; color: white !important; }
-    .description { color: #555; line-height: 1.6; margin-bottom: 24px; }
-    .stock-info { margin-bottom: 16px; }
-    .in-stock { background: #e8f5e9 !important; color: #2e7d32 !important; }
-    .out-of-stock { background: #ffebee !important; color: #c62828 !important; }
-    .sku { color: #999; font-size: 0.85rem; }
-    .quantity-section { display: flex; align-items: center; gap: 8px; margin: 24px 0; }
-    .quantity { font-size: 1.2rem; font-weight: 500; min-width: 32px; text-align: center; }
-    .selection-warning { font-size: 0.875rem; color: #e65100; margin: 0 0 8px; }
-    .add-btn { width: 100%; padding: 12px; font-size: 1.1rem; }
-
-    /* Variants */
-    .variants-section { margin: 16px 0; display: flex; flex-direction: column; gap: 16px; }
-    .variant-group { display: flex; flex-direction: column; gap: 8px; }
-    .variant-label { margin: 0; font-size: 0.9rem; color: #555; }
-    .variant-options { display: flex; flex-wrap: wrap; gap: 8px; }
-    .variant-btn { padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
-    .variant-btn:hover { border-color: var(--theme-primary); color: var(--theme-primary); }
-    .variant-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: white; }
-    .variant-btn.out-of-stock-btn { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
-    .variant-stock { margin: 0; font-size: 0.875rem; }
-    .in-stock-text { color: #2e7d32; }
-    .out-of-stock-text { color: #c62828; }
-
-    @media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; gap: 24px; } }
-  `],
+    selector: 'app-product-detail',
+    imports: [CloudinaryPipe, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule, MatSnackBarModule, CurrencyPipe, LoadingComponent, ProductReviewsComponent],
+    templateUrl: './product-detail.component.html',
+    styleUrl: './product-detail.component.scss'
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   product: Product | null = null;
   loading = true;
   quantity = 1;
@@ -235,6 +39,7 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
+    private seo: SeoService,
   ) {}
 
   ngOnInit(): void {
@@ -242,6 +47,7 @@ export class ProductDetailComponent implements OnInit {
     this.productService.getProductBySlug(slug).subscribe({
       next: (res) => {
         this.product = res.data;
+        this.applySeo(res.data);
         this.colors = res.data.colors || [];
         if (this.colors.length > 0) {
           this.selectColor(this.colors[0]);
@@ -251,6 +57,38 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
       },
       error: () => this.loading = false,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.seo.setStructuredData(null);
+  }
+
+  /** Title, description and share image for this product, plus schema.org Product data for search results. */
+  private applySeo(p: Product): void {
+    const image = p.imageUrl || p.images?.[0] || p.colors?.find(c => c.images.length)?.images[0];
+    const description = p.description || `${p.name} en ${this.seo.storeName()}.`;
+    this.seo.update({ title: p.name, description, image, type: 'product' });
+
+    const stock = p.colors?.length
+      ? p.colors.reduce((sum, c) => sum + c.sizes.reduce((s, z) => s + (z.stock ?? 0), 0), 0)
+      : p.stockQuantity;
+    this.seo.setStructuredData({
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: p.name,
+      description: description.replace(/<[^>]*>/g, ' ').trim(),
+      sku: p.sku || undefined,
+      image: [p.imageUrl, ...(p.images ?? [])].filter(Boolean),
+      brand: { '@type': 'Brand', name: this.seo.storeName() },
+      offers: {
+        '@type': 'Offer',
+        url: this.seo.absoluteUrl(`/products/${p.slug}`),
+        priceCurrency: 'MXN',
+        price: (p.discountedPrice ?? p.price).toFixed(2),
+        availability: stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        itemCondition: 'https://schema.org/NewCondition',
+      },
     });
   }
 
