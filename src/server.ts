@@ -10,7 +10,12 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+// Vercel's edge sets (and overwrites) these on every request. Angular falls back to client-side
+// rendering when it sees an X-Forwarded-* header it was not told to trust; the host is still checked
+// against "allowedHosts" in angular.json.
+const angularApp = new AngularNodeAppEngine({
+  trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-for'],
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
