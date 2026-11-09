@@ -5,6 +5,9 @@ import { environment } from '@env/environment';
 import { PendingUploads } from '../utils/pending-uploads';
 import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User } from '@shared/models';
 
+/** count: page views; visits: distinct browsing sessions. */
+export interface PageViewRow { label: string; count: number; visits: number; }
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly apiUrl = `${environment.apiUrl}/admin`;
@@ -272,13 +275,19 @@ export class AdminService {
     return this.http.get<ApiResponse<Record<string, number>>>(`${this.apiUrl}/analytics/pageviews/summary`);
   }
 
-  getPageViewsByPeriod(period: string, from: string, to: string): Observable<ApiResponse<{ label: string; count: number }[]>> {
+  getPageViewsByPeriod(period: string, from: string, to: string): Observable<ApiResponse<PageViewRow[]>> {
     const params = new HttpParams().set('period', period).set('from', from).set('to', to);
-    return this.http.get<ApiResponse<{ label: string; count: number }[]>>(`${this.apiUrl}/analytics/pageviews/by-period`, { params });
+    return this.http.get<ApiResponse<PageViewRow[]>>(`${this.apiUrl}/analytics/pageviews/by-period`, { params });
   }
 
-  getPageViewsByPage(from: string, to: string): Observable<ApiResponse<{ label: string; count: number }[]>> {
+  getPageViewsByPage(from: string, to: string): Observable<ApiResponse<PageViewRow[]>> {
     const params = new HttpParams().set('from', from).set('to', to);
-    return this.http.get<ApiResponse<{ label: string; count: number }[]>>(`${this.apiUrl}/analytics/pageviews/by-page`, { params });
+    return this.http.get<ApiResponse<PageViewRow[]>>(`${this.apiUrl}/analytics/pageviews/by-page`, { params });
+  }
+
+  /** Visits by origin; an empty label is a direct visit. */
+  getVisitsBySource(from: string, to: string): Observable<ApiResponse<{ label: string; visits: number }[]>> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<ApiResponse<{ label: string; visits: number }[]>>(`${this.apiUrl}/analytics/pageviews/by-source`, { params });
   }
 }

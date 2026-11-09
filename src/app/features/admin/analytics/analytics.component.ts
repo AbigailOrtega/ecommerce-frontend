@@ -4,12 +4,12 @@ import { DecimalPipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { AdminService } from '@core/services/admin.service';
+import { AdminService, PageViewRow } from '@core/services/admin.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 type Period = 'hour' | 'day' | 'week' | 'month' | 'year';
 
-interface ChartRow { label: string; count: number; }
+interface SourceRow { label: string; visits: number; }
 
 @Component({
     selector: 'app-analytics',
@@ -21,44 +21,54 @@ interface ChartRow { label: string; count: number; }
         <a mat-button routerLink="/admin">&larr; Panel</a>
       </div>
 
-      <!-- Summary cards -->
+      <!-- Summary cards: visits (sessions) first, page views underneath -->
       <div class="summary-grid">
         <mat-card class="stat-card">
           <mat-icon>today</mat-icon>
           <div>
-            <h3>{{ summary['today'] | number }}</h3>
-            <p>Hoy</p>
+            <h3>{{ summary['todayVisits'] | number }}</h3>
+            <p>Hoy · visitas</p>
+            <p class="views">{{ summary['today'] | number }} páginas vistas</p>
           </div>
         </mat-card>
         <mat-card class="stat-card">
           <mat-icon>date_range</mat-icon>
           <div>
-            <h3>{{ summary['thisWeek'] | number }}</h3>
-            <p>Esta semana</p>
+            <h3>{{ summary['thisWeekVisits'] | number }}</h3>
+            <p>Esta semana · visitas</p>
+            <p class="views">{{ summary['thisWeek'] | number }} páginas vistas</p>
           </div>
         </mat-card>
         <mat-card class="stat-card">
           <mat-icon>calendar_month</mat-icon>
           <div>
-            <h3>{{ summary['thisMonth'] | number }}</h3>
-            <p>Este mes</p>
+            <h3>{{ summary['thisMonthVisits'] | number }}</h3>
+            <p>Este mes · visitas</p>
+            <p class="views">{{ summary['thisMonth'] | number }} páginas vistas</p>
           </div>
         </mat-card>
         <mat-card class="stat-card">
           <mat-icon>calendar_today</mat-icon>
           <div>
-            <h3>{{ summary['thisYear'] | number }}</h3>
-            <p>Este año</p>
+            <h3>{{ summary['thisYearVisits'] | number }}</h3>
+            <p>Este año · visitas</p>
+            <p class="views">{{ summary['thisYear'] | number }} páginas vistas</p>
           </div>
         </mat-card>
         <mat-card class="stat-card total">
           <mat-icon>bar_chart</mat-icon>
           <div>
-            <h3>{{ summary['total'] | number }}</h3>
-            <p>Total histórico</p>
+            <h3>{{ summary['totalVisits'] | number }}</h3>
+            <p>Total histórico · visitas</p>
+            <p class="views">{{ summary['total'] | number }} páginas vistas</p>
           </div>
         </mat-card>
       </div>
+      <p class="legend">
+        <strong>Visita:</strong> una persona navegando la tienda (hasta que cierra la pestaña).
+        <strong>Página vista:</strong> cada página que abre durante su visita.
+        No se cuentan administradores, bots ni las páginas de login y pago.
+      </p>
 
       <!-- Period chart -->
       <mat-card class="chart-card">
@@ -83,9 +93,10 @@ interface ChartRow { label: string; count: number; }
                 <span class="bar-label">{{ row.label }}</span>
                 <div class="bar-track">
                   <div class="bar-fill"
-                       [style.width.%]="(row.count / chartMax) * 100"></div>
+                       [style.width.%]="(row.visits / chartMax) * 100"></div>
                 </div>
-                <span class="bar-count">{{ row.count | number }}</span>
+                <span class="bar-count" [title]="row.count + ' páginas vistas'">{{ row.visits | number }}
+                  <small>/ {{ row.count | number }}</small></span>
               </div>
             }
           </div>
@@ -95,7 +106,7 @@ interface ChartRow { label: string; count: number; }
       <!-- Top pages -->
       <mat-card class="chart-card">
         <div class="chart-header">
-          <h2>Páginas más visitadas <span class="range-hint">(últimos 30 días)</span></h2>
+          <h2>Páginas más vistas <span class="range-hint">(páginas vistas, últimos 30 días)</span></h2>
         </div>
 
         @if (pagesLoading) {
@@ -111,7 +122,32 @@ interface ChartRow { label: string; count: number; }
                   <div class="bar-fill pages"
                        [style.width.%]="(row.count / pagesMax) * 100"></div>
                 </div>
-                <span class="bar-count">{{ row.count | number }}</span>
+                <span class="bar-count" [title]="row.visits + ' visitas'">{{ row.count | number }}</span>
+              </div>
+            }
+          </div>
+        }
+      </mat-card>
+
+      <!-- Sources -->
+      <mat-card class="chart-card">
+        <div class="chart-header">
+          <h2>¿De dónde llegan? <span class="range-hint">(visitas, últimos 30 días)</span></h2>
+        </div>
+
+        @if (sourcesLoading) {
+          <app-loading />
+        } @else if (sourcesData.length === 0) {
+          <p class="empty">Sin datos todavía: el origen se registra desde esta versión.</p>
+        } @else {
+          <div class="bar-chart">
+            @for (row of sourcesData; track row.label) {
+              <div class="bar-row">
+                <span class="bar-label">{{ sourceName(row.label) }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill sources" [style.width.%]="(row.visits / sourcesMax) * 100"></div>
+                </div>
+                <span class="bar-count">{{ row.visits | number }}</span>
               </div>
             }
           </div>
@@ -140,6 +176,10 @@ interface ChartRow { label: string; count: number; }
     .stat-card.total mat-icon { color: #10b981; }
     .stat-card h3 { margin: 0; font-size: 1.6rem; font-weight: 700; }
     .stat-card p { margin: 2px 0 0; font-size: 0.8rem; color: #666; }
+    .stat-card p.views { font-size: 0.72rem; color: #999; }
+    .legend { font-size: 0.8rem; color: #777; margin: -12px 0 24px; line-height: 1.5; }
+    .bar-count small { font-weight: 400; color: #999; }
+    .bar-fill.sources { background: #f59e0b; }
 
     .chart-card { padding: 20px; margin-bottom: 28px; }
     .chart-header {
@@ -163,7 +203,7 @@ interface ChartRow { label: string; count: number; }
     .bar-chart { display: flex; flex-direction: column; gap: 8px; }
     .bar-row {
       display: grid;
-      grid-template-columns: 120px 1fr 60px;
+      grid-template-columns: 120px 1fr 90px;
       align-items: center;
       gap: 10px;
     }
@@ -191,8 +231,11 @@ interface ChartRow { label: string; count: number; }
 })
 export class AnalyticsComponent implements OnInit {
   summary: Record<string, number> = {};
-  chartData: ChartRow[] = [];
-  pagesData: ChartRow[] = [];
+  chartData: PageViewRow[] = [];
+  pagesData: PageViewRow[] = [];
+  sourcesData: SourceRow[] = [];
+  sourcesMax = 1;
+  sourcesLoading = false;
   chartMax = 1;
   pagesMax = 1;
   chartLoading = false;
@@ -216,6 +259,19 @@ export class AnalyticsComponent implements OnInit {
     });
     this.loadChart('day');
     this.loadPages();
+    this.loadSources();
+  }
+
+  /** Friendly names for the usual origins; an empty source is a direct visit. */
+  sourceName(source: string): string {
+    if (!source) return 'Directo';
+    const known: Record<string, string> = {
+      'google.com': 'Google', 'google.com.mx': 'Google', 'bing.com': 'Bing',
+      'instagram.com': 'Instagram', 'l.instagram.com': 'Instagram', 'instagram': 'Instagram',
+      'facebook.com': 'Facebook', 'm.facebook.com': 'Facebook', 'l.facebook.com': 'Facebook', 'lm.facebook.com': 'Facebook', 'facebook': 'Facebook',
+      'tiktok.com': 'TikTok', 'tiktok': 'TikTok', 'whatsapp': 'WhatsApp', 'web.whatsapp.com': 'WhatsApp',
+    };
+    return known[source] ?? source;
   }
 
   selectPeriod(period: Period): void {
@@ -230,7 +286,7 @@ export class AnalyticsComponent implements OnInit {
     this.admin.getPageViewsByPeriod(period, from, to).subscribe({
       next: res => {
         this.chartData = res.data ?? [];
-        this.chartMax = this.chartData.reduce((m, r) => Math.max(m, r.count), 1);
+        this.chartMax = this.chartData.reduce((m, r) => Math.max(m, r.visits), 1);
         this.chartLoading = false;
       },
       error: () => { this.chartLoading = false; },
@@ -248,6 +304,20 @@ export class AnalyticsComponent implements OnInit {
         this.pagesLoading = false;
       },
       error: () => { this.pagesLoading = false; },
+    });
+  }
+
+  private loadSources(): void {
+    this.sourcesLoading = true;
+    const now = new Date();
+    const from = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+    this.admin.getVisitsBySource(this.fmt(from), this.fmt(now)).subscribe({
+      next: res => {
+        this.sourcesData = res.data ?? [];
+        this.sourcesMax = this.sourcesData.reduce((m, r) => Math.max(m, r.visits), 1);
+        this.sourcesLoading = false;
+      },
+      error: () => { this.sourcesLoading = false; },
     });
   }
 
