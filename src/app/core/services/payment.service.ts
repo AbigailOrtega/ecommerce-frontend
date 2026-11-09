@@ -4,6 +4,7 @@ import { Observable, from, of, switchMap, shareReplay } from 'rxjs';
 import { environment } from '@env/environment';
 import { ApiResponse } from '@shared/models';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { roundMoney } from '@core/utils/money';
 
 /** The part of PayPal's JS SDK (window.paypal) the checkout uses. */
 export interface PayPalButtonsOptions {
@@ -49,7 +50,7 @@ export class PaymentService {
   createPaymentIntent(amount: number): Observable<ApiResponse<{ clientSecret: string; paymentIntentId: string }>> {
     return this.http.post<ApiResponse<{ clientSecret: string; paymentIntentId: string }>>(
       `${this.apiUrl}/stripe/create-intent`,
-      { amount }
+      { amount: roundMoney(amount) }
     );
   }
 
@@ -78,7 +79,7 @@ export class PaymentService {
   createPayPalOrder(amount: number): Observable<ApiResponse<{ orderId: string; status: string }>> {
     return this.http.post<ApiResponse<{ orderId: string; status: string }>>(
       `${this.apiUrl}/paypal/create-order`,
-      { amount }
+      { amount: roundMoney(amount) }
     );
   }
 

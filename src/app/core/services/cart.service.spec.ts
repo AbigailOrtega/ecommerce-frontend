@@ -124,6 +124,19 @@ describe('CartService', () => {
       expect(service.total()).toBe(160);
     }));
 
+    it('is in whole cents, so the payment APIs accept it (389.90 − 10% is 350.91, not 350.90999…)', fakeAsync(() => {
+      service.loadCart();
+      httpMock.expectOne(API_CART).flush({ success: true, data: [makeItem(1, 1, 389.9)] });
+      tick();
+
+      service.validateCoupon('SAVE10').subscribe();
+      httpMock.expectOne(r => r.url.includes('/coupons/validate'))
+        .flush({ success: true, data: makeCoupon(10) });
+      tick();
+
+      expect(service.total()).toBe(350.91);
+    }));
+
     it('never goes negative', fakeAsync(() => {
       service.loadCart();
       httpMock.expectOne(API_CART).flush({ success: true, data: [makeItem(1, 1, 50)] });

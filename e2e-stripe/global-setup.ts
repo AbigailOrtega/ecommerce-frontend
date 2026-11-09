@@ -8,12 +8,12 @@ const EVENTS = ['payment_intent.succeeded', 'payment_intent.payment_failed', 'pa
  * signed with STRIPE_LISTEN_SECRET (see playwright.stripe.config.ts). Stopped when the run ends.
  */
 export default async function globalSetup(): Promise<() => Promise<void>> {
+  // the key goes in STRIPE_API_KEY, never on the command line (visible in process lists and errors)
   const listener = spawn('stripe', [
     'listen',
-    '--api-key', process.env['STRIPE_SECRET_KEY']!,
     '--events', EVENTS.join(','),
     '--forward-to', 'http://localhost:8080/api/webhooks/stripe',
-  ], { stdio: ['ignore', 'pipe', 'pipe'] });
+  ], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, STRIPE_API_KEY: process.env['STRIPE_SECRET_KEY']! } });
 
   // forwarded events and their HTTP status, interleaved with the test output (useful when one fails)
   listener.stdout.on('data', d => process.stdout.write(`[stripe listen] ${d}`));

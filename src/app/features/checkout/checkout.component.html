@@ -288,6 +288,9 @@
               @if (stripeError) {
                 <p class="stripe-error">{{ stripeError }}</p>
               }
+              @if (stripeInitFailed) {
+                <button mat-stroked-button type="button" (click)="retryStripe()">Reintentar</button>
+              }
             }
           </mat-card>
         }
@@ -309,6 +312,9 @@
               <div #paypalButtonContainer></div>
               @if (paypalError) {
                 <p class="stripe-error">{{ paypalError }}</p>
+              }
+              @if (paypalInitFailed) {
+                <button mat-stroked-button type="button" (click)="retryPayPal()">Reintentar</button>
               }
             }
           </mat-card>

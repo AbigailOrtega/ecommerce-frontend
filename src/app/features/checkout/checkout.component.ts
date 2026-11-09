@@ -17,6 +17,7 @@ import { CurrencyPipe, DecimalPipe, SlicePipe } from '@angular/common';
 import { CartService } from '@core/services/cart.service';
 import { OrderService } from '@core/services/order.service';
 import { PaymentService, paypalSdk } from '@core/services/payment.service';
+import { roundMoney } from '@core/utils/money';
 import { CheckoutSummaryComponent } from './checkout-summary/checkout-summary.component';
 import { ShippingService } from '@core/services/shipping.service';
 import { AuthService } from '@core/services/auth.service';
@@ -79,6 +80,9 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   private clientSecret: string | null = null;
   private paymentIntentId: string | null = null;
   private stripeMountRequested = false;
+  /** Set when preparing the payment form failed: it is retried only when the shopper asks. */
+  stripeInitFailed = false;
+  paypalInitFailed = false;
   private stripeMounted = false;
 
   get shippingCostForSummary(): number {
@@ -113,7 +117,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   get totalWithShipping(): number {
-    return this.cart.total() + this.shippingCostForSummary;
+    return roundMoney(this.cart.total() + this.shippingCostForSummary);
   }
 
   private readonly destroyRef = inject(DestroyRef);
@@ -172,15 +176,19 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    if (this.stripeElementRef?.nativeElement && !this.stripeMounted && !this.stripeMountRequested
+    // Mounting changes bindings (loading flags), which must not happen while the view is being
+    // checked: claim the mount now, start it right after this check.
+    if (this.stripeElementRef?.nativeElement && !this.stripeMounted && !this.stripeMountRequested && !this.stripeInitFailed
         && this.paymentForm.get('paymentMethod')?.value === 'stripe'
         && (this.authService.isLoggedIn() || this.guestForm.valid)) {
-      this.initStripeElement();
+      this.stripeMountRequested = true;
+      setTimeout(() => this.initStripeElement());
     }
-    if (this.paypalButtonContainerRef?.nativeElement && !this.paypalMounted && !this.paypalMountRequested
+    if (this.paypalButtonContainerRef?.nativeElement && !this.paypalMounted && !this.paypalMountRequested && !this.paypalInitFailed
         && this.paymentForm.get('paymentMethod')?.value === 'paypal'
         && (this.authService.isLoggedIn() || this.guestForm.valid)) {
-      this.initPayPalButtons();
+      this.paypalMountRequested = true;
+      setTimeout(() => this.initPayPalButtons());
     }
   }
 
@@ -379,12 +387,26 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       error: (err) => {
         this.stripeLoading = false;
         this.stripeMountRequested = false;
+        // no automatic retry: every view check would send the same failing request again
+        this.stripeInitFailed = true;
         this.stripeError = err.error?.message || err.message || 'Failed to load payment form.';
       },
     });
   }
 
+  /** "Reintentar" under a payment form that failed to load. */
+  retryStripe(): void {
+    this.stripeInitFailed = false;
+    this.stripeError = null;
+  }
+
+  retryPayPal(): void {
+    this.paypalInitFailed = false;
+    this.paypalError = null;
+  }
+
   private destroyStripeElement(): void {
+    this.stripeInitFailed = false;
     this.elements = null;
     this.stripeReady = false;
     this.clientSecret = null;
@@ -411,6 +433,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.paypalLoading = false;
           this.paypalError = 'PayPal is not configured.';
           this.paypalMountRequested = false;
+          this.paypalInitFailed = true;
           return;
         }
         this.paymentService.loadPayPalSdk(clientId).then(() => {
@@ -420,12 +443,14 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.paypalLoading = false;
           this.paypalError = 'Failed to load PayPal SDK.';
           this.paypalMountRequested = false;
+          this.paypalInitFailed = true;
         });
       },
       error: () => {
         this.paypalLoading = false;
         this.paypalError = 'Failed to get PayPal configuration.';
         this.paypalMountRequested = false;
+        this.paypalInitFailed = true;
       },
     });
   }
@@ -476,6 +501,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private destroyPayPalButtons(): void {
+    this.paypalInitFailed = false;
     this.paypalReady = false;
     this.paypalMounted = false;
     this.paypalMountRequested = false;

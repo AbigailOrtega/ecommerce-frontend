@@ -22,8 +22,15 @@ if (!secretKey.startsWith('sk_test_') || !publicKey.startsWith('pk_test_')) {
 // The secret `stripe listen` signs the events it forwards with; the backend must verify with it.
 // Computed once and inherited by the worker processes, which load this file again.
 if (!process.env['STRIPE_LISTEN_SECRET']) {
-  process.env['STRIPE_LISTEN_SECRET'] = execFileSync('stripe', ['listen', '--print-secret', '--api-key', secretKey])
-    .toString().trim();
+  // the key goes in STRIPE_API_KEY, never on the command line: a failed command prints its arguments
+  try {
+    process.env['STRIPE_LISTEN_SECRET'] = execFileSync('stripe', ['listen', '--print-secret'], {
+      env: { ...process.env, STRIPE_API_KEY: secretKey }, stdio: ['ignore', 'pipe', 'pipe'],
+    }).toString().trim();
+  } catch (e: any) {
+    const out = `${e.stdout ?? ''}${e.stderr ?? ''}`.replaceAll(secretKey, '***');
+    throw new Error(`stripe listen --print-secret failed (is STRIPE_SECRET_KEY valid?): ${out.slice(0, 300)}`);
+  }
 }
 
 const BACKEND_TEST_CLASSES = path.resolve(__dirname, '../backend/target/test-classes');

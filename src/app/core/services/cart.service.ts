@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { roundMoney } from '@core/utils/money';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
@@ -38,7 +39,7 @@ export class CartService {
     if (!c) return 0;
     return Math.round(this.subtotal() * c.discountPercent) / 100;
   });
-  readonly total = computed(() => Math.max(0, this.subtotal() - this.discount()));
+  readonly total = computed(() => roundMoney(Math.max(0, this.subtotal() - this.discount())));
 
   private authService = inject(AuthService);
 
