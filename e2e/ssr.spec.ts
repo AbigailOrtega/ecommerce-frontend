@@ -94,7 +94,8 @@ test.describe('Hydration', () => {
     for (const path of ['/', '/products/test-t-shirt', '/sobre-nosotros', '/contacto', '/aviso-privacidad']) {
       await page.goto(path, { waitUntil: 'networkidle' });
     }
-    expect(problems.filter(p => !/Failed to load resource/.test(p))).toEqual([]);
+    // NG0751 is ng serve's notice that hot reload loads @defer blocks eagerly (dev server only)
+    expect(problems.filter(p => !/Failed to load resource|NG0751/.test(p))).toEqual([]);
   });
 
   test('a signed-in shopper\'s click on "Agregar al carrito" before hydration is not lost', async ({ page }) => {

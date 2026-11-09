@@ -1,19 +1,19 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { SeoService } from '@core/services/seo.service';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '@core/services/auth.service';
 import { CartService } from '@core/services/cart.service';
 import { StoreInfoService } from '@core/services/store-info.service';
 import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
+import { NavbarMenusComponent } from './navbar-menus.component';
 
 @Component({
     selector: 'app-navbar',
-    imports: [CloudinaryPipe, RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, MatMenuModule, MatDividerModule],
+    imports: [CloudinaryPipe, RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule, NavbarMenusComponent],
     template: `
     <mat-toolbar color="primary" [class.toolbar-logo-only]="!showName()"  >
       <a routerLink="/" class="brand">
@@ -52,62 +52,26 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
                   [matBadgeHidden]="cart.itemCount() === 0">shopping_cart</mat-icon>
       </a>
 
-      <!-- Desktop auth -->
-      <div class="desktop-nav">
-        @if (auth.isLoggedIn()) {
-          <button mat-icon-button [matMenuTriggerFor]="userMenu">
-            <mat-icon>account_circle</mat-icon>
-          </button>
-        } @else {
+      <!-- Desktop: sign-in links for visitors -->
+      @if (!auth.isLoggedIn()) {
+        <div class="desktop-nav">
           <a mat-button routerLink="/login">Iniciar sesión</a>
           <a mat-raised-button color="accent" routerLink="/register">Registrarse</a>
-        }
-      </div>
+        </div>
+      }
 
-      <!-- Mobile hamburger -->
-      <button mat-icon-button class="mobile-menu-btn" [matMenuTriggerFor]="mobileMenu" aria-label="Menú">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <!-- Desktop user dropdown -->
-      <mat-menu #userMenu="matMenu">
-        <div class="menu-header">{{ auth.user()?.firstName }} {{ auth.user()?.lastName }}</div>
-        <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon> Mis Pedidos</a>
-        <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon> Mi Perfil</a>
-        @if (auth.isAdmin()) {
-          <a mat-menu-item routerLink="/admin"><mat-icon>dashboard</mat-icon> Panel Admin</a>
-        }
-        <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button>
-      </mat-menu>
-
-      <!-- Mobile full menu -->
-      <mat-menu #mobileMenu="matMenu">
-        <a mat-menu-item routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="menu-active">
-          <mat-icon>store</mat-icon> Tienda
-        </a>
-        <a mat-menu-item routerLink="/sobre-nosotros" routerLinkActive="menu-active">
-          <mat-icon>info</mat-icon> Nosotros
-        </a>
-        <a mat-menu-item routerLink="/contacto" routerLinkActive="menu-active">
-          <mat-icon>contact_phone</mat-icon> Contacto
-        </a>
-        <a mat-menu-item routerLink="/rastrear-pedido" routerLinkActive="menu-active">
-          <mat-icon>search</mat-icon> Rastrear pedido
-        </a>
-        <mat-divider></mat-divider>
-        @if (auth.isLoggedIn()) {
-          <div class="menu-header">{{ auth.user()?.firstName }} {{ auth.user()?.lastName }}</div>
-          <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon> Mis Pedidos</a>
-          <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon> Mi Perfil</a>
-          @if (auth.isAdmin()) {
-            <a mat-menu-item routerLink="/admin"><mat-icon>dashboard</mat-icon> Panel Admin</a>
+      <!-- Account and mobile menus load once the page is idle (or on first touch); until then the
+           same buttons are shown, so nothing moves -->
+      @defer (on idle; on interaction) {
+        <app-navbar-menus />
+      } @placeholder {
+        <span class="menus-placeholder">
+          @if (auth.isLoggedIn()) {
+            <button mat-icon-button class="desktop-nav" aria-label="Mi cuenta"><mat-icon>account_circle</mat-icon></button>
           }
-          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon> Cerrar sesión</button>
-        } @else {
-          <a mat-menu-item routerLink="/login"><mat-icon>login</mat-icon> Iniciar sesión</a>
-          <a mat-menu-item routerLink="/register"><mat-icon>person_add</mat-icon> Registrarse</a>
-        }
-      </mat-menu>
+          <button mat-icon-button class="mobile-menu-btn" aria-label="Menú"><mat-icon>menu</mat-icon></button>
+        </span>
+      }
     </mat-toolbar>
   `,
     styles: [`
@@ -130,7 +94,7 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
     .spacer { flex: 1 1 auto; }
     .desktop-nav { display: flex; align-items: center; }
     .mobile-menu-btn { display: none !important; }
-    .menu-header { padding: 8px 16px; font-weight: 500; border-bottom: 1px solid #eee; margin-bottom: 4px; }
+    .menus-placeholder { display: contents; }
     .active { opacity: 1; }
     mat-toolbar a, mat-toolbar button { color: white; }
 
@@ -144,7 +108,9 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
   `]
 })
 export class NavbarComponent implements OnInit {
-  readonly storeName = signal('ShopHub');
+  // shared with the footer and page titles; "Marea" until the store info loads
+  private readonly seo = inject(SeoService);
+  readonly storeName = this.seo.storeName;
   readonly logoUrl = signal<string | null>(null);
   readonly showName = signal(true);
 
@@ -161,7 +127,7 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     this.storeInfoService.getPublic().subscribe({
       next: (res) => {
-        if (res.data?.name) this.storeName.set(res.data.name);
+        this.seo.setStoreName(res.data?.name);
         if (res.data?.logoUrl) this.logoUrl.set(res.data.logoUrl);
         this.showName.set(res.data?.showNameInNavbar ?? true);
       },

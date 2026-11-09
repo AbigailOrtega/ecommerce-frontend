@@ -70,9 +70,9 @@ describe('NavbarComponent', () => {
   // ── ngOnInit / store info ──────────────────────────────────────────────────
 
   describe('ngOnInit()', () => {
-    it('keeps default storeName "ShopHub" when no store data', async () => {
+    it('keeps the default store name "Marea" when no store data', async () => {
       await setup(false, null);
-      expect(component.storeName()).toBe('ShopHub');
+      expect(component.storeName()).toBe('Marea');
     });
 
     it('sets storeName signal when store data has a name', async () => {

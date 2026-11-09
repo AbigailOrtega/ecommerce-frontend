@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SeoService } from '@core/services/seo.service';
 
 @Component({
     selector: 'app-footer',
@@ -7,7 +8,7 @@ import { RouterLink } from '@angular/router';
     template: `
     <footer>
       <div class="container footer-inner">
-        <p>&copy; 2025 ShopHub. Todos los derechos reservados.</p>
+        <p>&copy; {{ year }} {{ storeName() }}. Todos los derechos reservados.</p>
         <a routerLink="/aviso-privacidad">Aviso de Privacidad</a>
       </div>
     </footer>
@@ -35,4 +36,8 @@ import { RouterLink } from '@angular/router';
     a:hover { color: #fff; }
   `]
 })
-export class FooterComponent {}
+export class FooterComponent {
+  /** The name set in the admin's store info (see AppComponent), "Marea" until it loads. */
+  readonly storeName = inject(SeoService).storeName;
+  readonly year = new Date().getFullYear();
+}

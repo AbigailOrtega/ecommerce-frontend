@@ -152,7 +152,7 @@ test.describe('Auth flows', () => {
     await expect(page.locator('mat-toolbar button mat-icon').filter({ hasText: 'account_circle' })).toBeVisible();
 
     // Open user menu and verify user's first name in the header
-    await page.locator('mat-toolbar button').filter({ has: page.locator('mat-icon', { hasText: 'account_circle' }) }).click();
+    await page.locator('mat-toolbar button[aria-haspopup="menu"]').filter({ has: page.locator('mat-icon', { hasText: 'account_circle' }) }).click(); // the real menu button (loaded with @defer)
     await expect(page.locator('.menu-header').first()).toContainText('Test');
   });
 
@@ -176,7 +176,7 @@ test.describe('Auth flows', () => {
     await page.waitForURL(url => !url.toString().includes('/login'));
 
     // Open user menu
-    await page.locator('mat-toolbar button').filter({ has: page.locator('mat-icon', { hasText: 'account_circle' }) }).click();
+    await page.locator('mat-toolbar button[aria-haspopup="menu"]').filter({ has: page.locator('mat-icon', { hasText: 'account_circle' }) }).click(); // the real menu button (loaded with @defer)
 
     // Click the Logout menu item
     await page.locator('button:has-text("Logout")').click();
