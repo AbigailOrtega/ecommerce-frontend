@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import { PendingUploads } from '../utils/pending-uploads';
-import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User } from '@shared/models';
+import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User, PostalCatalogStatus } from '@shared/models';
 
 /** count: page views; visits: distinct browsing sessions. */
 export interface PageViewRow { label: string; count: number; visits: number; }
@@ -190,6 +190,15 @@ export class AdminService {
 
   updateTicket(id: number, req: TicketUpdateRequest): Observable<ApiResponse<Ticket>> {
     return this.http.put<ApiResponse<Ticket>>(`${this.apiUrl}/tickets/${id}`, req);
+  }
+
+  getPostalCatalogStatus(): Observable<ApiResponse<PostalCatalogStatus>> {
+    return this.http.get<ApiResponse<PostalCatalogStatus>>(`${this.apiUrl}/postal-codes/status`);
+  }
+
+  /** Downloads the catalog from Correos de México again, in the background (202). */
+  refreshPostalCatalog(): Observable<ApiResponse<PostalCatalogStatus>> {
+    return this.http.post<ApiResponse<PostalCatalogStatus>>(`${this.apiUrl}/postal-codes/refresh`, null);
   }
 
   getShippingConfig(): Observable<ApiResponse<ShippingConfig>> {

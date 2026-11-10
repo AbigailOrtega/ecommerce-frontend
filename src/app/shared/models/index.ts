@@ -489,3 +489,21 @@ export interface OrderRequest {
   pickupDate?: string;
   pickupAvailabilityId?: number;
 }
+
+/** GET /api/shipping/postal-codes/{code}: where a Mexican postal code is and its colonias. */
+export interface PostalCodeInfo {
+  code: string;
+  state: string;
+  municipality: string;
+  /** The city when the catalog names one, else the municipality. */
+  city: string;
+  settlements: { name: string; type: string | null }[];
+}
+
+/** GET /api/admin/postal-codes/status */
+export interface PostalCatalogStatus {
+  rows: number;
+  refreshing: boolean;
+  lastRefreshAt: string | null;
+  lastRefreshError: string | null;
+}

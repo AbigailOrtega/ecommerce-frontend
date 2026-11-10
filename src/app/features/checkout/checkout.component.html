@@ -84,30 +84,54 @@
 
         @if (typeForm.get('shippingType')?.value === 'NATIONAL') {
           <h3 class="section-label">Dirección de entrega</h3>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Dirección</mat-label>
-            <input matInput formControlName="shippingAddress">
-          </mat-form-field>
           <div class="row">
             <mat-form-field appearance="outline">
-              <mat-label>Ciudad</mat-label>
-              <input matInput formControlName="shippingCity">
+              <mat-label>Código postal</mat-label>
+              <input matInput formControlName="shippingZipCode" inputmode="numeric" maxlength="5"
+                     autocomplete="postal-code" data-testid="zip-code">
+              @if (lookingUpPostalCode) {
+                <mat-spinner matSuffix diameter="18"></mat-spinner>
+              }
+              @if (postalNotFound) {
+                <mat-hint class="zip-not-found">No encontramos ese código postal. Revísalo o llena los datos a mano.</mat-hint>
+              } @else {
+                <mat-hint>Con él llenamos estado, ciudad y colonia.</mat-hint>
+              }
+              <mat-error>Son 5 dígitos</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Colonia</mat-label>
+              <input matInput formControlName="shippingNeighborhood" [matAutocomplete]="colonias"
+                     autocomplete="off" data-testid="neighborhood">
+              <mat-autocomplete #colonias="matAutocomplete">
+                @for (name of filteredSettlements; track name) {
+                  <mat-option [value]="name">{{ name }}</mat-option>
+                }
+              </mat-autocomplete>
+              @if (postalInfo && postalInfo.settlements.length > 1) {
+                <mat-hint>{{ postalInfo.settlements.length }} colonias en este código postal</mat-hint>
+              }
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <mat-form-field appearance="outline">
+              <mat-label>Ciudad o municipio</mat-label>
+              <input matInput formControlName="shippingCity" autocomplete="address-level2">
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Estado</mat-label>
-              <input matInput formControlName="shippingState">
+              <input matInput formControlName="shippingState" autocomplete="address-level1">
             </mat-form-field>
           </div>
-          <div class="row">
-            <mat-form-field appearance="outline">
-              <mat-label>Código Postal</mat-label>
-              <input matInput formControlName="shippingZipCode">
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>País</mat-label>
-              <input matInput formControlName="shippingCountry" readonly>
-            </mat-form-field>
-          </div>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Calle y número</mat-label>
+            <input matInput formControlName="shippingAddress" autocomplete="address-line1"
+                   placeholder="Ej. Av. Álvaro Obregón 120, int. 4">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="country-field">
+            <mat-label>País</mat-label>
+            <input matInput formControlName="shippingCountry" readonly>
+          </mat-form-field>
 
           @if (hasFreeShipping) {
             <div class="free-shipping-notice">

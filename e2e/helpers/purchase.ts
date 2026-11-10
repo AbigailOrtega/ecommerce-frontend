@@ -166,14 +166,8 @@ export async function goToPaymentWithNationalShipping(page: Page, onReview?: () 
   await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
   await page.locator('button:has-text("Continuar")').first().click();
 
-  // the step may still be animating in: retry until the form has taken the address
-  const calculate = page.locator('button:has-text("Ver opciones de envío")');
-  await expect(async () => {
-    await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
-    await page.fill('[formControlName="shippingCity"]', 'Ciudad de México');
-    await expect(calculate).toBeEnabled({ timeout: 1000 });
-  }).toPass({ timeout: 15000 });
-  await calculate.click();
+  await fillNationalAddress(page);
+  await page.locator('button:has-text("Ver opciones de envío")').click();
   if (onDelivery) await onDelivery();
 
   const toReview = page.locator('button:has-text("Continuar al Pago")').first();
@@ -182,6 +176,21 @@ export async function goToPaymentWithNationalShipping(page: Page, onReview?: () 
   await page.locator('mat-card.order-summary').waitFor({ state: 'visible' });
   if (onReview) await onReview();
   await page.locator('button:has-text("Continuar al Pago")').nth(1).click();
+}
+
+/**
+ * Step 2, national shipping: postal code 06700 (seeded in the e2e catalog with one colonia, Roma
+ * Norte) fills colonia, city and state; then street and number.
+ */
+export async function fillNationalAddress(page: Page): Promise<void> {
+  const calculate = page.locator('button:has-text("Ver opciones de envío")');
+  // the step may still be animating in: retry until the form has taken the address
+  await expect(async () => {
+    await page.getByTestId('zip-code').fill('06700');
+    await expect(page.getByTestId('neighborhood')).toHaveValue('Roma Norte', { timeout: 2000 });
+    await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
+    await expect(calculate).toBeEnabled({ timeout: 1000 });
+  }).toPass({ timeout: 20000 });
 }
 
 export async function payWithCard(page: Page): Promise<void> {

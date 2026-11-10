@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { fillNationalAddress } from './helpers/purchase';
 
 // user-tests project provides storageState
 test.use({ storageState: 'e2e/.auth/user.json' });
@@ -65,8 +66,7 @@ test.describe('Checkout', () => {
     await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
     await page.locator('button:has-text("Continuar")').first().click();
 
-    await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
-    await page.fill('[formControlName="shippingCity"]',    'CDMX');
+    await fillNationalAddress(page);
     // shipping is national only: the country is fixed and read-only
     await expect(page.locator('[formControlName="shippingCountry"]')).toHaveValue('México');
 
@@ -104,8 +104,7 @@ test.describe('Checkout', () => {
     await page.locator('button:has-text("Continuar")').first().click();
 
     // Step 2: fill address and calculate shipping
-    await page.fill('[formControlName="shippingAddress"]', 'Calle Falsa 123');
-    await page.fill('[formControlName="shippingCity"]',    'CDMX');
+    await fillNationalAddress(page);
     // shipping is national only: the country is fixed and read-only
     await expect(page.locator('[formControlName="shippingCountry"]')).toHaveValue('México');
 

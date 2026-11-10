@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,18 +17,18 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '@core/services/admin.service';
-import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, ShippingConfig } from '@shared/models';
+import { AvailabilityType, DayOfWeek, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, ShippingConfig, PostalCatalogStatus } from '@shared/models';
 
 @Component({
     selector: 'app-shipping-management',
     imports: [RouterLink, FormsModule, ReactiveFormsModule, MatTableModule, MatButtonModule, MatIconModule,
         MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule,
         MatSlideToggleModule, MatDividerModule, MatTooltipModule, MatSelectModule,
-        MatDatepickerModule, MatButtonToggleModule],
+        MatDatepickerModule, MatButtonToggleModule, DecimalPipe, DatePipe],
     templateUrl: './shipping-management.component.html',
     styleUrl: './shipping-management.component.scss'
 })
-export class ShippingManagementComponent implements OnInit {
+export class ShippingManagementComponent implements OnInit, OnDestroy {
   configForm: FormGroup | null = null;
   config: ShippingConfig | null = null;
   configLoading = true;
@@ -51,6 +52,10 @@ export class ShippingManagementComponent implements OnInit {
   newExcReason = '';
   readonly today = new Date();
 
+  /** Mexico's postal code catalog behind the checkout's address autofill. */
+  postalCatalog: PostalCatalogStatus | null = null;
+  private postalPoll: ReturnType<typeof setInterval> | null = null;
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -67,6 +72,39 @@ export class ShippingManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadConfig();
     this.loadLocations();
+    this.loadPostalCatalog();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPostalPoll();
+  }
+
+  loadPostalCatalog(): void {
+    this.adminService.getPostalCatalogStatus().subscribe({
+      next: (res) => {
+        this.postalCatalog = res.data;
+        if (!res.data.refreshing) this.stopPostalPoll();
+      },
+      error: () => this.stopPostalPoll(),
+    });
+  }
+
+  refreshPostalCatalog(): void {
+    this.adminService.refreshPostalCatalog().subscribe({
+      next: (res) => {
+        this.postalCatalog = { ...res.data, refreshing: true };
+        this.snackBar.open(res.message ?? 'Actualizando el catálogo', 'Cerrar', { duration: 4000 });
+        // a download takes a minute or two: check every 5 seconds until it ends
+        this.stopPostalPoll();
+        this.postalPoll = setInterval(() => this.loadPostalCatalog(), 5000);
+      },
+      error: (err) => this.snackBar.open(err?.error?.message || 'No se pudo iniciar la actualización', 'Cerrar', { duration: 5000 }),
+    });
+  }
+
+  private stopPostalPoll(): void {
+    if (this.postalPoll) clearInterval(this.postalPoll);
+    this.postalPoll = null;
   }
 
   loadConfig(): void {

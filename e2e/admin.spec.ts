@@ -122,6 +122,15 @@ test.describe('Admin panel', () => {
 
   // ── Pickup locations ──────────────────────────────────────────────────────
 
+  test('shipping — shows the postal code catalog behind the checkout autofill', async ({ page }) => {
+    await page.goto('/admin/shipping');
+    const card = page.getByTestId('postal-catalog');
+    await expect(card).toContainText('Códigos postales');
+    // the e2e backend seeds 6 colonias and never downloads the real catalog
+    await expect(card).toContainText('6 colonias cargadas');
+    await expect(card.getByRole('button', { name: 'Actualizar ahora' })).toBeEnabled();
+  });
+
   test('pickup locations — can add a new location and it appears in the list', async ({ page }) => {
     await page.goto('/admin/shipping');
     await page.waitForSelector('button:has-text("Agregar Punto")', { timeout: 15000 });

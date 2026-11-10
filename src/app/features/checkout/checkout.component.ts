@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CurrencyPipe, DecimalPipe, SlicePipe } from '@angular/common';
 import { CartService } from '@core/services/cart.service';
 import { OrderService } from '@core/services/order.service';
@@ -21,13 +22,13 @@ import { roundMoney } from '@core/utils/money';
 import { CheckoutSummaryComponent } from './checkout-summary/checkout-summary.component';
 import { ShippingService } from '@core/services/shipping.service';
 import { AuthService } from '@core/services/auth.service';
-import { GuestOrderItemRequest, GuestOrderRequest, OrderRequest, PickupAvailability, PickupLocation, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
+import { GuestOrderItemRequest, GuestOrderRequest, OrderRequest, PickupAvailability, PickupLocation, PostalCodeInfo, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
 import { Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
-import { switchMap, merge } from 'rxjs';
+import { switchMap, merge, of, catchError, debounceTime, distinctUntilChanged, filter, map, tap } from 'rxjs';
 
 @Component({
     selector: 'app-checkout',
-    imports: [ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule,
+    imports: [ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatAutocompleteModule,
         MatButtonModule, MatStepperModule, MatRadioModule, MatSnackBarModule, MatProgressSpinnerModule,
         MatIconModule, MatDatepickerModule, CurrencyPipe, DecimalPipe, SlicePipe, CheckoutSummaryComponent],
     templateUrl: './checkout.component.html',
@@ -41,6 +42,10 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   step1Form: FormGroup;
   /** Shown under step 1 after trying to continue without contact details. */
   contactMissing = false;
+  /** What the catalog says about the postal code typed in step 2 (null: not looked up / not found). */
+  postalInfo: PostalCodeInfo | null = null;
+  postalNotFound = false;
+  lookingUpPostalCode = false;
   typeForm: FormGroup;
   deliveryForm: FormGroup;
   paymentForm: FormGroup;
@@ -165,11 +170,14 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       shippingAddress: [''],
       shippingCity: [''],
       shippingState: [''],
-      shippingZipCode: [''],
+      shippingZipCode: ['', Validators.pattern(/^\d{5}$/)],
+      shippingNeighborhood: [''],
       shippingCountry: ['México'],
       pickupLocationId: [null],
       pickupDate: [null],
     });
+
+    this.watchPostalCode();
 
     this.paymentForm = this.fb.group({
       paymentMethod: ['stripe', Validators.required],
@@ -256,11 +264,12 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
     }
 
-    const addressFields = ['shippingAddress', 'shippingCity', 'shippingCountry'];
+    const addressFields = ['shippingZipCode', 'shippingNeighborhood', 'shippingAddress', 'shippingCity', 'shippingState', 'shippingCountry'];
     const pickupFields = ['pickupLocationId', 'pickupDate'];
 
     if (type === 'NATIONAL') {
-      addressFields.forEach(f => this.deliveryForm.get(f)?.setValidators(Validators.required));
+      addressFields.forEach(f => this.deliveryForm.get(f)?.setValidators(
+        f === 'shippingZipCode' ? [Validators.required, Validators.pattern(/^\d{5}$/)] : Validators.required));
       pickupFields.forEach(f => this.deliveryForm.get(f)?.clearValidators());
     } else {
       addressFields.forEach(f => this.deliveryForm.get(f)?.clearValidators());
@@ -335,7 +344,55 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   isAddressReady(): boolean {
     const v = this.deliveryForm.value;
-    return !!(v.shippingAddress?.trim() && v.shippingCity?.trim() && v.shippingCountry?.trim());
+    return !!(/^\d{5}$/.test(v.shippingZipCode ?? '') && v.shippingNeighborhood?.trim() && v.shippingAddress?.trim()
+      && v.shippingCity?.trim() && v.shippingState?.trim() && v.shippingCountry?.trim());
+  }
+
+  /** Street and number plus the colonia, as one line: how the order, the label and the emails show it. */
+  get fullShippingAddress(): string {
+    const v = this.deliveryForm.value;
+    const street = (v.shippingAddress ?? '').trim();
+    const colonia = (v.shippingNeighborhood ?? '').trim();
+    return colonia ? `${street}, Col. ${colonia}` : street;
+  }
+
+  /** The colonias of the postal code that match what has been typed in the colonia field. */
+  get filteredSettlements(): string[] {
+    const all = this.postalInfo?.settlements.map(s => s.name) ?? [];
+    const typed = (this.deliveryForm.get('shippingNeighborhood')?.value ?? '').trim().toLowerCase();
+    return typed ? all.filter(n => n.toLowerCase().includes(typed)) : all;
+  }
+
+  /**
+   * Fills state, city and the colonia list from the postal code, once it has 5 digits. A code the
+   * catalog lacks (or the lookup failing) just leaves the fields for the shopper to fill in.
+   */
+  private watchPostalCode(): void {
+    this.deliveryForm.get('shippingZipCode')!.valueChanges.pipe(
+      map((v: string) => (v ?? '').replace(/\D/g, '')),
+      tap(code => { if (code.length !== 5) { this.postalInfo = null; this.postalNotFound = false; } }),
+      filter(code => code.length === 5),
+      debounceTime(200),
+      distinctUntilChanged(),
+      tap(() => this.lookingUpPostalCode = true),
+      switchMap(code => this.shippingService.lookupPostalCode(code).pipe(
+        map(res => res.data as PostalCodeInfo | null),
+        catchError(() => of(null)))),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(info => {
+      this.lookingUpPostalCode = false;
+      this.postalInfo = info;
+      this.postalNotFound = !info;
+      if (!info) return;
+      const settlements = info.settlements.map(s => s.name);
+      const current = this.deliveryForm.get('shippingNeighborhood')!.value;
+      this.deliveryForm.patchValue({
+        shippingState: info.state,
+        shippingCity: info.city,
+        // one colonia: that is it; several: keep a choice that still belongs to this code
+        shippingNeighborhood: settlements.length === 1 ? settlements[0] : (settlements.includes(current) ? current : ''),
+      });
+    });
   }
 
   calculateShipping(): void {
@@ -348,7 +405,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.expressRate = null;
     const v = this.deliveryForm.value;
     this.shippingService.calculateNational(
-      v.shippingAddress, v.shippingCity, v.shippingState, v.shippingZipCode, v.shippingCountry
+      this.fullShippingAddress, v.shippingCity, v.shippingState, v.shippingZipCode, v.shippingCountry
     ).subscribe({
       next: (res) => {
         this.shippingRates = res.data;
@@ -651,7 +708,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (type === 'NATIONAL') {
       request = {
         ...request,
-        shippingAddress: v.shippingAddress,
+        shippingAddress: this.fullShippingAddress,
         shippingCity: v.shippingCity,
         shippingState: v.shippingState,
         shippingZipCode: v.shippingZipCode,
@@ -721,7 +778,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (type === 'NATIONAL') {
       request = {
         ...request,
-        shippingAddress: v.shippingAddress,
+        shippingAddress: this.fullShippingAddress,
         shippingCity: v.shippingCity,
         shippingState: v.shippingState,
         shippingZipCode: v.shippingZipCode,

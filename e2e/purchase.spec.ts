@@ -152,13 +152,13 @@ test.describe('Purchase — guest', () => {
     await addToCartFromDetail(page, (await createProduct(request)).slug);
     await page.goto('/checkout');
     await fillGuestContact(page, `notes${unique()}@test.com`);
-    const created = page.waitForResponse(r => r.url().endsWith('/orders/guest') && r.ok());
+    const created = captureOrderCreation(page);
     await goToPaymentWithNationalShipping(page, undefined, async () => {
       await page.getByTestId('delivery-notes').fill('Casa azul, tocar timbre 2');
       await expect(page.getByText('25/255')).toBeVisible();
     });
     await payWithCard(page);
-    const orderNumber = (await (await created).json()).data.orderNumber;
+    const orderNumber = (await created).body.data.orderNumber;
 
     const res = await request.get(`${API}/admin/orders?search=${orderNumber}`, {
       headers: { Authorization: `Bearer ${await adminToken(request)}` },
@@ -223,5 +223,66 @@ test.describe('Purchase — signed-in customer', () => {
 
     await sendStripePaymentSucceeded(request, await lastIntent(), 100);   // $1.00
     expect((await trackOrder(request, orderNumber)).status).toBe('PENDING');
+  });
+});
+
+test.describe('Address from the postal code', () => {
+  test.beforeEach(async ({ page }) => useFakePaymentProviders(page));
+
+  async function toAddressStep(page: Page, request: APIRequestContext) {
+    await addToCartFromDetail(page, (await createProduct(request)).slug);
+    await page.goto('/checkout');
+    await fillGuestContact(page, `cp${unique()}@test.com`);
+    await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
+    await page.locator('button:has-text("Continuar")').first().click();
+    await expect(page.getByTestId('zip-code')).toBeVisible();
+  }
+
+  test('a code with several colonias fills state and city and offers its colonias', async ({ page, request }) => {
+    await toAddressStep(page, request);
+    await page.getByTestId('zip-code').fill('44100');
+
+    await expect(page.locator('[formControlName="shippingState"]')).toHaveValue('Jalisco');
+    await expect(page.locator('[formControlName="shippingCity"]')).toHaveValue('Guadalajara');
+    await expect(page.getByText('2 colonias en este código postal')).toBeVisible();
+    await expect(page.getByTestId('neighborhood')).toHaveValue('');   // the shopper picks one
+
+    await page.getByTestId('neighborhood').click();
+    await page.getByRole('option', { name: 'Zona Centro' }).click();
+    await expect(page.getByTestId('neighborhood')).toHaveValue('Zona Centro');
+  });
+
+  test('a code without a city in the catalog uses its municipality', async ({ page, request }) => {
+    await toAddressStep(page, request);
+    await page.getByTestId('zip-code').fill('56530');
+    await expect(page.locator('[formControlName="shippingCity"]')).toHaveValue('Chalco');
+    await expect(page.locator('[formControlName="shippingState"]')).toHaveValue('México');
+    await expect(page.getByTestId('neighborhood')).toHaveValue('San Mateo Huitzilzingo');
+  });
+
+  test('an unknown code says so and leaves the fields to fill in by hand', async ({ page, request }) => {
+    await toAddressStep(page, request);
+    await page.getByTestId('zip-code').fill('99999');
+    await expect(page.getByText('No encontramos ese código postal')).toBeVisible();
+
+    await page.getByTestId('neighborhood').fill('Mi colonia');
+    await page.locator('[formControlName="shippingCity"]').fill('Mi ciudad');
+    await page.locator('[formControlName="shippingState"]').fill('Mi estado');
+    await page.fill('[formControlName="shippingAddress"]', 'Calle 1');
+    await expect(page.locator('button:has-text("Ver opciones de envío")')).toBeEnabled();
+  });
+
+  test('the order keeps the colonia with the street, for the label and the emails', async ({ page, request }) => {
+    await addToCartFromDetail(page, (await createProduct(request)).slug);
+    await page.goto('/checkout');
+    await fillGuestContact(page, `cp${unique()}@test.com`);
+    const created = captureOrderCreation(page);
+    await goToPaymentWithNationalShipping(page);
+    await payWithCard(page);
+
+    const order = (await created).body.data;
+    expect(order.shippingAddress).toBe('Calle Falsa 123, Col. Roma Norte');
+    expect(order.shippingZipCode).toBe('06700');
+    expect(order.shippingState).toBe('Ciudad de México');
   });
 });

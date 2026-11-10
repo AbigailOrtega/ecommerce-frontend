@@ -332,4 +332,28 @@
       </div>
     }
   </mat-card>
+
+  <mat-card class="config-card postal-catalog" data-testid="postal-catalog">
+    <h2>Códigos postales</h2>
+    <p class="hint">Con este catálogo de Correos de México el checkout llena estado, ciudad y colonia a partir del
+      código postal. Se descarga solo y se actualiza el día 1 de cada mes.</p>
+    @if (postalCatalog) {
+      <p>
+        @if (postalCatalog.rows > 0) {
+          <strong>{{ postalCatalog.rows | number }}</strong> colonias cargadas.
+        } @else {
+          <strong>El catálogo está vacío</strong>: el checkout no puede autocompletar direcciones.
+        }
+        @if (postalCatalog.lastRefreshAt) {
+          Última actualización: {{ postalCatalog.lastRefreshAt | date:'dd/MM/yyyy HH:mm' }}.
+        }
+      </p>
+      @if (postalCatalog.lastRefreshError) {
+        <p class="catalog-error">La última descarga falló: {{ postalCatalog.lastRefreshError }}. Se conserva el catálogo anterior.</p>
+      }
+      <button mat-stroked-button type="button" (click)="refreshPostalCatalog()" [disabled]="postalCatalog.refreshing">
+        {{ postalCatalog.refreshing ? 'Actualizando…' : 'Actualizar ahora' }}
+      </button>
+    }
+  </mat-card>
 </div>

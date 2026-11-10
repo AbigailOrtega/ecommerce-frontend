@@ -62,3 +62,7 @@
 .add-exc-form { margin-top: 8px; padding: 12px; background: #fff3f3; border-radius: 8px; border: 1px solid #ffcdd2; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
 .exc-date-field { min-width: 180px; }
 .exc-reason-field { flex: 1; min-width: 180px; }
+
+.postal-catalog { margin-top: 24px; }
+.postal-catalog .hint { color: rgba(0,0,0,0.6); font-size: 0.9rem; }
+.postal-catalog .catalog-error { color: #b71c1c; }
