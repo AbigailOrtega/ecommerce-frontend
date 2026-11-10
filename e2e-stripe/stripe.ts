@@ -107,23 +107,59 @@ export async function fillStripeCard(page: Page, card: string): Promise<void> {
  */
 export async function payWithStripeCard(page: Page, card: string): Promise<string> {
   await fillStripeCard(page, card);
-  const created = page.waitForResponse(r => /\/api\/orders(\/guest)?$/.test(r.url()) && r.request().method() === 'POST');
-  await page.locator('button:has-text("Realizar Pedido")').click();
-  const res = await created;
-  expect(res.ok(), `order creation: ${await res.text()}`).toBeTruthy();
-  return (await res.json()).data.orderNumber;
+  const created = captureOrderCreation(page);
+  await clickPlaceOrder(page);
+  const { status, body } = await created;
+  expect(status, `order creation: ${JSON.stringify(body)}`).toBeLessThan(300);
+  return body.data.orderNumber;
+}
+
+/**
+ * The response to the order creation POST. Read through page.route, because the checkout
+ * navigates away as soon as it arrives and Chrome then drops the body (page.waitForResponse
+ * fails with "No data found for resource").
+ */
+export function captureOrderCreation(page: Page): Promise<{ status: number; body: any }> {
+  const pattern = /\/api\/orders(\/guest)?$/;
+  return new Promise(resolve => {
+    page.route(pattern, async route => {
+      if (route.request().method() !== 'POST') return route.continue();
+      const response = await route.fetch();
+      const text = await response.text();
+      await route.fulfill({ response, body: text });
+      await page.unroute(pattern);
+      resolve({ status: response.status(), body: text ? JSON.parse(text) : null });
+    });
+  });
+}
+
+/**
+ * Clicks "Realizar Pedido" the way a shopper does: with the button already on screen. Right after
+ * typing in Stripe's iframe, a click that has to scroll the page first is lost (no click event
+ * reaches the page; reproduced locally, every time), so scroll to it first.
+ */
+export async function clickPlaceOrder(page: Page): Promise<void> {
+  const button = page.locator('button:has-text("Realizar Pedido")');
+  await button.scrollIntoViewIfNeeded();
+  await expect(button).toBeEnabled();
+  await button.click();
 }
 
 /** Answers Stripe's 3-D Secure test page ("Complete" or "Fail"). */
 export async function answer3DSecure(page: Page, outcome: 'complete' | 'fail'): Promise<void> {
   const selector = outcome === 'complete' ? '#test-source-authorize-3ds' : '#test-source-fail-3ds';
+  // Stripe's frames can hold more than one copy of the challenge: click the visible one, and
+  // retry until the challenge has gone away (a click during its opening animation is lost)
   await expect(async () => {
+    const visible = [];
     for (const f of page.frames()) {
       const button = f.locator(selector);
-      if (await button.count() > 0) { await button.click(); return; }
+      if (await button.count() > 0 && await button.first().isVisible()) visible.push(button.first());
     }
-    throw new Error('3-D Secure challenge not shown yet');
-  }).toPass({ timeout: 30_000 });
+    if (visible.length === 0) throw new Error('3-D Secure challenge not shown yet');
+    await visible[0].click({ timeout: 5_000 });
+    await expect(visible[0]).toBeHidden({ timeout: 5_000 });
+  }).toPass({ timeout: 45_000 });
 }
 
 /** The payment intent the order was created with. */

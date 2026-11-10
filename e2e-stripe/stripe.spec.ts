@@ -4,7 +4,7 @@ import {
   productStock, registerAndLogin, trackOrder,
 } from '../e2e/helpers/purchase';
 import {
-  CARDS, answer3DSecure, cents, confirmIntentWithVisa, expectStatus, fillStripeCard, findEvent, getIntent, orderIntentId,
+  CARDS, answer3DSecure, captureOrderCreation, cents, clickPlaceOrder, confirmIntentWithVisa, expectStatus, fillStripeCard, findEvent, getIntent, orderIntentId,
   payWithStripeCard, redeliver, refund, settleAbandoned,
 } from './stripe';
 
@@ -92,9 +92,9 @@ test.describe('Stripe — payments', () => {
     await goToPaymentWithNationalShipping(page);
 
     await fillStripeCard(page, CARDS.visa);
-    const created = page.waitForResponse(r => r.url().endsWith('/orders/guest'));
-    await page.locator('button:has-text("Realizar Pedido")').click();
-    expect((await created).status()).toBe(400);
+    const created = captureOrderCreation(page);
+    await clickPlaceOrder(page);
+    expect((await created).status).toBe(400);
     await expect(page.locator('mat-snack-bar-container')).toContainText('Stock insuficiente');
 
     expect(intents.length).toBeGreaterThan(0);
@@ -122,7 +122,7 @@ test.describe('Stripe — payments that do not go through', () => {
   test('3-D Secure failed → order cancelled once settled', async ({ page, request }) => {
     const { orderNumber, slug } = await guestCheckout(page, request, CARDS.threeDSecure, { stock: 3 });
     await answer3DSecure(page, 'fail');
-    await expect(page.locator('mat-snack-bar-container')).toBeVisible({ timeout: 30_000 });
+    await findEvent('payment_intent.payment_failed', await orderIntentId(request, orderNumber));
     expect((await trackOrder(request, orderNumber)).status).toBe('PENDING');
 
     expect(await settleAbandoned(request, orderNumber)).toBe('CANCELLED');
