@@ -26,13 +26,40 @@ test.describe('Admin panel', () => {
     expect(await cards.count()).toBeGreaterThanOrEqual(1);
   });
 
-  test('dashboard — navigation links to admin sections are visible', async ({ page }) => {
-    await page.goto('/admin');
-    await page.waitForSelector('.admin-nav', { timeout: 10000 });
+  test('side menu: sections grouped by topic, the current page highlighted', async ({ page }) => {
+    await page.goto('/admin/coupons');
+    const nav = page.getByTestId('admin-nav');
+    for (const group of ['Ventas', 'Catálogo', 'Clientes', 'Configuración']) {
+      await expect(nav.getByRole('group', { name: group })).toBeVisible();
+    }
+    await expect(nav.getByRole('group', { name: 'Ventas' }).getByRole('link', { name: 'Cupones' })).toHaveClass(/active/);
+    await expect(nav.getByRole('link', { name: 'Productos' })).not.toHaveClass(/active/);
 
-    await expect(page.locator('.admin-nav a:has-text("Pedidos")')).toBeVisible();
-    await expect(page.locator('.admin-nav a:has-text("Productos")')).toBeVisible();
-    await expect(page.locator('.admin-nav a:has-text("Usuarios")')).toBeVisible();
+    // the menu stays while moving between pages
+    await nav.getByRole('link', { name: 'Productos' }).click();
+    await expect(page).toHaveURL(/\/admin\/products/);
+    await expect(nav.getByRole('link', { name: 'Productos' })).toHaveClass(/active/);
+  });
+
+  test('side menu on a phone: opened with a button, closed after choosing', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/admin');
+    const nav = page.getByTestId('admin-nav');
+    await expect(nav.getByRole('link', { name: 'Pedidos' })).toBeHidden();
+
+    await page.getByTestId('admin-menu-toggle').click();
+    await nav.getByRole('link', { name: 'Pedidos' }).click();
+    await expect(page).toHaveURL(/\/admin\/orders/);
+    await expect(nav.getByRole('link', { name: 'Pedidos' })).toBeHidden();
+  });
+
+  test('home: order statuses in Spanish, with color, and a link to all orders', async ({ page }) => {
+    await page.goto('/admin');
+    await expect(page.locator('.status-breakdown .status-chip').first()).toBeVisible();
+    await expect(page.locator('.status-breakdown')).not.toContainText(/\b(PENDING|CONFIRMED|CANCELLED|DELIVERED)\b/);
+    await expect(page.locator('.recent-orders')).not.toContainText(/\b(PENDING|CONFIRMED|CANCELLED)\b/);
+    await page.locator('.recent-orders').getByRole('link', { name: 'Ver todos' }).click();
+    await expect(page).toHaveURL(/\/admin\/orders/);
   });
 
   // ── Orders list ───────────────────────────────────────────────────────────
@@ -461,12 +488,9 @@ test.describe('Admin › Store Info', () => {
     // leaving without "Guardar cambios" keeps the saved color for everyone else
   });
 
-  test('dashboard "Info General" link navigates to /admin/store-info', async ({ page }) => {
+  test('menu "Info general" link navigates to /admin/store-info', async ({ page }) => {
     await page.goto('/admin');
-    await page.waitForSelector('.admin-nav', { timeout: 10000 });
-
-    await page.locator('.admin-nav a:has-text("Info General")').click();
-    await page.waitForURL(url => url.toString().includes('/admin/store-info'), { timeout: 10000 });
-    expect(page.url()).toContain('/admin/store-info');
+    await page.getByTestId('admin-nav').getByRole('link', { name: 'Info general' }).click();
+    await expect(page).toHaveURL(/\/admin\/store-info/);
   });
 });

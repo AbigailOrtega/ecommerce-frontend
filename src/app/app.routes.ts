@@ -70,6 +70,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     title: 'Administración',
+    loadComponent: () => import('./features/admin/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
     data: { noindex: true },
     canActivate: [authGuard, adminGuard],
     children: [

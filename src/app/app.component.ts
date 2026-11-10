@@ -18,7 +18,8 @@ import { SeoService } from './core/services/seo.service';
     </main>
     <app-footer />
 
-    @if (whatsappNumber()) {
+    <!-- for shoppers: not in the admin panel, where it covers the page -->
+    @if (whatsappNumber() && !inAdmin()) {
       <a class="whatsapp-bubble"
          [href]="'https://wa.me/' + whatsappNumber()"
          target="_blank"
@@ -62,6 +63,7 @@ import { SeoService } from './core/services/seo.service';
 })
 export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
+  inAdmin = signal(false);
 
   constructor(
     private storeInfoService: StoreInfoService,
@@ -77,7 +79,9 @@ export class AppComponent implements OnInit {
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
     ).subscribe(e => {
-      this.pageviewService.track((e as NavigationEnd).urlAfterRedirects);
+      const url = (e as NavigationEnd).urlAfterRedirects;
+      this.inAdmin.set(url.startsWith('/admin'));
+      this.pageviewService.track(url);
     });
 
     this.storeInfoService.getPublic().subscribe({

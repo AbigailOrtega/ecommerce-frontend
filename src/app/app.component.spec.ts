@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AppComponent } from './app.component';
 import { StoreInfoService } from './core/services/store-info.service';
@@ -103,5 +103,43 @@ describe('AppComponent — WhatsApp bubble', () => {
     compiled = fixture.nativeElement;
 
     expect(compiled.querySelector('.whatsapp-bubble')).toBeNull();
+  });
+});
+
+describe('AppComponent — WhatsApp bubble in the admin panel', () => {
+  @Component({ template: '', standalone: true })
+  class EmptyPage {}
+
+  it('is for shoppers: hidden on admin pages, back on the shop', async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([{ path: '', component: EmptyPage }, { path: 'admin/orders', component: EmptyPage }]),
+        { provide: PageviewService, useValue: { track: () => {} } },
+        { provide: StoreInfoService, useValue: mockStoreInfoService('5215512345678') },
+      ],
+    })
+    .overrideComponent(AppComponent, {
+      remove: { imports: [NavbarComponent, FooterComponent] },
+      add:    { imports: [MockNavbarComponent, MockFooterComponent] },
+    })
+    .compileComponents();
+
+    const fixture = TestBed.createComponent(AppComponent);
+    const router = TestBed.inject(Router);
+    const bubble = () => fixture.nativeElement.querySelector('.whatsapp-bubble');
+
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    expect(bubble()).toBeTruthy();
+
+    await router.navigateByUrl('/admin/orders');
+    fixture.detectChanges();
+    expect(bubble()).toBeNull();
+
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    expect(bubble()).toBeTruthy();
+    TestBed.resetTestingModule();
   });
 });
