@@ -73,7 +73,7 @@ export default defineConfig({
     {
       name: 'flow-tests',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /variants\.spec|account\.spec/,
+      testMatch: /variants\.spec|account\.spec|admin-accounts\.spec/,
     },
     {
       name: 'public-tests',

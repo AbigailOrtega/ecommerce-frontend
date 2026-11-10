@@ -87,6 +87,15 @@ export class AdminService {
     return this.http.get<ApiResponse<Page<User>>>(`${this.apiUrl}/users`, { params });
   }
 
+  /** Gives admin access: promotes an existing account, or creates one and emails a link to set its password. */
+  inviteAdmin(email: string, firstName = '', lastName = ''): Observable<ApiResponse<User>> {
+    return this.http.post<ApiResponse<User>>(`${this.apiUrl}/users/admins`, { email, firstName, lastName });
+  }
+
+  revokeAdmin(userId: number): Observable<ApiResponse<User>> {
+    return this.http.delete<ApiResponse<User>>(`${this.apiUrl}/users/${userId}/admin`);
+  }
+
   uploadImage(file: File, type: 'product' | 'banner' | 'default' = 'default'): Observable<ApiResponse<{ url: string }>> {
     const formData = new FormData();
     formData.append('file', file);

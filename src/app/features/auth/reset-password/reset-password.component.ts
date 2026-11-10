@@ -23,8 +23,8 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     <div class="auth-container">
       <mat-card>
         <mat-card-header>
-          <mat-card-title>Restablecer contraseña</mat-card-title>
-          <mat-card-subtitle>Ingresa tu nueva contraseña.</mat-card-subtitle>
+          <mat-card-title>{{ invite ? 'Crea tu contraseña' : 'Restablecer contraseña' }}</mat-card-title>
+          <mat-card-subtitle>{{ invite ? 'Te dieron acceso de admin. Elige una contraseña para entrar.' : 'Ingresa tu nueva contraseña.' }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           @if (!token) {
@@ -57,7 +57,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
               </mat-form-field>
 
               <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
-                {{ loading ? 'Updating...' : 'Restablecer contraseña' }}
+                {{ loading ? 'Guardando...' : (invite ? 'Crear contraseña' : 'Restablecer contraseña') }}
               </button>
             </form>
           }
@@ -90,6 +90,8 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
 export class ResetPasswordComponent implements OnInit {
   form: FormGroup;
   token: string | null = null;
+  /** Opened from an admin invitation (the account is new and has no password yet). */
+  invite = false;
   loading = false;
   hidePassword = true;
   hideConfirm = true;
@@ -112,6 +114,7 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
+    this.invite = this.route.snapshot.queryParamMap.get('invite') === '1';
   }
 
   onSubmit(): void {
@@ -119,7 +122,8 @@ export class ResetPasswordComponent implements OnInit {
     this.loading = true;
     this.auth.resetPassword(this.token, this.form.value.newPassword).subscribe({
       next: () => {
-        this.snackBar.open('Contraseña actualizada exitosamente.', 'Cerrar', { duration: 4000 });
+        this.snackBar.open(this.invite ? 'Contraseña creada. Ya puedes iniciar sesión.' : 'Contraseña actualizada exitosamente.',
+          'Cerrar', { duration: 4000 });
         this.router.navigate(['/login']);
       },
       error: (err) => {
