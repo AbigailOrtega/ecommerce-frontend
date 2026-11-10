@@ -327,7 +327,10 @@ test.describe('Admin › Promotions', () => {
     await expect(page.locator('[formControlName="name"]')).not.toBeVisible();
   });
 
-  test('can create a promotion', async ({ page }) => {
+  test('can create a promotion', async ({ page, request }) => {
+    // on a product of its own: the first product of the list is often a seeded one, and a 10% promotion
+    // on it changed the price the SSR test expects (29.99)
+    const product = await createProduct(request);
     await page.goto('/admin/promotions');
     await page.locator('button').filter({ hasText: 'Agregar Promoción' }).waitFor({ timeout: 10000 });
     await page.locator('button').filter({ hasText: 'Agregar Promoción' }).click();
@@ -342,8 +345,9 @@ test.describe('Admin › Promotions', () => {
     await productSelect.waitFor({ timeout: 10000 });
     await productSelect.click();
     // Wait for the options panel to populate (products loaded asynchronously)
-    await page.locator('mat-option').first().waitFor({ timeout: 10000 });
-    await page.locator('mat-option').first().click();
+    const option = page.locator('mat-option', { hasText: product.name });
+    await option.waitFor({ timeout: 10000 });
+    await option.click();
     await page.keyboard.press('Escape');
 
     await page.locator('button[type="submit"]').filter({ hasText: 'Guardar' }).click();
