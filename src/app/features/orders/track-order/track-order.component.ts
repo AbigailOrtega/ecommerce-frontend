@@ -122,6 +122,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
                 <h3>Dirección de Envío</h3>
                 <p>
                   {{ order.shippingAddress }}<br>
+                  @if (order.shippingNeighborhood) { Col. {{ order.shippingNeighborhood }}<br> }
                   {{ order.shippingCity }}, {{ order.shippingState }} {{ order.shippingZipCode }}<br>
                   {{ order.shippingCountry }}
                 </p>

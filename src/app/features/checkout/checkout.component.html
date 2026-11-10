@@ -125,8 +125,10 @@
           </div>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Calle y número</mat-label>
-            <input matInput formControlName="shippingAddress" autocomplete="address-line1"
+            <input matInput formControlName="shippingAddress" autocomplete="address-line1" maxlength="45"
                    placeholder="Ej. Av. Álvaro Obregón 120, int. 4">
+            <mat-hint>Como lo imprimirá la paquetería en la guía</mat-hint>
+            <mat-hint align="end">{{ deliveryForm.get('shippingAddress')?.value?.length || 0 }}/45</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="country-field">
             <mat-label>País</mat-label>

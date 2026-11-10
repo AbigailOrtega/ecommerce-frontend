@@ -98,6 +98,7 @@ export interface Order {
   shippingCity: string;
   shippingState: string;
   shippingZipCode: string;
+  shippingNeighborhood?: string;
   shippingCountry: string;
   notes?: string;
   createdAt: string;
@@ -451,6 +452,7 @@ export interface GuestOrderRequest {
   shippingCity?: string;
   shippingState?: string;
   shippingZipCode?: string;
+  shippingNeighborhood?: string;
   shippingCountry?: string;
   paymentMethod: string;
   paymentId?: string;
@@ -478,6 +480,7 @@ export interface OrderRequest {
   shippingCity?: string;
   shippingState?: string;
   shippingZipCode?: string;
+  shippingNeighborhood?: string;
   shippingCountry?: string;
   paymentMethod: string;
   paymentId?: string;

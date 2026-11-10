@@ -276,18 +276,18 @@ test.describe('Admin › Coupons', () => {
     ).toContainText('creado', { timeout: 10000 });
   });
 
-  test('can toggle a coupon active/inactive', async ({ page }) => {
+  test('can toggle a coupon active/inactive', async ({ page, request }) => {
+    // toggles a coupon of its own: the first row could be one a purchase test is about to use
+    // (it once deactivated it mid-checkout: "Este cupón ya no está activo")
+    const code = await createCoupon(request);
     await page.goto('/admin/coupons');
-    await page.waitForSelector('table, .empty', { timeout: 15000 });
+    const row = page.locator('table tbody tr', { hasText: code });
+    await row.waitFor({ timeout: 15000 });
 
-    const toggle = page.locator('table mat-slide-toggle button[role="switch"]').first();
-    if (!(await toggle.isVisible())) { test.skip(); return; }
-
-    const wasCheked = (await toggle.getAttribute('aria-checked')) === 'true';
+    const toggle = row.locator('mat-slide-toggle button[role="switch"]');
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
     await toggle.click();
-    await page.waitForTimeout(500);
-    const isChecked = (await toggle.getAttribute('aria-checked')) === 'true';
-    expect(isChecked).toBe(!wasCheked);
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
   });
 
   test('can delete a coupon', async ({ page, request }) => {

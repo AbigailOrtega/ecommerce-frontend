@@ -178,9 +178,13 @@ test.describe('Purchase — signed-in customer', () => {
     await addToCartFromDetail(page, product.slug);
 
     await page.goto('/cart');
-    await page.locator('input[placeholder="ej. BUENFIN10"]').fill(coupon);
-    await page.locator('button:has-text("Aplicar")').click();
-    await expect(page.getByText(`Cupón (${coupon})`).or(page.getByText(coupon)).first()).toBeVisible();
+    // Typed before the server-rendered cart is wired up, the code stays on screen but never reaches
+    // the component (ngModel), and "Aplicar" does nothing: type again until it is applied.
+    await expect(async () => {
+      await page.locator('input[placeholder="ej. BUENFIN10"]').fill(coupon);
+      await page.locator('button:has-text("Aplicar")').click({ timeout: 2_000 });
+      await expect(page.locator('.coupon-applied')).toContainText(coupon, { timeout: 2_000 });
+    }).toPass({ timeout: 20_000 });
 
     // in-app navigation: the applied coupon lives in memory and would be lost on a full reload
     await page.locator('a.checkout-btn').click();
@@ -272,17 +276,28 @@ test.describe('Address from the postal code', () => {
     await expect(page.locator('button:has-text("Ver opciones de envío")')).toBeEnabled();
   });
 
-  test('the order keeps the colonia with the street, for the label and the emails', async ({ page, request }) => {
+  test('the colonia travels on its own: in the shipping quote and in the order (Skydropx area_level3)', async ({ page, request }) => {
     await addToCartFromDetail(page, (await createProduct(request)).slug);
     await page.goto('/checkout');
     await fillGuestContact(page, `cp${unique()}@test.com`);
+    const quote = page.waitForRequest(r => r.url().endsWith('/shipping/calculate-national'));
     const created = captureOrderCreation(page);
     await goToPaymentWithNationalShipping(page);
+    expect((await quote).postDataJSON()).toMatchObject({ zipCode: '06700', neighborhood: 'Roma Norte', address: 'Calle Falsa 123' });
     await payWithCard(page);
 
     const order = (await created).body.data;
-    expect(order.shippingAddress).toBe('Calle Falsa 123, Col. Roma Norte');
+    expect(order.shippingAddress).toBe('Calle Falsa 123');
+    expect(order.shippingNeighborhood).toBe('Roma Norte');
     expect(order.shippingZipCode).toBe('06700');
     expect(order.shippingState).toBe('Ciudad de México');
+  });
+
+  test('street and number stop at 45 characters (the label limit)', async ({ page, request }) => {
+    await toAddressStep(page, request);
+    const street = page.locator('[formControlName="shippingAddress"]');
+    await street.fill('Avenida Insurgentes Sur 1602, edificio C, departamento 1204');
+    await expect(street).toHaveValue('Avenida Insurgentes Sur 1602, edificio C, dep');
+    await expect(page.getByText('45/45')).toBeVisible();
   });
 });

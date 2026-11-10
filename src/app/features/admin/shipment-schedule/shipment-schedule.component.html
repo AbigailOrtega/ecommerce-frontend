@@ -63,6 +63,7 @@
                       <mat-icon>location_on</mat-icon>
                       <span>
                         {{ order.shippingAddress }},
+                        @if (order.shippingNeighborhood) { Col. {{ order.shippingNeighborhood }}, }
                         {{ order.shippingCity }},
                         {{ order.shippingState }}
                         {{ order.shippingZipCode }}

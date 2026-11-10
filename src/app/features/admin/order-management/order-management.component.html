@@ -241,7 +241,7 @@
                   <span class="block-title">Dirección de envío</span>
                   <div class="detail-row">
                     <mat-icon>location_on</mat-icon>
-                    <span>{{ o.shippingAddress }}, {{ o.shippingCity }}, {{ o.shippingState }} {{ o.shippingZipCode }}, {{ o.shippingCountry }}</span>
+                    <span>{{ o.shippingAddress }}{{ o.shippingNeighborhood ? ', Col. ' + o.shippingNeighborhood : '' }}, {{ o.shippingCity }}, {{ o.shippingState }} {{ o.shippingZipCode }}, {{ o.shippingCountry }}</span>
                   </div>
                 }
               </div>

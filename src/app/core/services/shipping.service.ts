@@ -24,11 +24,11 @@ export class ShippingService {
   }
 
   calculateNational(
-    address: string, city: string, state: string, zipCode: string, country: string
+    address: string, city: string, state: string, zipCode: string, country: string, neighborhood = ''
   ): Observable<ApiResponse<ShippingRatesResponse>> {
     return this.http.post<ApiResponse<ShippingRatesResponse>>(
       `${this.apiUrl}/calculate-national`,
-      { address, city, state, zipCode, country }
+      { address, city, state, zipCode, country, neighborhood }
     );
   }
 }

@@ -269,7 +269,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     if (type === 'NATIONAL') {
       addressFields.forEach(f => this.deliveryForm.get(f)?.setValidators(
-        f === 'shippingZipCode' ? [Validators.required, Validators.pattern(/^\d{5}$/)] : Validators.required));
+        f === 'shippingZipCode' ? [Validators.required, Validators.pattern(/^\d{5}$/)]
+          : f === 'shippingAddress' ? [Validators.required, Validators.maxLength(45)] : Validators.required));
       pickupFields.forEach(f => this.deliveryForm.get(f)?.clearValidators());
     } else {
       addressFields.forEach(f => this.deliveryForm.get(f)?.clearValidators());
@@ -345,15 +346,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   isAddressReady(): boolean {
     const v = this.deliveryForm.value;
     return !!(/^\d{5}$/.test(v.shippingZipCode ?? '') && v.shippingNeighborhood?.trim() && v.shippingAddress?.trim()
+      && v.shippingAddress.trim().length <= 45
       && v.shippingCity?.trim() && v.shippingState?.trim() && v.shippingCountry?.trim());
-  }
-
-  /** Street and number plus the colonia, as one line: how the order, the label and the emails show it. */
-  get fullShippingAddress(): string {
-    const v = this.deliveryForm.value;
-    const street = (v.shippingAddress ?? '').trim();
-    const colonia = (v.shippingNeighborhood ?? '').trim();
-    return colonia ? `${street}, Col. ${colonia}` : street;
   }
 
   /** The colonias of the postal code that match what has been typed in the colonia field. */
@@ -405,7 +399,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.expressRate = null;
     const v = this.deliveryForm.value;
     this.shippingService.calculateNational(
-      this.fullShippingAddress, v.shippingCity, v.shippingState, v.shippingZipCode, v.shippingCountry
+      v.shippingAddress, v.shippingCity, v.shippingState, v.shippingZipCode, v.shippingCountry, v.shippingNeighborhood
     ).subscribe({
       next: (res) => {
         this.shippingRates = res.data;
@@ -708,7 +702,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (type === 'NATIONAL') {
       request = {
         ...request,
-        shippingAddress: this.fullShippingAddress,
+        shippingAddress: v.shippingAddress?.trim(),
+        shippingNeighborhood: v.shippingNeighborhood?.trim(),
         shippingCity: v.shippingCity,
         shippingState: v.shippingState,
         shippingZipCode: v.shippingZipCode,
@@ -778,7 +773,8 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (type === 'NATIONAL') {
       request = {
         ...request,
-        shippingAddress: this.fullShippingAddress,
+        shippingAddress: v.shippingAddress?.trim(),
+        shippingNeighborhood: v.shippingNeighborhood?.trim(),
         shippingCity: v.shippingCity,
         shippingState: v.shippingState,
         shippingZipCode: v.shippingZipCode,

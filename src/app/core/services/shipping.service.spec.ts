@@ -97,11 +97,12 @@ describe('ShippingService', () => {
       req.flush({ success: true, data: { skydropxAvailable: false, distanceKm: 10, flatPrice: 120, rates: [] } });
     });
 
-    it('sends the correct body { address, city, state, zipCode, country }', () => {
-      service.calculateNational(address, city, state, zipCode, country).subscribe();
+    it('sends the correct body { address, city, state, zipCode, country, neighborhood }', () => {
+      service.calculateNational(address, city, state, zipCode, country, 'Zona Centro').subscribe();
 
       const req = httpMock.expectOne(`${API}/calculate-national`);
-      expect(req.request.body).toEqual({ address, city, state, zipCode, country });
+      // the colonia is Skydropx's area_level3
+      expect(req.request.body).toEqual({ address, city, state, zipCode, country, neighborhood: 'Zona Centro' });
       req.flush({ success: true, data: { skydropxAvailable: false, distanceKm: 5, flatPrice: 80, rates: [] } });
     });
 
