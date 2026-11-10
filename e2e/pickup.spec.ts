@@ -124,3 +124,11 @@ test('customer, from "Mis pedidos": the two buttons are there and work', async (
   await page.getByTestId('pickup-cancel').click();
   await expect(page.getByTestId('pickup-manage')).toContainText('está cancelada');
 });
+
+test('the emailed link answers 200 (not the 404 of unknown pages) and renders nothing personal on the server', async ({ request }) => {
+  const res = await request.get('/recoleccion/ORD-E2E-PKUP?t=anything');
+  expect(res.status()).toBe(200);
+  const html = await res.text();
+  expect(html).not.toContain('ORD-E2E-PKUP</strong>');
+  expect(html).not.toContain('Sucursal Centro');
+});

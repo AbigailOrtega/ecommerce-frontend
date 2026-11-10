@@ -11,6 +11,8 @@ const clientOnly = [
   // a form: text typed before hydration would be lost, and it has nothing to index
   'rastrear-pedido',
   'orders', 'orders/:orderNumber', 'profile',
+  // the pickup emails' link: personal, token-protected, never rendered or cached on the server
+  'recoleccion/:orderNumber',
   'admin', 'admin/**',
 ];
 
