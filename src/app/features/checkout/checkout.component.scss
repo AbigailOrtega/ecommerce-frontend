@@ -20,10 +20,10 @@
 .rate-card:hover { border-color: var(--theme-primary); background: rgba(0,0,0,0.03); }
 .rate-card.rate-selected { border-color: var(--theme-primary); background: rgba(0,0,0,0.06); }
 .rate-info { display: flex; align-items: center; gap: 10px; }
-.rate-info mat-icon { color: var(--theme-primary); }
+.rate-info mat-icon { color: var(--theme-primary-text, var(--theme-primary)); }
 .rate-carrier { font-weight: 600; color: #1a1a2e; }
 .rate-days { color: #888; font-size: 0.82rem; }
-.rate-price { font-weight: 700; color: var(--theme-primary); white-space: nowrap; }
+.rate-price { font-weight: 700; color: var(--theme-primary-text, var(--theme-primary)); white-space: nowrap; }
 .calc-error { color: #d32f2f; font-size: 0.875rem; margin-top: 8px; }
 .payment-options { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
 .step-actions { display: flex; gap: 12px; margin-top: 16px; }

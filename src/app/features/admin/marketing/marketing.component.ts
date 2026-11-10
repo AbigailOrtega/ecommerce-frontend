@@ -94,7 +94,7 @@ import { AdminService } from '@core/services/admin.service';
     .upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 8px; border: 2px dashed #ccc; border-radius: 10px; padding: 32px; cursor: pointer;
       color: #888; font-size: 0.9rem; transition: border-color 0.2s; }
-    .upload-zone:hover { border-color: var(--theme-primary); color: var(--theme-primary); }
+    .upload-zone:hover { border-color: var(--theme-primary); color: var(--theme-primary-text, var(--theme-primary)); }
     .upload-zone mat-icon { font-size: 36px; width: 36px; height: 36px; }
     .image-preview-wrap { position: relative; display: inline-block; }
     .image-preview { max-width: 100%; max-height: 260px; border-radius: 8px; object-fit: cover; display: block; }

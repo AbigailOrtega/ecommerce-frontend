@@ -70,9 +70,9 @@ import { AuthService } from '@core/services/auth.service';
     }
     .full-width { width: 100%; }
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
-    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary-text, var(--theme-primary)); font-weight: 500; }
     .forgot-link { margin-top: 8px; font-size: 0.9rem; text-align: right; }
-    .forgot-link a { color: var(--theme-primary); }
+    .forgot-link a { color: var(--theme-primary-text, var(--theme-primary)); }
   `]
 })
 export class LoginComponent {

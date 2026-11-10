@@ -15,7 +15,7 @@
 /* KPIs */
 .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .kpi-card { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
-.kpi-card mat-icon { font-size: 32px; width: 32px; height: 32px; color: var(--theme-primary); }
+.kpi-card mat-icon { font-size: 32px; width: 32px; height: 32px; color: var(--theme-primary-text, var(--theme-primary)); }
 .kpi-value { margin: 0; font-size: 1.3rem; font-weight: 700; color: #212121; }
 .kpi-label { margin: 2px 0 0; font-size: 0.8rem; color: #777; }
 

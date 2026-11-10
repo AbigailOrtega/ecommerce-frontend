@@ -139,7 +139,7 @@ import { Review, ReviewSummary } from '@shared/models';
     .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 24px; }
     .summary-card { display: flex; gap: 40px; align-items: flex-start; margin-bottom: 32px; background: #f9f9f9; padding: 24px; border-radius: 8px; flex-wrap: wrap; }
     .avg-block { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 100px; }
-    .avg-number { font-size: 3rem; font-weight: 700; color: var(--theme-primary); line-height: 1; }
+    .avg-number { font-size: 3rem; font-weight: 700; color: var(--theme-primary-text, var(--theme-primary)); line-height: 1; }
     .stars-row { display: flex; }
     .star-icon { color: #ccc; font-size: 20px; width: 20px; height: 20px; }
     .star-icon.filled { color: #f5a623; }

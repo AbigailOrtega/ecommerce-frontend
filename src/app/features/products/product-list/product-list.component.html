@@ -63,7 +63,7 @@
       @for (product of products; track product.id) {
         <mat-card class="product-card">
           <a [routerLink]="['/products', product.slug]">
-            <img mat-card-image [src]="(product.imageUrl | cloudinary: 600) || 'https://placehold.co/300x200?text=No+Image'" [attr.loading]="$index < 4 ? null : 'lazy'" decoding="async"
+            <img mat-card-image [src]="(product.imageUrl | cloudinary: 600) || 'https://placehold.co/400x500?text=Sin+imagen'" [attr.loading]="$index < 4 ? null : 'lazy'" decoding="async"
                  [alt]="product.name" class="product-image">
           </a>
           <mat-card-content>

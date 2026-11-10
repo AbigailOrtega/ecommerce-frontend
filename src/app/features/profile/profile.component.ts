@@ -61,7 +61,7 @@ import { AuthService } from '@core/services/auth.service';
     .profile-container { max-width: 600px; }
     mat-card { padding: 24px; }
     .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-    .avatar-icon { font-size: 64px; width: 64px; height: 64px; color: var(--theme-primary); }
+    .avatar-icon { font-size: 64px; width: 64px; height: 64px; color: var(--theme-primary-text, var(--theme-primary)); }
     .profile-header h2 { margin: 0; }
     .profile-header p { color: #666; margin: 4px 0 0; }
     .profile-actions { display: flex; gap: 12px; margin-top: 24px; }

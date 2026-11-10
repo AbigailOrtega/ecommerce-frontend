@@ -139,3 +139,18 @@ export function hsvToHex({ h, s, v }: Hsv): string {
 export function themePrimary(themeKey: string | null | undefined): string {
   return resolveTheme(themeKey).primary;
 }
+
+/**
+ * The primary color as text on white: the color itself when it reads (WCAG AA, 4.5:1), else the
+ * same hue darkened until it does. A light store color (pale green) would leave prices and
+ * links unreadable otherwise.
+ */
+export function readableOnWhite(hex: string): string {
+  if (contrastRatio(hex, '#ffffff') >= 4.5) return hex.toLowerCase();
+  const [h, s, l] = rgbToHsl(hexToRgb(hex));
+  for (let light = l; light > 0; light -= 0.02) {
+    const candidate = hslToHex(h, s, light);
+    if (contrastRatio(candidate, '#ffffff') >= 4.5) return candidate;
+  }
+  return '#212121';
+}

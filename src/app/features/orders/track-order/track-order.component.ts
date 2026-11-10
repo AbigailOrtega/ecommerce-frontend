@@ -162,7 +162,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     styles: [`
     .track-container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
     .search-card { padding: 32px; text-align: center; margin-bottom: 32px; }
-    .search-icon { font-size: 48px; width: 48px; height: 48px; color: var(--theme-primary); margin-bottom: 8px; }
+    .search-icon { font-size: 48px; width: 48px; height: 48px; color: var(--theme-primary-text, var(--theme-primary)); margin-bottom: 8px; }
     h1 { margin: 8px 0 4px; font-size: 1.6rem; }
     .subtitle { color: #666; margin-bottom: 24px; }
     .search-form { display: flex; gap: 12px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
@@ -174,7 +174,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .order-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
     .item-info { display: flex; flex-direction: column; gap: 4px; }
     .item-info span { color: #666; font-size: 0.9rem; }
-    .item-variant { color: var(--theme-primary) !important; font-size: 0.85rem !important; }
+    .item-variant { color: var(--theme-primary-text, var(--theme-primary)) !important; font-size: 0.85rem !important; }
     .item-total { font-weight: 600; }
     .order-subtotal-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; color: #666; }
     .order-subtotal-row.discount { color: #2e7d32; }
@@ -184,7 +184,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .cancelled-card { border: 1px solid #ffcc80; background: #fffde7; }
     .cancelled-tag { display: inline-block; background: #ffcc02; color: #b71c1c; font-size: 0.72rem; font-weight: 700; padding: 1px 7px; border-radius: 8px; margin-left: 8px; text-transform: uppercase; }
     .tracking-card { border: 1px solid #e3f2fd; }
-    .tracking-icon { vertical-align: middle; margin-right: 6px; font-size: 20px; width: 20px; height: 20px; color: var(--theme-primary); }
+    .tracking-icon { vertical-align: middle; margin-right: 6px; font-size: 20px; width: 20px; height: 20px; color: var(--theme-primary-text, var(--theme-primary)); }
     .tracking-row { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; margin: 4px 0; }
     .tl { font-weight: 600; color: #444; min-width: 60px; }
     .tracking-num { font-family: monospace; background: #f0f4ff; padding: 2px 8px; border-radius: 4px; font-size: 0.88rem; }

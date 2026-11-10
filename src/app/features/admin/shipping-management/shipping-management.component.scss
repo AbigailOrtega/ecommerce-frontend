@@ -22,7 +22,7 @@
 .location-info { display: flex; flex-direction: column; gap: 2px; }
 .location-info strong { font-size: 1rem; }
 .location-meta { font-size: 0.85rem; color: #666; }
-.slot-count { font-size: 0.8rem; color: var(--theme-primary); }
+.slot-count { font-size: 0.8rem; color: var(--theme-primary-text, var(--theme-primary)); }
 .location-actions { display: flex; align-items: center; gap: 4px; }
 .slots-section { margin-top: 12px; }
 .slots-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }

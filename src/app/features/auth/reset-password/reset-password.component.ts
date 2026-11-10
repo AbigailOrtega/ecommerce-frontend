@@ -83,7 +83,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     }
     .full-width { width: 100%; }
     mat-card-actions p { margin: 0; font-size: 0.9rem; }
-    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary-text, var(--theme-primary)); font-weight: 500; }
     .error-message { color: #c62828; font-size: 0.95rem; }
   `]
 })

@@ -190,7 +190,7 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
     .item-content img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
     .item-info { flex: 1; }
     .item-name { font-weight: 500; color: #333; }
-    .item-variant { color: var(--theme-primary); font-size: 0.82rem; margin: 2px 0 0; }
+    .item-variant { color: var(--theme-primary-text, var(--theme-primary)); font-size: 0.82rem; margin: 2px 0 0; }
     .item-price { color: #666; margin: 2px 0 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .original-price { text-decoration: line-through; color: #aaa; font-size: 0.85rem; }
     .discounted-price { color: #d32f2f; font-weight: 600; }

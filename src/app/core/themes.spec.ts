@@ -1,4 +1,4 @@
-import { THEMES, DEFAULT_THEME_KEY, contrastRatio, customHex, customThemeKey, deriveTheme, readableTextOn, resolveTheme } from './themes';
+import { THEMES, DEFAULT_THEME_KEY, contrastRatio, customHex, customThemeKey, deriveTheme, readableOnWhite, readableTextOn, resolveTheme } from './themes';
 
 describe('store themes', () => {
   describe('custom color keys', () => {
@@ -52,6 +52,27 @@ describe('store themes', () => {
     it('every built-in palette keeps white text on its primary color', () => {
       for (const [key, t] of Object.entries(THEMES)) {
         expect(resolveTheme(key).onPrimary).withContext(key).toBe(readableTextOn(t.primary));
+      }
+    });
+  });
+  describe('primary color as text on white (prices, links)', () => {
+    it('a pale color is darkened, keeping its hue, until it reads (WCAG AA 4.5:1)', () => {
+      const text = readableOnWhite('#c8e6c9');   // pale green, like the store's
+      expect(contrastRatio(text, '#ffffff')).toBeGreaterThanOrEqual(4.5);
+      expect(text).not.toBe('#212121');
+      const [r, g, b] = [1, 3, 5].map(i => parseInt(text.slice(i, i + 2), 16));
+      expect(g).toBeGreaterThan(r);   // still green
+      expect(g).toBeGreaterThan(b);
+    });
+
+    it('a color that already reads is left as it is', () => {
+      expect(readableOnWhite('#3f51b5')).toBe('#3f51b5');
+      expect(readableOnWhite('#1e7a7f')).toBe('#1e7a7f');
+    });
+
+    it('works for any color, even white', () => {
+      for (const c of ['#ffffff', '#ffd740', '#00ff00', '#ff80ab', '#e0f7fa']) {
+        expect(contrastRatio(readableOnWhite(c), '#ffffff')).withContext(c).toBeGreaterThanOrEqual(4.5);
       }
     });
   });

@@ -52,7 +52,7 @@
 }
 .cat-chip:hover:not(.active) {
   border-color: var(--theme-primary);
-  color: var(--theme-primary);
+  color: var(--theme-primary-text, var(--theme-primary));
   background: rgba(0,0,0,0.06);
 }
 .cat-chip.active {
@@ -63,11 +63,13 @@
 }
 .product-card { cursor: pointer; transition: transform 0.2s; }
 .product-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-.product-image { width: 100%; height: 200px; object-fit: cover; object-position: center; display: block; }
+/* the whole photo, never cropped: one portrait frame for every card (fashion photos are ~4:5),
+   on a light background where a photo has another shape */
+.product-image { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: contain; object-position: center; display: block; background: #f5f5f5; }
 .product-name h3 { margin: 8px 0 4px; font-size: 1.1rem; color: #333; }
 .category-tag { color: #666; font-size: 0.85rem; margin: 0 0 8px; }
 .price-row { display: flex; align-items: center; gap: 8px; }
-.price { font-size: 1.25rem; font-weight: 700; color: var(--theme-primary); }
+.price { font-size: 1.25rem; font-weight: 700; color: var(--theme-primary-text, var(--theme-primary)); }
 .price.discounted { color: #e53935; }
 .compare-price { font-size: 0.95rem; color: #999; text-decoration: line-through; }
 .promo-badge { background: #ff5722; color: white; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
@@ -88,7 +90,7 @@ mat-card-actions { padding: 8px 16px 16px; }
 .popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .popup-header h3 { margin: 0; font-size: 1.1rem; }
 .popup-product-name { font-weight: 600; font-size: 1rem; margin: 0 0 2px; color: #333; }
-.popup-price { color: var(--theme-primary); font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
+.popup-price { color: var(--theme-primary-text, var(--theme-primary)); font-weight: 700; font-size: 1.1rem; margin: 0 0 16px; }
 .discounted-popup { color: #e53935; }
 .original-popup { font-size: 0.9rem; color: #999; text-decoration: line-through; margin-left: 4px; }
 .popup-group { margin-bottom: 16px; }
@@ -98,7 +100,7 @@ mat-card-actions { padding: 8px 16px 16px; }
   padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px;
   background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
 }
-.opt-btn:hover:not(.oos) { border-color: var(--theme-primary); color: var(--theme-primary); }
+.opt-btn:hover:not(.oos) { border-color: var(--theme-primary); color: var(--theme-primary-text, var(--theme-primary)); }
 .opt-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: var(--theme-on-primary, white); }
 .opt-btn.oos { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
 .popup-stock { font-size: 0.85rem; color: #2e7d32; margin: -8px 0 8px; }

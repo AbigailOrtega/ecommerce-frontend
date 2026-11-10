@@ -1,5 +1,5 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
-import { resolveTheme } from '../themes';
+import { readableOnWhite, resolveTheme } from '../themes';
 import { FONTS, DEFAULT_FONT_KEY } from '../fonts';
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +26,8 @@ export class ThemeService {
         --theme-accent: ${t.accent};
         --theme-on-primary: ${t.onPrimary};
         --theme-on-accent: ${t.onAccent};
+        /* the primary color as text on white backgrounds: prices, links, titles */
+        --theme-primary-text: ${readableOnWhite(t.primary)};
       }
       mat-toolbar[color="primary"] {
         background-color: var(--theme-primary) !important;
@@ -54,7 +56,7 @@ export class ThemeService {
         --mat-stepper-header-selected-state-icon-background-color: var(--theme-primary) !important;
         --mat-stepper-header-done-state-icon-background-color: var(--theme-primary) !important;
         --mat-stepper-header-edit-state-icon-background-color: var(--theme-primary) !important;
-        --mat-stepper-header-selected-state-label-text-color: var(--theme-primary) !important;
+        --mat-stepper-header-selected-state-label-text-color: var(--theme-primary-text) !important;
         --mat-stepper-line-color: var(--theme-primary) !important;
       }
     `;

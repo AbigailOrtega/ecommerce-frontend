@@ -82,7 +82,7 @@ import { AuthService } from '@core/services/auth.service';
     .full-width { width: 100%; }
     .row { display: flex; gap: 16px; }
     .row mat-form-field { flex: 1; }
-    mat-card-actions a { color: var(--theme-primary); font-weight: 500; }
+    mat-card-actions a { color: var(--theme-primary-text, var(--theme-primary)); font-weight: 500; }
     .marketing-check { display: block; margin-bottom: 16px; font-size: 0.9rem; color: #555; }
     .submit-btn { margin-top: 4px; }
   `]

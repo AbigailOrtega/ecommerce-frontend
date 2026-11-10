@@ -117,7 +117,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
     .admin-nav a { flex: 0 1 auto; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .stat-card { display: flex; align-items: center; gap: 16px; padding: 20px; }
-    .stat-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--theme-primary); }
+    .stat-card mat-icon { font-size: 40px; width: 40px; height: 40px; color: var(--theme-primary-text, var(--theme-primary)); }
     .stat-card h3 { margin: 0; font-size: 1.6rem; }
     .stat-card p { margin: 0; color: #666; }
     .stat-card.revenue mat-icon { color: #4caf50; }
