@@ -4,6 +4,8 @@
     <div class="carousel-track" [style.transform]="'translateX(-' + carouselIndex * 100 + '%)'">
       @for (banner of banners; track banner.id) {
         <div class="carousel-slide">
+          <!-- the same picture, blurred, fills the sides when the banner is shown whole on a wide screen -->
+          <div class="carousel-backdrop" [style.background-image]="'url(' + (banner.imageUrl | cloudinary: 400) + ')'" aria-hidden="true"></div>
           @if (banner.linkUrl) {
             <a [href]="banner.linkUrl" target="_blank" rel="noopener">
               <img [src]="banner.imageUrl | cloudinary: 1600" alt="Banner promocional" class="carousel-img" [attr.loading]="$first ? null : 'lazy'" decoding="async">
@@ -31,8 +33,9 @@
 }
 
 <div class="container">
+  <div class="shop-toolbar">
   <div class="filters">
-    <mat-form-field appearance="outline" class="search-field">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
       <mat-label>Buscar productos...</mat-label>
       <input matInput [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
       <button mat-icon-button matSuffix (click)="onSearch()">
@@ -55,6 +58,7 @@
       }
     </nav>
   }
+  </div>
 
   @if (loading) {
     <app-loading />

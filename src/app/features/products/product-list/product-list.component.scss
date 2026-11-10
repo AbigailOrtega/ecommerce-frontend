@@ -1,14 +1,25 @@
 /* Carousel */
 .carousel-root {
   position: relative; width: 100%; overflow: hidden;
-  background: #000; line-height: 0; margin-bottom: 24px;
+  background: #000; line-height: 0; margin-bottom: 16px;
 }
 .carousel-track {
   display: flex; transition: transform 0.5s ease; will-change: transform;
 }
-.carousel-slide { flex: 0 0 100%; width: 100%; }
-.carousel-img { width: 100%; height: 380px; object-fit: cover; display: block; }
-@media (max-width: 767px) { .carousel-img { height: 200px; } }
+.carousel-slide { flex: 0 0 100%; width: 100%; position: relative; overflow: hidden; }
+/* The banner is shown whole, never cropped, and low enough on a laptop for the products to be
+   on the first screen: at most 30% of the window's height. Where it does not fill the width,
+   the blurred copy behind it does. On a phone it takes its natural proportion. */
+.carousel-backdrop {
+  position: absolute; inset: -24px; background-size: cover; background-position: center;
+  filter: blur(24px) brightness(0.9); transform: scale(1.1);
+}
+.carousel-img {
+  position: relative; width: 100%; height: clamp(160px, 30vh, 320px);
+  object-fit: contain; display: block;
+}
+.carousel-slide a { display: block; position: relative; }
+@media (max-width: 767px) { .carousel-img { height: auto; max-height: 30vh; } }
 .carousel-arrow {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: rgba(0,0,0,0.45); color: white; border: none;
@@ -30,12 +41,14 @@
 }
 .dot.active { background: white; transform: scale(1.2); }
 
-.filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.shop-toolbar { display: flex; gap: 8px 24px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.filters { display: flex; gap: 16px; flex: 1 1 280px; max-width: 420px; }
 .search-field { flex: 1; min-width: 250px; }
+@media (max-width: 767px) { .filters { max-width: none; } }
 
 .category-nav {
   display: flex; gap: 8px; flex-wrap: wrap;
-  margin-bottom: 24px; padding: 4px 0;
+  padding: 4px 0;
 }
 .cat-chip {
   padding: 7px 18px;
@@ -105,3 +118,10 @@ mat-card-actions { padding: 8px 16px 16px; }
 .opt-btn.oos { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
 .popup-stock { font-size: 0.85rem; color: #2e7d32; margin: -8px 0 8px; }
 .popup-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* phone: the categories in one row that scrolls sideways, instead of wrapping onto more lines */
+@media (max-width: 767px) {
+  .category-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -8px; padding: 4px 8px; }
+  .category-nav::-webkit-scrollbar { display: none; }
+  .cat-chip { flex-shrink: 0; }
+}
