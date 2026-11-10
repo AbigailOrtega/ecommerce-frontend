@@ -36,16 +36,26 @@ async function token(request: APIRequestContext, orderNumber: string): Promise<s
   return (await res.json()).data.token;
 }
 
-/** Opens the date picker and clicks the given day (the only open days are FIRST and SECOND). */
+/**
+ * Opens the date picker and clicks the given day (the only open days are FIRST and SECOND).
+ * The calendar re-renders its days when the open dates arrive; on a slow machine (CI) that can
+ * happen right as the click lands ("element was detached"), so the click is retried until the
+ * field shows the chosen day.
+ */
 async function chooseDay(page: Page, d: Date) {
-  await page.getByTestId('pickup-manage').getByRole('button', { name: /calendar|calendario/i }).click();
+  const manage = page.getByTestId('pickup-manage');
+  const field = page.getByTestId('pickup-date');
   const calendar = page.locator('mat-calendar');
-  await expect(calendar).toBeVisible();
   const cell = calendar.locator('.mat-calendar-body-cell:not(.mat-calendar-body-disabled)', { hasText: new RegExp(`^\\s*${d.getDate()}\\s*$`) });
-  // the picker opens on this month; the day may be in the next one
-  if (!(await cell.count())) await calendar.locator('.mat-calendar-next-button').click();
-  await cell.first().click();
-  await expect(page.getByTestId('pickup-date')).toHaveValue(new RegExp(String(d.getDate())));
+  await expect(async () => {
+    if (!(await calendar.isVisible())) await manage.getByRole('button', { name: /calendar|calendario/i }).click();
+    // the open days have loaded (some day is enabled)
+    await expect(calendar.locator('.mat-calendar-body-cell:not(.mat-calendar-body-disabled)').first()).toBeVisible({ timeout: 3_000 });
+    // the picker opens on this month; the day may be in the next one
+    if (!(await cell.count())) await calendar.locator('.mat-calendar-next-button').click();
+    await cell.first().click({ timeout: 2_000 });
+    await expect(field).toHaveValue(new RegExp(String(d.getDate())), { timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
 }
 
 test('guest, from the emailed link: reschedule, cancel, choose a new day', async ({ page, request }) => {
