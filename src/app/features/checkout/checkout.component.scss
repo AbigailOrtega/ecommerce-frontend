@@ -27,7 +27,7 @@
 .calc-error { color: #d32f2f; font-size: 0.875rem; margin-top: 8px; }
 .payment-options { display: flex; flex-direction: column; gap: 12px; margin: 16px 0 24px; }
 .step-actions { display: flex; gap: 12px; margin-top: 16px; }
-.free-shipping-notice { display: flex; align-items: center; gap: 10px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 12px 16px; margin-top: 12px; color: #2e7d32; font-size: 0.95rem; }
+.free-shipping-notice { display: flex; align-items: center; gap: 10px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 12px 16px; margin: 12px 0 20px; color: #2e7d32; font-size: 0.95rem; }
 .free-shipping-notice mat-icon { color: #2e7d32; flex-shrink: 0; }
 .card-form { margin-bottom: 24px; padding: 16px; }
 .card-form h4 { margin: 0 0 16px; }
@@ -46,3 +46,6 @@
 
 .zip-not-found { color: #b26a00; }
 .country-field { max-width: 240px; }
+
+/* room for the hints under the address fields: the next field's floating label sat on top of them */
+.address-fields mat-form-field { margin-bottom: 12px; }

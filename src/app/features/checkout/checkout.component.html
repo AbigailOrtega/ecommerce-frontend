@@ -1,6 +1,14 @@
 <div class="container checkout-container">
   <h1>Checkout</h1>
 
+  <!-- The good news first: it can decide how the shopper wants to receive the order -->
+  @if (hasFreeShipping && shippingConfig?.nationalEnabled) {
+    <div class="free-shipping-notice" data-testid="free-shipping-notice">
+      <mat-icon>local_shipping</mat-icon>
+      <span>¡Tu pedido tiene <strong>envío gratis</strong> a domicilio!</span>
+    </div>
+  }
+
   <!-- Guest info card (shown only when not logged in) -->
   @if (!authService.isLoggedIn()) {
     <mat-card class="guest-card">
@@ -51,7 +59,7 @@
                 <span class="type-icon">📦</span>
                 <div class="type-info">
                   <strong>Envío Nacional</strong>
-                  <span>Precio calculado según distancia</span>
+                  <span>{{ hasFreeShipping ? 'Gratis en tu pedido' : 'Precio calculado según distancia' }}</span>
                 </div>
               </div>
             }
@@ -84,6 +92,7 @@
 
         @if (typeForm.get('shippingType')?.value === 'NATIONAL') {
           <h3 class="section-label">Dirección de entrega</h3>
+          <div class="address-fields">
           <div class="row">
             <mat-form-field appearance="outline">
               <mat-label>Código postal</mat-label>
@@ -134,13 +143,9 @@
             <mat-label>País</mat-label>
             <input matInput formControlName="shippingCountry" readonly>
           </mat-form-field>
+          </div>
 
-          @if (hasFreeShipping) {
-            <div class="free-shipping-notice">
-              <mat-icon>local_shipping</mat-icon>
-              <span>¡Tu pedido tiene <strong>envío gratis</strong>!</span>
-            </div>
-          } @else {
+          @if (!hasFreeShipping) {
             <button mat-stroked-button color="primary" type="button"
                     (click)="calculateShipping()"
                     [disabled]="!isAddressReady() || calculatingShipping">

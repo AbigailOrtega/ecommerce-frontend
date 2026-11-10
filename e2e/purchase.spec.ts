@@ -301,3 +301,32 @@ test.describe('Address from the postal code', () => {
     await expect(page.getByText('45/45')).toBeVisible();
   });
 });
+
+test.describe('Free shipping', () => {
+  test('the notice is at the top of the checkout, and the national option says it is free', async ({ page, request }) => {
+    // this page only: free shipping from $0 (changing the real config would affect parallel tests)
+    await page.route('**/api/shipping/config', async route => {
+      const response = await route.fetch();
+      const body = await response.json();
+      body.data = { ...body.data, nationalEnabled: true, freeShippingEnabled: true, freeShippingMinAmount: 0 };
+      await route.fulfill({ response, json: body });
+    });
+    await addToCartFromDetail(page, (await createProduct(request)).slug);
+    await page.goto('/checkout');
+
+    const notice = page.getByTestId('free-shipping-notice');
+    await expect(notice).toContainText('envío gratis');
+    // above the steps, before any address is asked for
+    const noticeBox = (await notice.boundingBox())!;
+    const stepperBox = (await page.locator('mat-stepper').boundingBox())!;
+    expect(noticeBox.y).toBeLessThan(stepperBox.y);
+    await expect(page.locator('.type-card').filter({ hasText: 'Envío Nacional' })).toContainText('Gratis en tu pedido');
+
+    await fillGuestContact(page, `free${unique()}@test.com`);
+    await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
+    await page.locator('button:has-text("Continuar")').first().click();
+    await page.getByTestId('zip-code').fill('06700');
+    await expect(page.getByTestId('neighborhood')).toHaveValue('Roma Norte');
+    await page.screenshot({ path: 'test-results/free-shipping-checkout.png', fullPage: true });
+  });
+});
