@@ -42,6 +42,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/checkout/order-confirmation/order-confirmation.component').then(m => m.OrderConfirmationComponent),
   },
   {
+    // the link in the pickup emails: reschedule or cancel without an account
+    path: 'recoleccion/:orderNumber',
+    title: 'Tu recolección',
+    data: { noindex: true },
+    loadComponent: () => import('./features/orders/pickup-link/pickup-link.component').then(m => m.PickupLinkComponent),
+  },
+  {
     path: 'rastrear-pedido',
     title: 'Rastrear pedido',
     loadComponent: () => import('./features/orders/track-order/track-order.component').then(m => m.TrackOrderComponent),

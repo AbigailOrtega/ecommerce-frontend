@@ -53,4 +53,19 @@ export class OrderService {
   cancelOwnPickup(orderNumber: string): Observable<ApiResponse<Order>> {
     return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}/cancel-pickup`, null);
   }
+
+  // ── The emailed pickup link (no account): the token travels in a header, not in the API URL ──
+
+  getPickupWithToken(orderNumber: string, token: string): Observable<ApiResponse<Order>> {
+    return this.http.get<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}/pickup`, { headers: { 'X-Pickup-Token': token } });
+  }
+
+  reschedulePickupWithToken(orderNumber: string, token: string, pickupDate: string, pickupAvailabilityId?: number): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}/pickup/reschedule`,
+      { pickupDate, pickupAvailabilityId: pickupAvailabilityId ?? null }, { headers: { 'X-Pickup-Token': token } });
+  }
+
+  cancelPickupWithToken(orderNumber: string, token: string): Observable<ApiResponse<Order>> {
+    return this.http.post<ApiResponse<Order>>(`${this.apiUrl}/${orderNumber}/pickup/cancel`, null, { headers: { 'X-Pickup-Token': token } });
+  }
 }
