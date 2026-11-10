@@ -136,3 +136,6 @@ select.fi { cursor: pointer; }
   .rate-item { gap: 6px; }
   .shipment-row { flex-wrap: wrap; }
 }
+
+.delivery-notes { background: #fff8e1; border-color: #ffe082; color: #5d4037; }
+.delivery-notes .notes-text { white-space: pre-line; overflow-wrap: anywhere; }

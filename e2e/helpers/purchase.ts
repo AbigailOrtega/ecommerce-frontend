@@ -161,7 +161,8 @@ export async function fillGuestContact(page: Page, email: string): Promise<void>
 }
 
 /** Checkout steps 1–3 with national shipping, ending on the payment step. */
-export async function goToPaymentWithNationalShipping(page: Page, onReview?: () => Promise<void>): Promise<void> {
+export async function goToPaymentWithNationalShipping(page: Page, onReview?: () => Promise<void>,
+                                                      onDelivery?: () => Promise<void>): Promise<void> {
   await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
   await page.locator('button:has-text("Continuar")').first().click();
 
@@ -173,6 +174,7 @@ export async function goToPaymentWithNationalShipping(page: Page, onReview?: () 
     await expect(calculate).toBeEnabled({ timeout: 1000 });
   }).toPass({ timeout: 15000 });
   await calculate.click();
+  if (onDelivery) await onDelivery();
 
   const toReview = page.locator('button:has-text("Continuar al Pago")').first();
   await expect(toReview).toBeEnabled({ timeout: 15000 });

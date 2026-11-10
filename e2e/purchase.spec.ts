@@ -124,13 +124,38 @@ test.describe('Purchase — guest', () => {
     expect(await productStock(request, product.slug)).toBe(1);
   });
 
-  test('cannot pay until the contact details are filled in', async ({ page, request }) => {
+  test('cannot leave the first step until the contact details are filled in', async ({ page, request }) => {
     await addToCartFromDetail(page, (await createProduct(request)).slug);
     await page.goto('/checkout');
-    await goToPaymentWithNationalShipping(page);
+    await page.locator('.type-card').filter({ hasText: 'Envío Nacional' }).click();
+    await page.locator('button:has-text("Continuar")').first().click();
 
-    await expect(page.getByText('Completa tus datos de contacto')).toBeVisible();
-    await expect(page.locator('button:has-text("Realizar Pedido")')).toBeDisabled();
+    await expect(page.getByRole('alert')).toContainText('Completa tus datos de contacto');
+    await expect(page.getByText('Escribe tu nombre')).toBeVisible();
+    await expect(page.locator('[formControlName="shippingAddress"]')).toBeHidden();
+
+    await fillGuestContact(page, `late${unique()}@test.com`);
+    await expect(page.getByRole('alert')).toBeHidden();
+    await page.locator('button:has-text("Continuar")').first().click();
+    await expect(page.locator('[formControlName="shippingAddress"]')).toBeVisible();
+  });
+
+  test('delivery instructions written in step 2 reach the order', async ({ page, request }) => {
+    await addToCartFromDetail(page, (await createProduct(request)).slug);
+    await page.goto('/checkout');
+    await fillGuestContact(page, `notes${unique()}@test.com`);
+    const created = page.waitForResponse(r => r.url().endsWith('/orders/guest') && r.ok());
+    await goToPaymentWithNationalShipping(page, undefined, async () => {
+      await page.getByTestId('delivery-notes').fill('Casa azul, tocar timbre 2');
+      await expect(page.getByText('25/255')).toBeVisible();
+    });
+    await payWithCard(page);
+    const orderNumber = (await (await created).json()).data.orderNumber;
+
+    const res = await request.get(`${API}/admin/orders?search=${orderNumber}`, {
+      headers: { Authorization: `Bearer ${await adminToken(request)}` },
+    });
+    expect((await res.json()).data.content[0].notes).toBe('Casa azul, tocar timbre 2');
   });
 });
 

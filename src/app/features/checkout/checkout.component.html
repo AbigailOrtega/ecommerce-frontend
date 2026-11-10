@@ -4,22 +4,26 @@
   <!-- Guest info card (shown only when not logged in) -->
   @if (!authService.isLoggedIn()) {
     <mat-card class="guest-card">
-      <h3 class="section-label">Tus datos de contacto</h3>
+      <h3 class="section-label" id="contact-title">Tus datos de contacto</h3>
       <form [formGroup]="guestForm">
         <div class="row">
           <mat-form-field appearance="outline">
             <mat-label>Nombre</mat-label>
-            <input matInput formControlName="guestFirstName">
+            <input matInput formControlName="guestFirstName" autocomplete="given-name">
+            <mat-error>Escribe tu nombre</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Apellido</mat-label>
-            <input matInput formControlName="guestLastName">
+            <input matInput formControlName="guestLastName" autocomplete="family-name">
+            <mat-error>Escribe tu apellido</mat-error>
           </mat-form-field>
         </div>
         <div class="row">
           <mat-form-field appearance="outline">
             <mat-label>Correo electrónico</mat-label>
-            <input matInput formControlName="guestEmail" type="email">
+            <input matInput formControlName="guestEmail" type="email" autocomplete="email">
+            <mat-hint>Ahí te enviamos la confirmación y el rastreo.</mat-hint>
+            <mat-error>{{ guestForm.get('guestEmail')?.hasError('email') ? 'Correo no válido' : 'Escribe tu correo' }}</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Teléfono (opcional)</mat-label>
@@ -33,7 +37,7 @@
   <mat-stepper linear #stepper>
 
     <!-- ── Step 1: Tipo de Envío ── -->
-    <mat-step [stepControl]="typeForm" label="Tipo de Envío">
+    <mat-step [stepControl]="step1Form" label="Tipo de Envío">
       <form [formGroup]="typeForm">
         <h3 class="section-label">¿Cómo deseas recibir tu pedido?</h3>
 
@@ -64,7 +68,11 @@
           </div>
         }
 
-        <button mat-raised-button color="primary" matStepperNext [disabled]="typeForm.invalid">
+        @if (contactMissing) {
+          <p class="contact-missing" role="alert">Completa tus datos de contacto (arriba) para continuar.</p>
+        }
+        <button mat-raised-button color="primary" matStepperNext [disabled]="typeForm.invalid"
+                (click)="checkContact()">
           Continuar
         </button>
       </form>
@@ -236,6 +244,18 @@
           }
         }
 
+        <mat-form-field appearance="outline" class="full-width delivery-notes">
+          <mat-label>Indicaciones para la entrega (opcional)</mat-label>
+          <textarea matInput [formControl]="notesControl" rows="2" maxlength="255" data-testid="delivery-notes"
+                    [placeholder]="typeForm.get('shippingType')?.value === 'PICKUP'
+                      ? 'Ej. pasará a recoger mi hermana Ana'
+                      : 'Ej. casa azul, tocar el timbre 2, dejar con el portero'"></textarea>
+          <mat-hint>{{ typeForm.get('shippingType')?.value === 'PICKUP'
+            ? 'Las leemos al preparar tu pedido.'
+            : 'Van impresas en la guía del repartidor (resumidas si son largas).' }}</mat-hint>
+          <mat-hint align="end">{{ notesControl.value?.length || 0 }}/255</mat-hint>
+        </mat-form-field>
+
         <div class="step-actions">
           <button mat-button matStepperPrevious>Atrás</button>
           <button mat-raised-button color="primary" matStepperNext [disabled]="!isDeliveryStepValid()">
@@ -319,11 +339,6 @@
             }
           </mat-card>
         }
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notas del pedido (opcional)</mat-label>
-          <textarea matInput formControlName="notes" rows="3"></textarea>
-        </mat-form-field>
 
         @if (processingPayment) {
           <div class="processing-overlay">

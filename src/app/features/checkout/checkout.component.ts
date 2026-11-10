@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy, AfterViewChecked, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,6 +38,9 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('paypalButtonContainer') paypalButtonContainerRef!: ElementRef;
 
   guestForm: FormGroup;
+  step1Form: FormGroup;
+  /** Shown under step 1 after trying to continue without contact details. */
+  contactMissing = false;
   typeForm: FormGroup;
   deliveryForm: FormGroup;
   paymentForm: FormGroup;
@@ -143,6 +146,14 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       shippingType: [null, Validators.required],
     });
 
+    // A guest cannot leave step 1 without contact details: the email is where the confirmation
+    // goes, and the payment form only loads once they are there. Signed-in users have them.
+    if (this.authService.isLoggedIn()) this.guestForm.disable();
+    this.step1Form = this.fb.group({ type: this.typeForm, contact: this.guestForm });
+    this.guestForm.statusChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(status => {
+      if (status === 'VALID') this.contactMissing = false;
+    });
+
     this.deliveryForm = this.fb.group({
       shippingAddress: [''],
       shippingCity: [''],
@@ -155,7 +166,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.paymentForm = this.fb.group({
       paymentMethod: ['stripe', Validators.required],
-      notes: [''],
+      notes: ['', Validators.maxLength(255)],
     });
 
     this.paymentForm.get('paymentMethod')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(method => {
@@ -195,6 +206,21 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   ngOnDestroy(): void {
     this.destroyStripeElement();
     this.destroyPayPalButtons();
+  }
+
+  /** Delivery instructions: shown in step 2, kept in the payment form that submits them. */
+  get notesControl(): FormControl {
+    return this.paymentForm.get('notes') as FormControl;
+  }
+
+  checkContact(): void {
+    if (this.authService.isLoggedIn() || this.guestForm.valid) {
+      this.contactMissing = false;
+      return;
+    }
+    this.guestForm.markAllAsTouched();
+    this.contactMissing = true;
+    document.getElementById('contact-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   selectType(type: string): void {

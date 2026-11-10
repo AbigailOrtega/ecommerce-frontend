@@ -76,3 +76,35 @@ describe('OrderManagementComponent – Skydropx rate selection', () => {
     expect(adminService.createSkydropxShipment).toHaveBeenCalledWith(order.id, 'r-paq');
   });
 });
+
+describe('OrderManagementComponent – customer delivery instructions', () => {
+  const base: any = {
+    id: 8, orderNumber: 'ORD-8', status: 'CONFIRMED', shippingType: 'NATIONAL', paymentMethod: 'stripe',
+    items: [], totalAmount: 500, subtotal: 400, shippingCost: 100, discountAmount: 0,
+    createdAt: '2026-11-02T10:00:00', guestEmail: 'a@b.com', shippingAddress: 'Calle Falsa 123',
+  };
+
+  function render(order: any): HTMLElement {
+    const adminService = jasmine.createSpyObj('AdminService', ['getAllOrders']);
+    adminService.getAllOrders.and.returnValue(of({ data: { content: [order], totalElements: 1 } } as any));
+    TestBed.configureTestingModule({
+      imports: [OrderManagementComponent],
+      providers: [provideNoopAnimations(), provideRouter([]), { provide: AdminService, useValue: adminService }],
+    });
+    const fixture = TestBed.createComponent(OrderManagementComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.expandedOrderId = order.id;
+    fixture.detectChanges();
+    return fixture.nativeElement;
+  }
+
+  it('shows what the buyer wrote in the order detail', () => {
+    const el = render({ ...base, notes: 'Casa azul, tocar timbre 2' });
+    expect(el.querySelector('[data-testid="order-notes"]')?.textContent).toContain('Casa azul, tocar timbre 2');
+  });
+
+  it('shows no instructions block when there are none', () => {
+    const el = render({ ...base, notes: '   ' });
+    expect(el.querySelector('[data-testid="order-notes"]')).toBeNull();
+  });
+});
