@@ -20,8 +20,13 @@ const unique = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
  */
 function recordIntents(page: Page): () => Promise<string> {
   const ids: string[] = [];
-  page.on('response', async r => {
-    if (r.url().includes('/payments/stripe/create-intent') && r.ok()) ids.push((await r.json()).data.paymentIntentId);
+  // through page.route: reading the body from a 'response' event can fail once the checkout has
+  // navigated on ("No data found for resource")
+  page.route('**/payments/stripe/create-intent', async route => {
+    const response = await route.fetch();
+    const body = await response.json();
+    if (response.ok()) ids.push(body.data.paymentIntentId);
+    await route.fulfill({ response, json: body });
   });
   return async () => {
     await expect.poll(() => ids.length).toBeGreaterThan(0);

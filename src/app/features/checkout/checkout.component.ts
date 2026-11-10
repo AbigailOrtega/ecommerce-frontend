@@ -22,8 +22,8 @@ import { CheckoutSummaryComponent } from './checkout-summary/checkout-summary.co
 import { ShippingService } from '@core/services/shipping.service';
 import { AuthService } from '@core/services/auth.service';
 import { GuestOrderItemRequest, GuestOrderRequest, OrderRequest, PickupAvailability, PickupLocation, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
-import { Stripe, StripeElements } from '@stripe/stripe-js';
-import { switchMap } from 'rxjs';
+import { Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
+import { switchMap, merge } from 'rxjs';
 
 @Component({
     selector: 'app-checkout',
@@ -80,6 +80,13 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private stripe: Stripe | null = null;
   private elements: StripeElements | null = null;
+  private paymentElement: StripePaymentElement | null = null;
+  /**
+   * The order created for the current payment intent. Kept when the card is declined, so that a
+   * retry with another card pays that order (the API refuses a second order for the same payment).
+   */
+  private stripeOrderNumber: string | null = null;
+  private stripeOrderTotal: number | null = null;
   private clientSecret: string | null = null;
   private paymentIntentId: string | null = null;
   private stripeMountRequested = false;
@@ -168,6 +175,13 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       paymentMethod: ['stripe', Validators.required],
       notes: ['', Validators.maxLength(255)],
     });
+
+    // After a declined card the order exists with these details; if they change, start over with a
+    // new payment (and a new order on the next attempt). The unpaid order is cancelled after an hour.
+    merge(this.typeForm.valueChanges, this.deliveryForm.valueChanges, this.guestForm.valueChanges,
+          this.paymentForm.get('notes')!.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => { if (this.stripeOrderNumber) this.destroyStripeElement(); });
 
     this.paymentForm.get('paymentMethod')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(method => {
       if (method !== 'stripe') this.destroyStripeElement();
@@ -404,11 +418,10 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
         this.elements = this.stripe!.elements({ clientSecret: this.clientSecret });
         const paymentElement = this.elements.create('payment');
+        this.paymentElement = paymentElement;
         paymentElement.mount(this.stripeElementRef.nativeElement);
         this.stripeMounted = true;
         paymentElement.on('ready', () => { this.stripeReady = true; });
-        // the Payment Element reports problems on confirm, not on change: editing clears the last error
-        paymentElement.on('change', () => { this.stripeError = null; });
       },
       error: (err) => {
         this.stripeLoading = false;
@@ -432,6 +445,9 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private destroyStripeElement(): void {
+    this.paymentElement?.destroy();
+    this.paymentElement = null;
+    this.stripeOrderNumber = null;
     this.stripeInitFailed = false;
     this.elements = null;
     this.stripeReady = false;
@@ -536,6 +552,7 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   placeOrder(): void {
     this.loading = true;
+    this.stripeError = null;   // the last attempt's error; Stripe also marks the card field itself
     const method = this.paymentForm.get('paymentMethod')?.value;
     if (method === 'stripe') {
       this.processStripePayment();
@@ -550,7 +567,24 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.loading = false;
       return;
     }
-    this.submitOrder(this.paymentIntentId, () => this.confirmStripePayment());
+    if (this.stripeOrderNumber && this.stripeOrderTotal !== this.totalWithShipping) {
+      // the total moved (shipping rate, coupon…) since that order: it no longer matches
+      this.destroyStripeElement();
+      this.snackBar.open('El total cambió. Vuelve a escribir los datos de tu tarjeta.', 'Cerrar', { duration: 5000 });
+      this.loading = false;
+      return;
+    }
+    if (this.stripeOrderNumber) {
+      // a previous card was declined: pay the order that already exists
+      this.savedOrderNumber = this.stripeOrderNumber;
+      this.confirmStripePayment();
+      return;
+    }
+    this.submitOrder(this.paymentIntentId, () => {
+      this.stripeOrderNumber = this.savedOrderNumber;
+      this.stripeOrderTotal = this.totalWithShipping;
+      this.confirmStripePayment();
+    });
   }
 
   private async confirmStripePayment(): Promise<void> {
@@ -562,9 +596,11 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
     this.processingPayment = false;
     if (error) {
+      // Declined card, failed 3-D Secure…: nothing was charged. Stay here so the shopper can try
+      // another card (or PayPal); before, they were sent to "¡Pedido confirmado!".
       this.loading = false;
-      this.onOrderSuccess(this.savedOrderNumber!);
-      this.snackBar.open(error.message || 'Pago fallido. Tu pedido se actualizará automáticamente.', 'Cerrar', { duration: 5000 });
+      this.stripeError = `${error.message ?? 'No se pudo completar el pago.'} No se hizo ningún cargo: `
+        + 'prueba con otra tarjeta o paga con PayPal.';
     } else if (paymentIntent) {
       if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing' || paymentIntent.status === 'requires_capture') {
         const msg = paymentIntent.status === 'succeeded'

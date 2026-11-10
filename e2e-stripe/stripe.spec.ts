@@ -106,7 +106,9 @@ test.describe('Stripe — payments', () => {
 test.describe('Stripe — payments that do not go through', () => {
   test('declined card → order kept PENDING for a retry, then cancelled: stock back, intent voided', async ({ page, request }) => {
     const { orderNumber, slug } = await guestCheckout(page, request, CARDS.declined, { stock: 3 });
-    await expect(page.locator('mat-snack-bar-container')).toContainText(/declin|rechaz/i);
+    // the shopper stays on the payment step with the reason; never "¡Pedido confirmado!"
+    await expect(page.locator('.stripe-error')).toContainText('No se hizo ningún cargo');
+    await expect(page).toHaveURL(/\/checkout/);
 
     const intentId = await orderIntentId(request, orderNumber);
     await findEvent('payment_intent.payment_failed', intentId);
@@ -119,9 +121,25 @@ test.describe('Stripe — payments that do not go through', () => {
     expect((await getIntent(intentId)).status).toBe('canceled');
   });
 
+  test('declined card, then another card → the same order is paid (no second order)', async ({ page, request }) => {
+    const orders: string[] = [];
+    page.on('request', r => { if (/\/api\/orders(\/guest)?$/.test(r.url()) && r.method() === 'POST') orders.push(r.url()); });
+    const { orderNumber, slug } = await guestCheckout(page, request, CARDS.declined, { stock: 3 });
+    await expect(page.locator('.stripe-error')).toContainText('No se hizo ningún cargo');
+
+    await fillStripeCard(page, CARDS.visa);
+    await clickPlaceOrder(page);
+
+    await expect(page).toHaveURL(/\/confirmacion/, { timeout: 30_000 });
+    await expectStatus(request, orderNumber, 'CONFIRMED');
+    expect(orders).toHaveLength(1);
+    expect(await productStock(request, slug)).toBe(2);
+  });
+
   test('3-D Secure failed → order cancelled once settled', async ({ page, request }) => {
     const { orderNumber, slug } = await guestCheckout(page, request, CARDS.threeDSecure, { stock: 3 });
     await answer3DSecure(page, 'fail');
+    await expect(page.locator('.stripe-error')).toContainText('No se hizo ningún cargo');
     await findEvent('payment_intent.payment_failed', await orderIntentId(request, orderNumber));
     expect((await trackOrder(request, orderNumber)).status).toBe('PENDING');
 
