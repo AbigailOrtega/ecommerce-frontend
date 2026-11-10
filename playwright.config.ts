@@ -78,7 +78,7 @@ export default defineConfig({
     {
       name: 'public-tests',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /product-list\.spec|product-detail\.spec|about\.spec|ssr\.spec/,
+      testMatch: /product-list\.spec|product-detail\.spec|about\.spec|ssr\.spec|deploy\.spec/,
     },
   ],
 });

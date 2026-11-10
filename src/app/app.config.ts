@@ -1,5 +1,6 @@
 import { ApplicationConfig, LOCALE_ID, inject, provideAppInitializer, DEFAULT_CURRENCY_CODE, provideZoneChangeDetection } from '@angular/core';
-import { TitleStrategy, provideRouter } from '@angular/router';
+import { TitleStrategy, provideRouter, withNavigationErrorHandler } from '@angular/router';
+import { reloadOnStaleChunk } from './core/stale-chunks';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -17,7 +18,8 @@ registerLocaleData(localeEsMx);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    // a page left open across a deploy asks for chunks that are gone: load the new version
+    provideRouter(routes, withNavigationErrorHandler(reloadOnStaleChunk)),
     { provide: TitleStrategy, useClass: SeoTitleStrategy },
     provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])),
     provideAnimationsAsync(),
