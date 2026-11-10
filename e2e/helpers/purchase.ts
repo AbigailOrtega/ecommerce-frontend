@@ -201,3 +201,36 @@ export async function payWithPayPal(page: Page): Promise<void> {
   await page.getByRole('radio', { name: 'PayPal' }).check();
   await page.getByTestId('fake-paypal-button').click({ timeout: 15000 });
 }
+
+/**
+ * The response to the order creation POST. Read through page.route, because the checkout
+ * navigates away as soon as it arrives and Chrome then drops the body (page.waitForResponse
+ * fails with "No data found for resource").
+ */
+export function captureOrderCreation(page: Page): Promise<{ status: number; body: any }> {
+  const pattern = /\/api\/orders(\/guest)?$/;
+  return new Promise(resolve => {
+    page.route(pattern, async route => {
+      if (route.request().method() !== 'POST') return route.continue();
+      const response = await route.fetch();
+      const text = await response.text();
+      await route.fulfill({ response, body: text });
+      await page.unroute(pattern);
+      resolve({ status: response.status(), body: text ? JSON.parse(text) : null });
+    });
+  });
+}
+
+/**
+ * Sets the quantity on a product page with its "+" button. Right after the server-rendered page
+ * loads, a click can land before the button is wired up and be lost, so click until it shows.
+ */
+export async function setQuantity(page: Page, quantity: number): Promise<void> {
+  const shown = page.locator('.quantity-section .quantity');
+  const plus = page.locator('.quantity-section button').nth(1);
+  await expect(async () => {
+    const current = Number((await shown.innerText()).trim());
+    if (current < quantity) await plus.click();
+    await expect(shown).toHaveText(String(quantity), { timeout: 1_000 });
+  }).toPass({ timeout: 15_000 });
+}

@@ -1,6 +1,8 @@
 import { APIRequestContext, Frame, Page, expect } from '@playwright/test';
 import * as crypto from 'crypto';
-import { API, adminToken, trackOrder } from '../e2e/helpers/purchase';
+import { API, adminToken, captureOrderCreation, trackOrder } from '../e2e/helpers/purchase';
+
+export { captureOrderCreation };
 
 /** https://docs.stripe.com/testing */
 export const CARDS = {
@@ -114,24 +116,6 @@ export async function payWithStripeCard(page: Page, card: string): Promise<strin
   return body.data.orderNumber;
 }
 
-/**
- * The response to the order creation POST. Read through page.route, because the checkout
- * navigates away as soon as it arrives and Chrome then drops the body (page.waitForResponse
- * fails with "No data found for resource").
- */
-export function captureOrderCreation(page: Page): Promise<{ status: number; body: any }> {
-  const pattern = /\/api\/orders(\/guest)?$/;
-  return new Promise(resolve => {
-    page.route(pattern, async route => {
-      if (route.request().method() !== 'POST') return route.continue();
-      const response = await route.fetch();
-      const text = await response.text();
-      await route.fulfill({ response, body: text });
-      await page.unroute(pattern);
-      resolve({ status: response.status(), body: text ? JSON.parse(text) : null });
-    });
-  });
-}
 
 /**
  * Clicks "Realizar Pedido" the way a shopper does: with the button already on screen. Right after

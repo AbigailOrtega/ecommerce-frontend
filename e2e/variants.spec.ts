@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import {
   addToCartFromDetail, createProduct, fillGuestContact, getProduct, goToPaymentWithNationalShipping,
-  payWithCard, registerAndLogin, trackOrder, useFakePaymentProviders,
+  payWithCard, registerAndLogin, trackOrder, useFakePaymentProviders, setQuantity,
 } from './helpers/purchase';
 
 test.describe.configure({ timeout: 90_000 });
@@ -82,7 +82,7 @@ test.describe('Variants and stock', () => {
     const product = await createProduct(request, { stock: 1 });
     await registerAndLogin(page, request);
     await page.goto(`/products/${product.slug}`);
-    await page.locator('.quantity-section button').nth(1).click();
+    await setQuantity(page, 2);
     await page.locator('button.add-btn').click();
 
     await expect(page.locator('mat-snack-bar-container')).toContainText('Error al agregar al carrito');

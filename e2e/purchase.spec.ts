@@ -1,8 +1,8 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import { sessionToken } from './helpers/auth';
 import {
-  API, addToCartFromDetail, adminToken, createCoupon, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
-  productStock, registerAndLogin, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
+  API, addToCartFromDetail, adminToken, captureOrderCreation, createCoupon, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard, payWithPayPal,
+  productStock, registerAndLogin, sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders, setQuantity,
 } from './helpers/purchase';
 
 // Complete purchases, from the product page to a confirmed order. Each test buys a product it
@@ -93,16 +93,19 @@ test.describe('Purchase — guest', () => {
     const product = await createProduct(request, { stock: 3 });
     await addToCartFromDetail(page, product.slug);
     await page.goto('/checkout');
-    await fillGuestContact(page, `declined${unique()}@test.com`);
+    const email = `declined${unique()}@test.com`;
+    await fillGuestContact(page, email);
     await goToPaymentWithNationalShipping(page);
 
-    const declined = await request.post(`${API}/e2e/paypal/decline-next-capture`, {
+    // declines this buyer's capture only: a global "next capture" switch was taken by whichever
+    // test running in parallel captured first
+    const declined = await request.post(`${API}/e2e/paypal/decline-capture?email=${encodeURIComponent(email)}`, {
       headers: { Authorization: `Bearer ${await adminToken(request)}` },
     });
     expect(declined.ok()).toBeTruthy();
-    const created = page.waitForResponse(r => r.url().endsWith('/orders/guest') && r.ok());
+    const created = captureOrderCreation(page);
     await payWithPayPal(page);
-    const orderNumber = (await (await created).json()).data.orderNumber;
+    const orderNumber = (await created).body.data.orderNumber;
 
     await expect(page.locator('mat-snack-bar-container')).toContainText('PayPal no pudo completar el pago');
     await expect(page).toHaveURL(/\/checkout/);
@@ -113,7 +116,7 @@ test.describe('Purchase — guest', () => {
   test('PayPal: an order that cannot be created (not enough stock) is never charged', async ({ page, request }) => {
     const product = await createProduct(request, { stock: 1 });
     await page.goto(`/products/${product.slug}`);
-    await page.locator('.quantity-section button').nth(1).click();   // quantity 2, stock 1
+    await setQuantity(page, 2);   // quantity 2, stock 1
     await page.locator('button.add-btn').click();
 
     const captures: string[] = [];

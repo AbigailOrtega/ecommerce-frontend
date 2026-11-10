@@ -1,7 +1,7 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import {
   API, addToCartFromDetail, createCoupon, createProduct, fillGuestContact, goToPaymentWithNationalShipping,
-  productStock, registerAndLogin, trackOrder,
+  productStock, registerAndLogin, setQuantity, trackOrder,
 } from '../e2e/helpers/purchase';
 import {
   CARDS, answer3DSecure, captureOrderCreation, cents, clickPlaceOrder, confirmIntentWithVisa, expectStatus, fillStripeCard, findEvent, getIntent, orderIntentId,
@@ -80,7 +80,7 @@ test.describe('Stripe — payments', () => {
   test('not enough stock → the order is refused and the card is never charged', async ({ page, request }) => {
     const product = await createProduct(request, { stock: 1 });
     await page.goto(`/products/${product.slug}`);
-    await page.locator('.quantity-section button').nth(1).click();   // quantity 2, stock 1
+    await setQuantity(page, 2);   // quantity 2, stock 1
     await page.locator('button.add-btn').click();
 
     const intents: string[] = [];
