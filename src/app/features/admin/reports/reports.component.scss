@@ -9,7 +9,7 @@
 .type-row mat-icon { font-size: 18px; width: 18px; height: 18px; }
 .period-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
 .period-label { font-size: 0.9rem; color: #666; }
-.active-type { background: var(--theme-primary) !important; color: white !important; }
+.active-type { background: var(--theme-primary) !important; color: var(--theme-on-primary, white) !important; }
 .active-period { background: #1565c0 !important; color: white !important; }
 
 /* KPIs */

@@ -422,6 +422,36 @@ test.describe('Admin › Store Info', () => {
     expect(hasEmpty || hasGrid).toBe(true);
   });
 
+  test('custom store color: previews any color, with dark text on a light one (not saved)', async ({ page }) => {
+    await page.goto('/admin/store-info');
+    const box = page.getByTestId('custom-color');
+    await expect(box).toContainText('Personalizado');
+
+    // a light color: the bar takes it at once, and its text turns dark to stay readable
+    await page.getByTestId('custom-color-hex').fill('#ffd740');
+    await page.getByTestId('custom-color-hex').press('Enter');
+    await page.getByTestId('custom-color-hex').blur();
+    const toolbar = page.locator('mat-toolbar').first();
+    await expect(toolbar).toHaveCSS('background-color', 'rgb(255, 215, 64)');
+    await expect(toolbar.locator('a').first()).toHaveCSS('color', 'rgb(33, 33, 33)');
+    await expect(box).toContainText('el texto sobre él será oscuro');
+    await page.screenshot({ path: 'test-results/custom-color-light.png' });
+
+    // a dark color: white text again
+    await page.getByTestId('custom-color-hex').fill('#1e7a7f');
+    await page.getByTestId('custom-color-hex').blur();
+    await expect(toolbar).toHaveCSS('background-color', 'rgb(30, 122, 127)');
+    await expect(toolbar.locator('a').first()).toHaveCSS('color', 'rgb(255, 255, 255)');
+
+    // not a color: says so and keeps the last valid one
+    await page.getByTestId('custom-color-hex').fill('rojo');
+    await page.getByTestId('custom-color-hex').blur();
+    await expect(box).toContainText('Usa el formato #RRGGBB');
+    await expect(toolbar).toHaveCSS('background-color', 'rgb(30, 122, 127)');
+    await page.screenshot({ path: 'test-results/custom-color-box.png', fullPage: true });
+    // leaving without "Guardar" keeps the saved theme for everyone else
+  });
+
   test('dashboard "Info General" link navigates to /admin/store-info', async ({ page }) => {
     await page.goto('/admin');
     await page.waitForSelector('.admin-nav', { timeout: 10000 });

@@ -65,7 +65,7 @@ import { AuthService } from '@core/services/auth.service';
   `,
   styles: [`
     :host { display: contents; }
-    button { color: white; }
+    button { color: var(--theme-on-primary, white); }
     .mobile-only { display: none !important; }
     .menu-header { padding: 8px 16px; font-weight: 500; border-bottom: 1px solid #eee; margin-bottom: 4px; }
     @media (max-width: 767px) {

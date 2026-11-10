@@ -14,7 +14,7 @@ import { StoreInfoService } from '@core/services/store-info.service';
 import { AdminService } from '@core/services/admin.service';
 import { ThemeService } from '@core/services/theme.service';
 import { StoreInfo, StoreImage } from '@shared/models';
-import { THEMES, DEFAULT_THEME_KEY } from '@core/themes';
+import { THEMES, DEFAULT_THEME_KEY, customHex, customThemeKey, resolveTheme } from '@core/themes';
 import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
 
 @Component({
@@ -62,6 +62,8 @@ export class StoreInfoComponent implements OnInit {
         this.images = d.images ?? [];
         this.logoPreview = d.logoUrl ?? null;
         if (d.themeKey) this.selectedTheme = d.themeKey;
+        const saved = customHex(d.themeKey);
+        if (saved) this.customColor = saved;
         if (d.fontKey) this.selectedFont = d.fontKey;
       },
     });
@@ -70,6 +72,32 @@ export class StoreInfoComponent implements OnInit {
   selectTheme(key: string): void {
     this.selectedTheme = key;
     this.themeService.apply(key, this.selectedFont);
+  }
+
+  // ── Custom color ──
+  /** The color in the "Personalizado" box (kept when a palette is picked, to come back to it). */
+  customColor = '#1e7a7f';
+  customColorInvalid = false;
+
+  get isCustom(): boolean {
+    return customHex(this.selectedTheme) !== null;
+  }
+
+  get customPreview() {
+    return resolveTheme(customThemeKey(this.customColor));
+  }
+
+  get customTextIsDark(): boolean {
+    return this.isCustom && this.customPreview.onPrimary !== '#ffffff';
+  }
+
+  pickCustomColor(value: string): void {
+    const hex = value.trim().toLowerCase();
+    const normalized = /^#?[0-9a-f]{6}$/.test(hex) ? (hex.startsWith('#') ? hex : '#' + hex) : null;
+    this.customColorInvalid = !normalized;
+    if (!normalized) return;
+    this.customColor = normalized;
+    this.selectTheme(customThemeKey(normalized));
   }
 
   selectFont(key: string): void {

@@ -50,7 +50,7 @@ h1 { margin: 8px 0 16px; }
 .variant-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .variant-btn { padding: 6px 16px; border: 1.5px solid #ccc; border-radius: 4px; background: white; cursor: pointer; font-size: 0.9rem; transition: all 0.15s; }
 .variant-btn:hover { border-color: var(--theme-primary); color: var(--theme-primary); }
-.variant-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: white; }
+.variant-btn.selected { border-color: var(--theme-primary); background: var(--theme-primary); color: var(--theme-on-primary, white); }
 .variant-btn.out-of-stock-btn { color: #bbb; border-color: #eee; text-decoration: line-through; cursor: default; }
 .variant-stock { margin: 0; font-size: 0.875rem; }
 .in-stock-text { color: #2e7d32; }

@@ -1,5 +1,5 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
-import { THEMES, DEFAULT_THEME_KEY } from '../themes';
+import { resolveTheme } from '../themes';
 import { FONTS, DEFAULT_FONT_KEY } from '../fonts';
 
 @Injectable({ providedIn: 'root' })
@@ -16,22 +16,27 @@ export class ThemeService {
   }
 
   private applyTheme(themeKey: string | null | undefined): void {
-    const key = (themeKey && THEMES[themeKey]) ? themeKey : DEFAULT_THEME_KEY;
-    const t = THEMES[key];
+    // a palette, a validated custom color, or the default: nothing else is written into the CSS
+    const t = resolveTheme(themeKey);
 
     const css = `
       :root {
         --theme-primary: ${t.primary};
         --theme-primary-dark: ${t.primaryDark};
         --theme-accent: ${t.accent};
+        --theme-on-primary: ${t.onPrimary};
+        --theme-on-accent: ${t.onAccent};
       }
       mat-toolbar[color="primary"] {
         background-color: var(--theme-primary) !important;
+        color: var(--theme-on-primary) !important;
       }
       .mat-mdc-raised-button.mat-primary,
       .mat-mdc-unelevated-button.mat-primary {
         --mat-button-filled-container-color: var(--theme-primary) !important;
         --mat-button-protected-container-color: var(--theme-primary) !important;
+        --mat-button-filled-label-text-color: var(--theme-on-primary) !important;
+        --mat-button-protected-label-text-color: var(--theme-on-primary) !important;
       }
       .mat-mdc-fab.mat-primary,
       .mat-mdc-mini-fab.mat-primary {
@@ -42,6 +47,7 @@ export class ThemeService {
       }
       .mat-badge-content {
         background: var(--theme-accent) !important;
+        color: var(--theme-on-accent) !important;
       }
       /* Stepper */
       .mat-stepper-horizontal, .mat-stepper-vertical {

@@ -85,7 +85,7 @@ import { NavbarMenusComponent } from './navbar-menus.component';
       font-weight: 700;
       letter-spacing: 1px;
       text-decoration: none;
-      color: white;
+      color: var(--theme-on-primary, white);
       white-space: nowrap;
     }
     .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
@@ -96,7 +96,8 @@ import { NavbarMenusComponent } from './navbar-menus.component';
     .mobile-menu-btn { display: none !important; }
     .menus-placeholder { display: contents; }
     .active { opacity: 1; }
-    mat-toolbar a, mat-toolbar button { color: white; }
+    /* white on the palettes; dark on a light custom color (see ThemeService) */
+    mat-toolbar a, mat-toolbar button { color: var(--theme-on-primary, white); }
 
     @media (max-width: 767px) {
       .desktop-nav { display: none !important; }
