@@ -49,3 +49,5 @@
 
 /* room for the hints under the address fields: the next field's floating label sat on top of them */
 .address-fields mat-form-field { margin-bottom: 12px; }
+
+.paypal-hint { color: rgba(0,0,0,0.6); font-size: 0.9rem; align-self: center; }

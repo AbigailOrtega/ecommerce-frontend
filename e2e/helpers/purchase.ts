@@ -208,6 +208,9 @@ export async function payWithCard(page: Page): Promise<void> {
 
 export async function payWithPayPal(page: Page): Promise<void> {
   await page.getByRole('radio', { name: 'PayPal' }).check();
+  // PayPal pays from its own buttons: "Realizar Pedido" is not offered
+  await expect(page.locator('button:has-text("Realizar Pedido")')).toHaveCount(0);
+  await expect(page.getByTestId('paypal-hint')).toBeVisible();
   await page.getByTestId('fake-paypal-button').click({ timeout: 15000 });
 }
 

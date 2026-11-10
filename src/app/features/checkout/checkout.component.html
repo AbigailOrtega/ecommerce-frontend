@@ -380,10 +380,15 @@
 
         <div class="step-actions">
           <button mat-button matStepperPrevious>Atrás</button>
-          <button mat-raised-button color="primary" (click)="placeOrder()"
-                  [disabled]="loading || !isPaymentStepValid()">
-            {{ loading ? 'Procesando...' : 'Realizar Pedido' }}
-          </button>
+          <!-- PayPal places the order from its own buttons; this one only pays by card -->
+          @if (paymentForm.get('paymentMethod')?.value === 'paypal') {
+            <span class="paypal-hint" data-testid="paypal-hint">Paga con uno de los botones de PayPal de arriba.</span>
+          } @else {
+            <button mat-raised-button color="primary" (click)="placeOrder()"
+                    [disabled]="loading || !isPaymentStepValid()">
+              {{ loading ? 'Procesando...' : 'Realizar Pedido' }}
+            </button>
+          }
         </div>
       </form>
     </mat-step>
