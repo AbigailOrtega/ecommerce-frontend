@@ -16,7 +16,7 @@ import { isBrowser } from '@core/ssr';
 
       <!-- Carousel -->
       @if (images.length > 0) {
-        <div class="carousel">
+        <div class="carousel" [class.single]="images.length === 1">
           <div class="carousel-track" [style.transform]="'translateX(-' + (currentIndex * 100) + '%)'">
             @for (img of images; track img.id) {
               <div class="carousel-slide">
@@ -117,10 +117,13 @@ import { isBrowser } from '@core/ssr';
     .about-container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
 
     /* Carousel */
-    .carousel { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 40px; max-height: 480px; }
+    .carousel { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 40px; }
     .carousel-track { display: flex; transition: transform 0.5s ease; height: 100%; }
     .carousel-slide { min-width: 100%; }
-    .carousel-slide img { width: 100%; height: 480px; object-fit: cover; display: block; }
+    /* the whole picture, never cropped: several share one frame (no jump between slides),
+       a single one keeps its own proportion (no empty bands) */
+    .carousel-slide img { width: 100%; height: auto; aspect-ratio: 16 / 9; max-height: 480px; object-fit: contain; background: #fff; display: block; }
+    .carousel.single .carousel-slide img { aspect-ratio: auto; }
     .carousel-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,0,0.45); color: white; border: none;
