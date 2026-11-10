@@ -150,10 +150,12 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Imágenes del carrusel -->
+  <!-- Imágenes de la página "Nosotros" (the home page's carousel is Banners) -->
   <mat-card class="section-card">
-    <mat-card-header><mat-card-title>Imágenes del carrusel</mat-card-title></mat-card-header>
+    <mat-card-header><mat-card-title>Imágenes de la página "Nosotros"</mat-card-title></mat-card-header>
     <mat-card-content>
+      <p class="theme-hint">Se muestran en <a routerLink="/sobre-nosotros">Nosotros</a>. Las imágenes de arriba de la
+        tienda (página principal) se suben en <a routerLink="/admin/banners">Banners</a>.</p>
       <div class="upload-row">
         <button mat-raised-button color="accent" (click)="fileInput.click()" [disabled]="uploading">
           @if (uploading) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>upload</mat-icon> }
@@ -163,7 +165,7 @@
       </div>
 
       @if (images.length === 0) {
-        <p class="empty-msg">No hay imágenes. Sube la primera para el carrusel.</p>
+        <p class="empty-msg">No hay imágenes. Sube la primera para la página "Nosotros".</p>
       } @else {
         <div class="image-grid">
           @for (img of images; track img.id; let i = $index) {
