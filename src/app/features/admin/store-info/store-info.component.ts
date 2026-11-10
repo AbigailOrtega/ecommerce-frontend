@@ -14,7 +14,8 @@ import { StoreInfoService } from '@core/services/store-info.service';
 import { AdminService } from '@core/services/admin.service';
 import { ThemeService } from '@core/services/theme.service';
 import { StoreInfo, StoreImage } from '@shared/models';
-import { THEMES, DEFAULT_THEME_KEY, customHex, customThemeKey, resolveTheme } from '@core/themes';
+import { DEFAULT_THEME_KEY, customThemeKey, resolveTheme, themePrimary } from '@core/themes';
+import { ColorWheelComponent } from '@shared/components/color-wheel/color-wheel.component';
 import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
 
 @Component({
@@ -29,8 +30,7 @@ import { FONTS, DEFAULT_FONT_KEY } from '@core/fonts';
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatSlideToggleModule,
-    RouterLink
-],
+    RouterLink, ColorWheelComponent],
     templateUrl: './store-info.component.html',
     styleUrl: './store-info.component.scss'
 })
@@ -45,7 +45,6 @@ export class StoreInfoComponent implements OnInit {
   selectedTheme = DEFAULT_THEME_KEY;
   selectedFont = DEFAULT_FONT_KEY;
 
-  readonly themeEntries = Object.entries(THEMES).map(([key, val]) => ({ key, label: val.label, primary: val.primary }));
   readonly fontEntries = Object.entries(FONTS).map(([key, val]) => ({ key, label: val.label, fontFamily: val.fontFamily }));
 
   constructor(
@@ -62,8 +61,8 @@ export class StoreInfoComponent implements OnInit {
         this.images = d.images ?? [];
         this.logoPreview = d.logoUrl ?? null;
         if (d.themeKey) this.selectedTheme = d.themeKey;
-        const saved = customHex(d.themeKey);
-        if (saved) this.customColor = saved;
+        // a store on one of the old palettes starts the wheel at that palette's color
+        this.customColor = themePrimary(this.selectedTheme);
         if (d.fontKey) this.selectedFont = d.fontKey;
       },
     });
@@ -75,20 +74,16 @@ export class StoreInfoComponent implements OnInit {
   }
 
   // ── Custom color ──
-  /** The color in the "Personalizado" box (kept when a palette is picked, to come back to it). */
-  customColor = '#1e7a7f';
+  /** The store's main color, as picked on the wheel or typed. */
+  customColor = themePrimary(DEFAULT_THEME_KEY);
   customColorInvalid = false;
-
-  get isCustom(): boolean {
-    return customHex(this.selectedTheme) !== null;
-  }
 
   get customPreview() {
     return resolveTheme(customThemeKey(this.customColor));
   }
 
   get customTextIsDark(): boolean {
-    return this.isCustom && this.customPreview.onPrimary !== '#ffffff';
+    return this.customPreview.onPrimary !== '#ffffff';
   }
 
   pickCustomColor(value: string): void {

@@ -422,22 +422,27 @@ test.describe('Admin › Store Info', () => {
     expect(hasEmpty || hasGrid).toBe(true);
   });
 
-  test('custom store color: previews any color, with dark text on a light one (not saved)', async ({ page }) => {
+  test('store color: picked on the wheel or typed, with readable text (not saved)', async ({ page }) => {
     await page.goto('/admin/store-info');
     const box = page.getByTestId('custom-color');
-    await expect(box).toContainText('Personalizado');
-
-    // a light color: the bar takes it at once, and its text turns dark to stay readable
-    await page.getByTestId('custom-color-hex').fill('#ffd740');
-    await page.getByTestId('custom-color-hex').press('Enter');
-    await page.getByTestId('custom-color-hex').blur();
     const toolbar = page.locator('mat-toolbar').first();
-    await expect(toolbar).toHaveCSS('background-color', 'rgb(255, 215, 64)');
+    await expect(page.locator('.swatch-btn')).toHaveCount(0);   // the fixed palettes are gone
+
+    // full brightness (top of the bar), then the right edge of the wheel: pure red
+    await page.getByTestId('color-wheel').scrollIntoViewIfNeeded();
+    const bar = (await page.getByTestId('color-brightness').boundingBox())!;
+    await page.mouse.click(bar.x + bar.width / 2, bar.y + 1);
+    const wheel = (await page.getByTestId('color-wheel').boundingBox())!;
+    await page.mouse.click(wheel.x + wheel.width - 2, wheel.y + wheel.height / 2);
+    await expect(page.getByTestId('custom-color-hex')).toHaveValue(/^#f[c-f]0[0-9a-f]0[0-9a-f]$/);
+    await expect(toolbar).toHaveCSS('background-color', /rgb\(2[45]\d, \d, \d\)/);
+    // the center of the wheel is white: the page's text on it turns dark
+    await page.mouse.click(wheel.x + wheel.width / 2, wheel.y + wheel.height / 2);
+    await expect(page.getByTestId('custom-color-hex')).toHaveValue(/^#f[c-f]f[c-f]f[c-f]$/);   // within a pixel of white
     await expect(toolbar.locator('a').first()).toHaveCSS('color', 'rgb(33, 33, 33)');
     await expect(box).toContainText('el texto sobre él será oscuro');
-    await page.screenshot({ path: 'test-results/custom-color-light.png' });
 
-    // a dark color: white text again
+    // typed: the wheel follows, and the bar's text goes back to white on a dark color
     await page.getByTestId('custom-color-hex').fill('#1e7a7f');
     await page.getByTestId('custom-color-hex').blur();
     await expect(toolbar).toHaveCSS('background-color', 'rgb(30, 122, 127)');
@@ -448,8 +453,8 @@ test.describe('Admin › Store Info', () => {
     await page.getByTestId('custom-color-hex').blur();
     await expect(box).toContainText('Usa el formato #RRGGBB');
     await expect(toolbar).toHaveCSS('background-color', 'rgb(30, 122, 127)');
-    await page.screenshot({ path: 'test-results/custom-color-box.png', fullPage: true });
-    // leaving without "Guardar" keeps the saved theme for everyone else
+    await box.screenshot({ path: 'test-results/color-wheel.png' });
+    // leaving without "Guardar cambios" keeps the saved color for everyone else
   });
 
   test('dashboard "Info General" link navigates to /admin/store-info', async ({ page }) => {

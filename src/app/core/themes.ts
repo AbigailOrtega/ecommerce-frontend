@@ -112,3 +112,30 @@ function hslToHex(h: number, s: number, l: number): string {
   const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
   return '#' + [f(0), f(8), f(4)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
 }
+
+// ── HSV, for the color wheel ──────────────────────────────────────────────────
+
+/** Hue in degrees [0, 360), saturation and value in [0, 1]. */
+export interface Hsv { h: number; s: number; v: number; }
+
+export function hexToHsv(hex: string): Hsv {
+  const n = parseInt(hex.slice(1), 16);
+  const [r, g, b] = [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: (h * 60 + 360) % 360, s: max ? d / max : 0, v: max };
+}
+
+export function hsvToHex({ h, s, v }: Hsv): string {
+  const f = (n: number) => {
+    const k = (n + h / 60) % 6;
+    return v - v * s * Math.max(0, Math.min(k, 4 - k, 1));
+  };
+  return '#' + [f(5), f(3), f(1)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
+}
+
+/** The primary color of any theme key (palette, custom or default): where the wheel starts. */
+export function themePrimary(themeKey: string | null | undefined): string {
+  return resolveTheme(themeKey).primary;
+}

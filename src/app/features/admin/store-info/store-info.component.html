@@ -84,29 +84,11 @@
   <mat-card class="section-card">
     <mat-card-header><mat-card-title>Color de la tienda</mat-card-title></mat-card-header>
     <mat-card-content>
-      <p class="theme-hint">Elige una de las paletas, o tu propio color en "Personalizado".</p>
-      <div class="theme-swatches">
-        @for (entry of themeEntries; track entry.key) {
-          <button class="swatch-btn"
-                  [style.background]="entry.primary"
-                  [class.selected]="selectedTheme === entry.key"
-                  [matTooltip]="entry.label"
-                  (click)="selectTheme(entry.key)">
-            @if (selectedTheme === entry.key) {
-              <mat-icon style="color:white;font-size:18px;line-height:18px;">check</mat-icon>
-            }
-          </button>
-        }
-      </div>
-
-      <div class="custom-color" [class.selected]="isCustom" data-testid="custom-color">
-        <div class="custom-color-head">
-          <strong>Personalizado</strong>
-          <span class="theme-hint">El tono oscuro, el color de acento y el color del texto se calculan solos.</span>
-        </div>
-        <div class="custom-color-row">
-          <input type="color" class="color-picker" [value]="customColor" (input)="pickCustomColor($any($event.target).value)"
-                 aria-label="Elegir color" data-testid="custom-color-picker">
+      <p class="theme-hint">Elige el color principal en la rueda; la barra ajusta el brillo. El tono oscuro, el color
+        de acento y el color del texto se calculan solos.</p>
+      <div class="custom-color" data-testid="custom-color">
+        <app-color-wheel [color]="customColor" (colorChange)="pickCustomColor($event)" />
+        <div class="custom-color-side">
           <mat-form-field appearance="outline" class="hex-field">
             <mat-label>Código del color</mat-label>
             <input matInput [value]="customColor" (change)="pickCustomColor($any($event.target).value)"
@@ -117,10 +99,11 @@
             Vista previa
             <span class="preview-badge" [style.background]="customPreview.accent" [style.color]="customPreview.onAccent">3</span>
           </div>
+          @if (customTextIsDark) {
+            <p class="theme-hint">Es un color claro: el texto sobre él será oscuro para que se lea bien.</p>
+          }
+          <p class="theme-hint">Se aplica a toda la tienda al pulsar "Guardar cambios".</p>
         </div>
-        @if (customTextIsDark) {
-          <p class="theme-hint">Es un color claro: el texto sobre él será oscuro para que se lea bien.</p>
-        }
       </div>
     </mat-card-content>
   </mat-card>
