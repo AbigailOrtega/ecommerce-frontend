@@ -13,7 +13,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminService } from '@core/services/admin.service';
+import { AdminService, ProductFilters } from '@core/services/admin.service';
+import { Subject, debounceTime } from 'rxjs';
 import { ProductService } from '@core/services/product.service';
 import { Product, Category } from '@shared/models';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
@@ -86,12 +87,49 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.filterSub.unsubscribe();
     this.pendingUploads.discardAll();
   }
 
+  // ── Search ──
+  filters: { q: string; minPrice: number | null; maxPrice: number | null; active: '' | 'true' | 'false' } =
+    { q: '', minPrice: null, maxPrice: null, active: '' };
+  private readonly filterChanges = new Subject<void>();
+  private readonly filterSub = this.filterChanges.pipe(debounceTime(300)).subscribe(() => {
+    this.currentPage = 0;
+    this.loadProducts();
+  });
+
+  /** Typing waits a moment before searching; every change starts again from the first page. */
+  onFilterChange(): void {
+    this.filterChanges.next();
+  }
+
+  get hasFilters(): boolean {
+    const f = this.filters;
+    return !!f.q.trim() || f.minPrice != null || f.maxPrice != null || f.active !== '';
+  }
+
+  get priceRangeInvalid(): boolean {
+    const { minPrice, maxPrice } = this.filters;
+    return minPrice != null && maxPrice != null && minPrice > maxPrice;
+  }
+
+  clearFilters(): void {
+    this.filters = { q: '', minPrice: null, maxPrice: null, active: '' };
+    this.currentPage = 0;
+    this.loadProducts();
+  }
+
+  private apiFilters(): ProductFilters {
+    const f = this.filters;
+    return { q: f.q, minPrice: f.minPrice, maxPrice: f.maxPrice, active: f.active === '' ? null : f.active === 'true' };
+  }
+
   loadProducts(): void {
+    if (this.priceRangeInvalid) return;
     this.loading = true;
-    this.adminService.getAllProducts(this.currentPage, this.pageSize).subscribe({
+    this.adminService.getAllProducts(this.currentPage, this.pageSize, this.apiFilters()).subscribe({
       next: (res) => { this.products = res.data.content; this.totalElements = res.data.totalElements; this.loading = false; },
       error: () => this.loading = false,
     });

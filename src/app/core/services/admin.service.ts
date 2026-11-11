@@ -8,6 +8,14 @@ import { AccountingReport, ApiResponse, Coupon, CouponRequest, DashboardStats, I
 /** count: page views; visits: distinct browsing sessions. */
 export interface PageViewRow { label: string; count: number; visits: number; }
 
+/** Admin → Productos search: name or SKU, price range, active or not. */
+export interface ProductFilters {
+  q?: string;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  active?: boolean | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly apiUrl = `${environment.apiUrl}/admin`;
@@ -91,8 +99,13 @@ export class AdminService {
     return this.http.patch<ApiResponse<Order>>(`${this.apiUrl}/orders/${id}/cancel-pickup`, null, { params });
   }
 
-  getAllProducts(page = 0, size = 20): Observable<ApiResponse<Page<Product>>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  /** Products for the admin, newest first; empty filters are left out. */
+  getAllProducts(page = 0, size = 20, filters: ProductFilters = {}): Observable<ApiResponse<Page<Product>>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (filters.q?.trim()) params = params.set('q', filters.q.trim());
+    if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice);
+    if (filters.active != null) params = params.set('active', filters.active);
     return this.http.get<ApiResponse<Page<Product>>>(`${this.apiUrl}/products`, { params });
   }
 

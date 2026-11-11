@@ -1,3 +1,4 @@
+import { fakeAsync, tick } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -65,4 +66,53 @@ describe('ProductManagementComponent — unsaved uploads', () => {
 
     expect(discarded).toEqual(['loose']);
   });
+});
+
+describe('ProductManagementComponent — search', () => {
+  let admin: jasmine.SpyObj<AdminService>;
+  let component: ProductManagementComponent;
+
+  beforeEach(() => {
+    admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts']);
+    admin.pendingUploads.and.returnValue(new PendingUploads(() => {}));
+    admin.getAllProducts.and.returnValue(of({ success: true, data: { content: [], totalElements: 0 } } as any));
+    component = new ProductManagementComponent(new FormBuilder(), admin,
+      jasmine.createSpyObj<ProductService>('ProductService', ['getCategories']),
+      jasmine.createSpyObj<MatSnackBar>('MatSnackBar', ['open']));
+  });
+
+  afterEach(() => component.ngOnDestroy());
+
+  it('searches by text, price and state from the first page, after a short pause', fakeAsync(() => {
+    component.currentPage = 3;
+    component.filters = { q: ' vestido ', minPrice: 100, maxPrice: 200, active: 'false' };
+    component.onFilterChange();
+    component.onFilterChange();
+    expect(admin.getAllProducts).not.toHaveBeenCalled();
+
+    tick(300);
+
+    expect(admin.getAllProducts).toHaveBeenCalledOnceWith(0, 20,
+      { q: ' vestido ', minPrice: 100, maxPrice: 200, active: false });
+    expect(component.currentPage).toBe(0);
+  }));
+
+  it('"Todos" sends no state, and clearing removes every filter', fakeAsync(() => {
+    component.filters = { q: 'x', minPrice: null, maxPrice: null, active: '' };
+    component.onFilterChange();
+    tick(300);
+    expect(admin.getAllProducts.calls.mostRecent().args[2]).toEqual({ q: 'x', minPrice: null, maxPrice: null, active: null });
+
+    component.clearFilters();
+    expect(component.hasFilters).toBeFalse();
+    expect(admin.getAllProducts.calls.mostRecent().args[2]).toEqual({ q: '', minPrice: null, maxPrice: null, active: null });
+  }));
+
+  it('does not search while the minimum price is above the maximum', fakeAsync(() => {
+    component.filters = { q: '', minPrice: 300, maxPrice: 100, active: '' };
+    component.onFilterChange();
+    tick(300);
+    expect(component.priceRangeInvalid).toBeTrue();
+    expect(admin.getAllProducts).not.toHaveBeenCalled();
+  }));
 });

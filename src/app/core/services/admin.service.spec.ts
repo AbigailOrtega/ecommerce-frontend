@@ -264,6 +264,24 @@ describe('AdminService', () => {
       req.flush({ success: true, data: makePage([]) });
     });
 
+    it('sends the search filters, leaving out the empty ones', () => {
+      service.getAllProducts(1, 20, { q: '  SKU-12 ', minPrice: 0, maxPrice: null, active: false }).subscribe();
+
+      const req = httpMock.expectOne(r => r.url === `${API}/products`);
+      expect(req.request.params.get('q')).toBe('SKU-12');
+      expect(req.request.params.get('minPrice')).toBe('0');
+      expect(req.request.params.has('maxPrice')).toBeFalse();
+      expect(req.request.params.get('active')).toBe('false');
+      req.flush({ success: true, data: makePage([]) });
+    });
+
+    it('sends no filters when there are none', () => {
+      service.getAllProducts().subscribe();
+      const req = httpMock.expectOne(r => r.url === `${API}/products`);
+      expect(req.request.params.keys().sort()).toEqual(['page', 'size']);
+      req.flush({ success: true, data: makePage([]) });
+    });
+
     it('returns paged products', () => {
       const page = makePage([makeProduct(1), makeProduct(2)]);
 

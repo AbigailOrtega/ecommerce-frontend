@@ -140,8 +140,44 @@
     </mat-card>
   }
 
+  <div class="filters" data-testid="product-filters">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-search">
+      <mat-label>Buscar por nombre o SKU</mat-label>
+      <input matInput data-testid="filter-q" [(ngModel)]="filters.q" (ngModelChange)="onFilterChange()" autocomplete="off">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-price">
+      <mat-label>Precio mín.</mat-label>
+      <input matInput type="number" min="0" data-testid="filter-min" [(ngModel)]="filters.minPrice" (ngModelChange)="onFilterChange()">
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-price">
+      <mat-label>Precio máx.</mat-label>
+      <input matInput type="number" min="0" data-testid="filter-max" [(ngModel)]="filters.maxPrice" (ngModelChange)="onFilterChange()">
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-active">
+      <mat-label>Estado</mat-label>
+      <mat-select data-testid="filter-active" [(ngModel)]="filters.active" (ngModelChange)="onFilterChange()">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="true">Activos</mat-option>
+        <mat-option value="false">Inactivos</mat-option>
+      </mat-select>
+    </mat-form-field>
+    @if (hasFilters) {
+      <button mat-button type="button" data-testid="filter-clear" (click)="clearFilters()">
+        <mat-icon>close</mat-icon> Limpiar
+      </button>
+    }
+  </div>
+  @if (priceRangeInvalid) {
+    <p class="filter-error">El precio mínimo es mayor que el máximo.</p>
+  }
+
   @if (loading) {
     <app-loading />
+  } @else if (products.length === 0) {
+    <p class="no-results" data-testid="no-products">
+      {{ hasFilters ? 'Ningún producto coincide con la búsqueda.' : 'Todavía no hay productos.' }}
+    </p>
   } @else {
     <div class="table-wrap">
       <table mat-table [dataSource]="products" class="product-table">
@@ -190,6 +226,6 @@
         <tr mat-row *matRowDef="let row; columns: visibleColumns;"></tr>
       </table>
     </div>
-    <mat-paginator [length]="totalElements" [pageSize]="pageSize" (page)="onPage($event)" />
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageIndex]="currentPage" (page)="onPage($event)" />
   }
 </div>
