@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { visibleCategories } from '@shared/visible-categories';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -26,6 +27,9 @@ import { isBrowser } from '@core/ssr';
     styleUrl: './product-list.component.scss'
 })
 export class ProductListComponent implements OnInit, OnDestroy {
+  /** the product's categories the store shows (hidden ones are only for the admin) */
+  readonly shownCategories = visibleCategories;
+
   products: Product[] = [];
   categories: Category[] = [];
   banners: PromoBanner[] = [];

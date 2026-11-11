@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '@core/services/product.service';
@@ -15,7 +16,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 @Component({
     selector: 'app-category-management',
     imports: [FormsModule, ReactiveFormsModule, RouterLink, MatTableModule, MatButtonModule, MatIconModule,
-        MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule, LoadingComponent],
+        MatFormFieldModule, MatInputModule, MatCardModule, MatSnackBarModule, MatSlideToggleModule, LoadingComponent],
     template: `
     <div class="container">
       <div class="header">
@@ -100,6 +101,16 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <th mat-header-cell *matHeaderCellDef>Descripción</th>
               <td mat-cell *matCellDef="let c">{{ c.description || '-' }}</td>
             </ng-container>
+            <ng-container matColumnDef="visible">
+              <th mat-header-cell *matHeaderCellDef>En la tienda</th>
+              <td mat-cell *matCellDef="let c">
+                <mat-slide-toggle [checked]="c.visible !== false" (change)="setVisible(c, $event.checked)"
+                                  [attr.data-testid]="'category-visible-' + c.id"
+                                  [aria-label]="(c.visible !== false ? 'Ocultar ' : 'Mostrar ') + c.name + ' en la tienda'">
+                  {{ c.visible !== false ? 'Visible' : 'Oculta' }}
+                </mat-slide-toggle>
+              </td>
+            </ng-container>
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let c">
@@ -123,6 +134,9 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
               <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
             </ng-container>
             <ng-container matColumnDef="f-description">
+              <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
+            </ng-container>
+            <ng-container matColumnDef="f-visible">
               <th mat-header-cell *matHeaderCellDef class="filter-cell"></th>
             </ng-container>
             <ng-container matColumnDef="f-actions">
@@ -190,10 +204,10 @@ export class CategoryManagementComponent implements OnInit {
   showMobileFilters = false;
   isMobile = window.innerWidth < 768;
 
-  private readonly allColumns = ['name', 'slug', 'description', 'actions'];
-  private readonly mobileColumns = ['name', 'actions'];
-  private readonly allFilterColumns = ['f-name', 'f-slug', 'f-description', 'f-actions'];
-  private readonly mobileFilterColumns = ['f-name', 'f-actions'];
+  private readonly allColumns = ['name', 'slug', 'description', 'visible', 'actions'];
+  private readonly mobileColumns = ['name', 'visible', 'actions'];
+  private readonly allFilterColumns = ['f-name', 'f-slug', 'f-description', 'f-visible', 'f-actions'];
+  private readonly mobileFilterColumns = ['f-name', 'f-visible', 'f-actions'];
 
   get visibleColumns() { return this.isMobile ? this.mobileColumns : this.allColumns; }
   get visibleFilterColumns() { return this.isMobile ? this.mobileFilterColumns : this.allFilterColumns; }
@@ -228,9 +242,26 @@ export class CategoryManagementComponent implements OnInit {
 
   loadCategories(): void {
     this.loading = true;
-    this.productService.getCategories().subscribe({
+    // the admin sees every category, hidden ones too
+    this.productService.getAdminCategories().subscribe({
       next: (res) => { this.categories = res.data; this.loading = false; },
       error: () => this.loading = false,
+    });
+  }
+
+  /** Shows or hides a category in the store; its products stay on sale either way. */
+  setVisible(category: Category, visible: boolean): void {
+    this.productService.setCategoryVisibility(category.id, visible).subscribe({
+      next: (res) => {
+        category.visible = res.data?.visible ?? visible;
+        this.categories = [...this.categories];
+        this.snackBar.open(res.message || (visible ? 'La categoría se muestra en la tienda' : 'La categoría se ocultó de la tienda'),
+          'Cerrar', { duration: 3000 });
+      },
+      error: (err) => {
+        this.categories = [...this.categories];   // puts the switch back
+        this.snackBar.open(err.error?.message || 'No se pudo cambiar la visibilidad', 'Cerrar', { duration: 4000 });
+      },
     });
   }
 

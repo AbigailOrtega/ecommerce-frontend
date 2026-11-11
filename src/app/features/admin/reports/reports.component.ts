@@ -13,11 +13,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from '@core/services/admin.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
 import { AccountingReportComponent, isoDay } from './accounting-report/accounting-report.component';
-import { ApiResponse, InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
+import { ApiResponse, CategorySalesItem, InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
 
-type ReportData = SalesReport | ProductSalesItem[] | InventoryItem[];
+type ReportData = SalesReport | ProductSalesItem[] | InventoryItem[] | CategorySalesItem[];
 
-type ReportType = 'sales' | 'top' | 'least' | 'inventory' | 'outofstock' | 'accounting';
+type ReportType = 'sales' | 'categories' | 'top' | 'least' | 'inventory' | 'outofstock' | 'accounting';
 type SalesPeriod = 'week' | 'month' | 'year' | 'custom';
 
 /** The days a shortcut covers, up to today: the last 7 days, this month or this year. */
@@ -59,6 +59,19 @@ export class ReportsComponent implements OnInit {
   tableRows: string[][] = [];
   /** The product behind each row (product reports only): the row opens it in the admin, the icon in the store. */
   rowProducts: ({ id: number; slug?: string | null } | null)[] = [];
+  /** By category: the category behind each row; the row opens Productos filtered by it. */
+  rowCategories: (number | null)[] = [];
+  categoryItems: CategorySalesItem[] = [];
+
+  /** Reports that take the Desde / Hasta dates. */
+  get usesDates(): boolean {
+    return this.reportType === 'sales' || this.reportType === 'categories';
+  }
+
+  /** Opens Admin → Productos filtered by that category. */
+  openCategory(categoryId: number | null): void {
+    if (categoryId != null) this.router.navigate(['/admin/products'], { queryParams: { category: categoryId } });
+  }
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -102,6 +115,7 @@ export class ReportsComponent implements OnInit {
     this.dataLoaded = false;
 
     const obs: Observable<ApiResponse<ReportData>> = this.reportType === 'sales'   ? this.adminService.getSalesReport(this.from, this.to)
+              : this.reportType === 'categories' ? this.adminService.getCategorySales(this.from, this.to)
               : this.reportType === 'top'     ? this.adminService.getTopSellingProducts()
               : this.reportType === 'least'   ? this.adminService.getLeastSellingProducts()
               : this.reportType === 'inventory' ? this.adminService.getInventoryReport()
@@ -120,7 +134,25 @@ export class ReportsComponent implements OnInit {
 
   private processData(data: ReportData): void {
     this.rowProducts = [];
-    if (this.reportType === 'sales') {
+    this.rowCategories = [];
+    if (this.reportType === 'categories') {
+      this.categoryItems = data as CategorySalesItem[];
+      const sold = this.categoryItems.filter(c => c.unitsSold > 0);
+      this.hasData = sold.length > 0;
+      if (!this.hasData) return;
+      const best = sold[0];
+      this.kpis = [
+        { icon: 'category', value: String(sold.length), label: 'Categorías con ventas' },
+        { icon: 'emoji_events', value: best.name, label: 'La más vendida' },
+        { icon: 'shopping_cart', value: `${best.unitsSold} · ${this.fmtCurrency(best.revenue)}`, label: `Unidades e ingresos de ${best.name}` },
+      ];
+      this.tableHeaders = ['Categoría', 'Unidades vendidas', 'Pedidos', 'Ingresos'];
+      this.rowCategories = this.categoryItems.map(c => c.categoryId);
+      this.tableRows = this.categoryItems.map(c => [
+        c.visible ? c.name : `${c.name} (oculta)`, String(c.unitsSold), String(c.orders), this.fmtCurrency(c.revenue),
+      ]);
+
+    } else if (this.reportType === 'sales') {
       this.salesReport = data as SalesReport;
       const points = this.salesReport.data;
       this.hasData = points.length > 0;
@@ -187,6 +219,11 @@ export class ReportsComponent implements OnInit {
         pts.map(p => Number(p.revenue)),
         `Ventas – ${this.salesReport.period}`,
         '#1565c0');
+
+    } else if (this.reportType === 'categories') {
+      const sold = this.categoryItems.filter(c => c.unitsSold > 0).slice(0, 15);
+      this.drawHBarChart(canvas, sold.map(c => c.name), sold.map(c => c.unitsSold),
+        `Unidades vendidas por categoría – ${this.rangeLabel()}`, '#6a1b9a');
 
     } else if (this.reportType === 'top' || this.reportType === 'least') {
       const color = this.reportType === 'top' ? '#2e7d32' : '#ef6c00';
@@ -399,9 +436,16 @@ ${chartImg ? `<img src="${chartImg}" />` : ''}
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
+  /** "Del 01/11/2026 al 11/11/2026" (or the single day) for the chosen dates. */
+  rangeLabel(): string {
+    const dmy = (iso: string) => iso.split('-').reverse().join('/');
+    return this.from === this.to ? dmy(this.from) : `Del ${dmy(this.from)} al ${dmy(this.to)}`;
+  }
+
   private reportTitle(): string {
     const map: Record<ReportType, string> = {
       sales: `Ventas – ${this.salesReport?.period ?? ''}`,
+      categories: `Ventas por categoría – ${this.rangeLabel()}`,
       top: 'Productos más vendidos',
       least: 'Productos menos vendidos',
       inventory: 'Inventario',

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { visibleCategories } from '@shared/visible-categories';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,6 +23,9 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
     styleUrl: './product-detail.component.scss'
 })
 export class ProductDetailComponent implements OnInit, OnDestroy {
+  /** the product's categories the store shows (hidden ones are only for the admin) */
+  readonly shownCategories = visibleCategories;
+
   product: Product | null = null;
   loading = true;
   quantity = 1;

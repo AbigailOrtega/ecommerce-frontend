@@ -38,9 +38,10 @@
     </div>
 
     <div class="info-section">
-      @if (product.categories && product.categories.length > 0) {
+      @let cats = shownCategories(product.categories);
+      @if (cats.length > 0) {
         <div class="breadcrumbs">
-          @for (cat of product.categories; track cat.id; let last = $last) {
+          @for (cat of cats; track cat.id; let last = $last) {
             <a [routerLink]="['/']" [queryParams]="{category: cat.id}" class="breadcrumb">{{ cat.name }}</a>@if (!last) {<span class="separator">/</span>}
           }
         </div>

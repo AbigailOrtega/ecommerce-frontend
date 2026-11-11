@@ -11,6 +11,10 @@
               (click)="selectType('sales')">
         <mat-icon>show_chart</mat-icon> Ventas
       </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'categories'"
+              data-testid="report-categories" (click)="selectType('categories')">
+        <mat-icon>category</mat-icon> Por categoría
+      </button>
       <button mat-stroked-button [class.active-type]="reportType === 'top'"
               (click)="selectType('top')">
         <mat-icon>emoji_events</mat-icon> Más vendidos
@@ -33,7 +37,7 @@
       </button>
     </div>
 
-    @if (reportType === 'sales') {
+    @if (usesDates) {
       <div class="period-row">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Desde</mat-label>
@@ -53,6 +57,9 @@
       <p class="period-hint">
         @if (rangeValid()) {
           Ventas por fecha de pago; los pedidos sin pagar no cuentan.
+          @if (reportType === 'categories') {
+            Un producto en varias categorías cuenta en cada una.
+          }
         } @else {
           <span class="period-error">La fecha "Hasta" debe ser igual o posterior a "Desde".</span>
         }
@@ -130,6 +137,14 @@
                       </a>
                     }
                   </td>
+                </tr>
+              } @else if (rowCategories[i] != null) {
+                <tr class="product-row" tabindex="0" role="link" [attr.data-testid]="'category-row-' + rowCategories[i]"
+                    matTooltip="Ver sus productos" matTooltipShowDelay="600"
+                    (click)="openCategory(rowCategories[i])" (keydown.enter)="openCategory(rowCategories[i])">
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
                 </tr>
               } @else {
                 <tr>

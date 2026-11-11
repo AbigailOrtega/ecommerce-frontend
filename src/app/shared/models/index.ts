@@ -25,6 +25,8 @@ export interface Category {
   description?: string;
   imageUrl?: string;
   slug: string;
+  /** false: hidden from the store (menu, filters, product labels); the admin still uses it */
+  visible?: boolean;
 }
 
 export interface Product {
@@ -202,6 +204,16 @@ export interface ProductSalesItem {
   currentStock: number;
   /** for the link to the product's store page */
   slug?: string | null;
+}
+
+/** What a category sold in a period (a product in two categories counts in both). */
+export interface CategorySalesItem {
+  categoryId: number | null;   // null: products without a category
+  name: string;
+  visible: boolean;
+  unitsSold: number;
+  orders: number;
+  revenue: number;
 }
 
 export interface InventoryItem {

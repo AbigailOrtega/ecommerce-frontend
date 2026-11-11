@@ -72,8 +72,9 @@
             <a [routerLink]="['/products', product.slug]" class="product-name">
               <h3>{{ product.name }}</h3>
             </a>
-            @if (product.categories && product.categories.length > 0) {
-              <p class="category-tag">{{ product.categories[0].name }}@if (product.categories.length > 1) { +{{ product.categories.length - 1 }}}</p>
+            @let cats = shownCategories(product.categories);
+            @if (cats.length > 0) {
+              <p class="category-tag">{{ cats[0].name }}@if (cats.length > 1) { +{{ cats.length - 1 }}}</p>
             }
             <div class="price-row">
               @if (product.discountedPrice) {

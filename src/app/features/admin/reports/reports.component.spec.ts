@@ -43,6 +43,7 @@ describe('ReportsComponent', () => {
       'getLeastSellingProducts',
       'getInventoryReport',
       'getOutOfStockProducts',
+      'getCategorySales',
     ]);
 
     // Default: all methods return empty/minimal valid responses
@@ -203,6 +204,46 @@ describe('ReportsComponent', () => {
       component.setPeriod('month');
       tick(60);
       expect(component.rowProducts).toEqual([]);
+    }));
+  });
+
+  describe('by category', () => {
+    const rows = [
+      { categoryId: 3, name: 'Camisas', visible: true, unitsSold: 12, orders: 9, revenue: 2400 },
+      { categoryId: 5, name: 'Ofertas', visible: false, unitsSold: 4, orders: 4, revenue: 600 },
+      { categoryId: 7, name: 'Faldas', visible: true, unitsSold: 0, orders: 0, revenue: 0 },
+    ];
+
+    it('asks for the chosen dates and shows each category, the hidden ones marked', fakeAsync(() => {
+      adminService.getCategorySales.and.returnValue(of({ success: true, data: rows }));
+      component.setRange('2026-11-01', '2026-11-11');
+      component.selectType('categories');
+      tick(60);
+
+      expect(adminService.getCategorySales).toHaveBeenCalledWith('2026-11-01', '2026-11-11');
+      expect(component.usesDates).toBeTrue();
+      expect(component.tableHeaders).toEqual(['Categoría', 'Unidades vendidas', 'Pedidos', 'Ingresos']);
+      expect(component.tableRows.map(r => r[0])).toEqual(['Camisas', 'Ofertas (oculta)', 'Faldas']);
+      expect(component.kpis[0]).toEqual(jasmine.objectContaining({ value: '2', label: 'Categorías con ventas' }));
+      expect(component.kpis[1]).toEqual(jasmine.objectContaining({ value: 'Camisas', label: 'La más vendida' }));
+    }));
+
+    it('a row opens Productos filtered by that category', fakeAsync(() => {
+      adminService.getCategorySales.and.returnValue(of({ success: true, data: rows }));
+      const nav = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
+      component.selectType('categories');
+      tick(60);
+      fixture.detectChanges();
+
+      (fixture.nativeElement.querySelector('[data-testid="category-row-3"]') as HTMLElement).click();
+      expect(nav).toHaveBeenCalledWith(['/admin/products'], { queryParams: { category: 3 } });
+    }));
+
+    it('a period where nothing sold says there is no data', fakeAsync(() => {
+      adminService.getCategorySales.and.returnValue(of({ success: true, data: [{ ...rows[2] }] }));
+      component.selectType('categories');
+      tick(60);
+      expect(component.hasData).toBeFalse();
     }));
   });
 

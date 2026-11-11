@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import { PendingUploads } from '../utils/pending-uploads';
-import { AccountingReport, ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User, PostalCatalogStatus, ProductCostItem } from '@shared/models';
+import { AccountingReport, ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User, PostalCatalogStatus, ProductCostItem, CategorySalesItem } from '@shared/models';
 
 /** count: page views; visits: distinct browsing sessions. */
 export interface PageViewRow { label: string; count: number; visits: number; }
@@ -52,6 +52,11 @@ export class AdminService {
   /** Sets what a product cost (null clears it); the answer is how many past sales took it. */
   setProductCost(id: number, costPrice: number | null): Observable<ApiResponse<number>> {
     return this.http.put<ApiResponse<number>>(`${this.apiUrl}/reports/product-costs/${id}`, { costPrice });
+  }
+
+  /** Units, orders and money per category for the sales paid between two days (both included). */
+  getCategorySales(from: string, to: string): Observable<ApiResponse<CategorySalesItem[]>> {
+    return this.http.get<ApiResponse<CategorySalesItem[]>>(`${this.apiUrl}/reports/categories`, { params: { from, to } });
   }
 
   /** Sales paid between two days (yyyy-mm-dd), both included. */

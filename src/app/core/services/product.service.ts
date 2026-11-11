@@ -43,8 +43,18 @@ export class ProductService {
     return this.http.get<ApiResponse<Product[]>>(`${this.apiUrl}/new-arrivals`);
   }
 
+  /** The store's categories (hidden ones are left out). */
   getCategories(): Observable<ApiResponse<Category[]>> {
     return this.http.get<ApiResponse<Category[]>>(this.categoryUrl);
+  }
+
+  /** Every category, hidden ones included (admin). */
+  getAdminCategories(): Observable<ApiResponse<Category[]>> {
+    return this.http.get<ApiResponse<Category[]>>(`${environment.apiUrl}/admin/categories`);
+  }
+
+  setCategoryVisibility(id: number, visible: boolean): Observable<ApiResponse<Category>> {
+    return this.http.patch<ApiResponse<Category>>(`${this.categoryUrl}/${id}/visibility`, { visible });
   }
 
   createCategory(category: { name: string; description?: string; imageUrl?: string }): Observable<ApiResponse<Category>> {
