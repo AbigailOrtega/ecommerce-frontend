@@ -1,4 +1,4 @@
-import { THEMES, DEFAULT_THEME_KEY, contrastRatio, customHex, customThemeKey, deriveTheme, readableOnWhite, readableTextOn, resolveTheme } from './themes';
+import { THEMES, DEFAULT_THEME_KEY, needsOutline, contrastRatio, customHex, customThemeKey, deriveTheme, readableOnWhite, readableTextOn, resolveTheme } from './themes';
 
 describe('store themes', () => {
   describe('custom color keys', () => {
@@ -25,6 +25,20 @@ describe('store themes', () => {
       expect(t.primary).toBe('#1e7a7f');
       expect(t.primaryDark).not.toBe('#1e7a7f');
       expect(t.accent).toMatch(/^#[0-9a-f]{6}$/);
+    });
+
+    it('the default palette is white, with dark text on it', () => {
+      expect(DEFAULT_THEME_KEY).toBe('blanco');
+      const t = resolveTheme(undefined);
+      expect(t.primary).toBe('#ffffff');
+      expect(t.onPrimary).toBe('#212121');
+      expect(contrastRatio(readableOnWhite(t.primary), '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('only very light colors get an outline', () => {
+      expect(needsOutline('#ffffff')).toBeTrue();
+      expect(needsOutline('#d2e4be')).toBeFalse();
+      expect(needsOutline('#3f51b5')).toBeFalse();
     });
 
     it('never lets anything but a color into the CSS: malformed keys fall back to the default', () => {

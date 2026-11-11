@@ -1,5 +1,5 @@
 import { DOCUMENT, Injectable, inject } from '@angular/core';
-import { readableOnWhite, resolveTheme } from '../themes';
+import { needsOutline, readableOnWhite, resolveTheme } from '../themes';
 import { FONTS, DEFAULT_FONT_KEY } from '../fonts';
 
 @Injectable({ providedIn: 'root' })
@@ -59,7 +59,12 @@ export class ThemeService {
         --mat-stepper-header-selected-state-label-text-color: var(--theme-primary-text) !important;
         --mat-stepper-line-color: var(--theme-primary) !important;
       }
-    `;
+    ` + (needsOutline(t.primary) ? `
+      /* white (or almost) on the white page: outline the bar and the filled buttons */
+      mat-toolbar[color="primary"] { border-bottom: 1px solid #e0e0e0; }
+      .mat-mdc-raised-button.mat-primary,
+      .mat-mdc-unelevated-button.mat-primary { border: 1px solid #bdbdbd; }
+    ` : '');
 
     this.styleEl ??= this.document.getElementById('app-dynamic-theme') as HTMLStyleElement | null;
     if (!this.styleEl) {

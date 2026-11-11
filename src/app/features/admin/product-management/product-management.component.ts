@@ -289,11 +289,12 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteProduct(id: number): void {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    this.productService.deleteProduct(id).subscribe({
-      next: () => { this.snackBar.open('Product deleted', 'Cerrar', { duration: 3000 }); this.loadProducts(); },
-      error: () => this.snackBar.open('Error deleting product', 'Cerrar', { duration: 3000 }),
+  /** A product with orders is deactivated by the server instead of deleted; its message says which. */
+  deleteProduct(product: { id: number; name: string }): void {
+    if (!confirm(`¿Eliminar "${product.name}"? Si tiene órdenes asociadas, se desactivará en lugar de borrarse.`)) return;
+    this.productService.deleteProduct(product.id).subscribe({
+      next: (res) => { this.snackBar.open(res.message || 'Producto eliminado', 'Cerrar', { duration: 6000 }); this.loadProducts(); },
+      error: (err) => this.snackBar.open(err.error?.message || 'No se pudo eliminar el producto', 'Cerrar', { duration: 5000 }),
     });
   }
 

@@ -6,6 +6,7 @@ export interface AppTheme {
 }
 
 export const THEMES: Record<string, AppTheme> = {
+  blanco:      { label: 'Blanco',         primary: '#ffffff', primaryDark: '#eeeeee', accent: '#212121' },
   azul:        { label: 'Azul',           primary: '#3f51b5', primaryDark: '#303f9f', accent: '#ff4081' },
   verde:       { label: 'Verde',          primary: '#2e7d32', primaryDark: '#1b5e20', accent: '#69f0ae' },
   naranja:     { label: 'Naranja',        primary: '#e65100', primaryDark: '#bf360c', accent: '#ffd740' },
@@ -24,7 +25,13 @@ export const THEMES: Record<string, AppTheme> = {
   lavanda:     { label: 'Lavanda',        primary: '#7b1fa2', primaryDark: '#4a0072', accent: '#69f0ae' },
 };
 
-export const DEFAULT_THEME_KEY = 'azul';
+/** The palette used when the store has none chosen (or its key is not valid). */
+export const DEFAULT_THEME_KEY = 'blanco';
+
+/** A primary so light that, on the white page, bars and buttons need a border to be seen. */
+export function needsOutline(primary: string): boolean {
+  return contrastRatio(primary, '#ffffff') < 1.25;
+}
 
 // ── Custom color ──────────────────────────────────────────────────────────────
 // Besides the palettes above, the admin can pick any color; it is stored as "custom:#rrggbb" in

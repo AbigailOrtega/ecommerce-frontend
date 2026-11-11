@@ -182,7 +182,8 @@
           <th mat-header-cell *matHeaderCellDef>Acciones</th>
           <td mat-cell *matCellDef="let p">
             <button mat-icon-button (click)="editProduct(p)"><mat-icon>edit</mat-icon></button>
-            <button mat-icon-button color="warn" (click)="deleteProduct(p.id)"><mat-icon>delete</mat-icon></button>
+            <button mat-icon-button color="warn" (click)="deleteProduct(p)" [attr.data-testid]="'delete-product-' + p.id"
+                    aria-label="Eliminar producto"><mat-icon>delete</mat-icon></button>
           </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="visibleColumns"></tr>
