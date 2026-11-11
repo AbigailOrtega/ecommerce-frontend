@@ -7,8 +7,11 @@
 .type-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .type-row button { display: flex; align-items: center; gap: 6px; }
 .type-row mat-icon { font-size: 18px; width: 18px; height: 18px; }
-.period-row { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
-.period-label { font-size: 0.9rem; color: #666; }
+.period-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; }
+.period-row mat-form-field { width: 170px; }
+.period-hint { margin: 10px 0 0; font-size: 0.9rem; color: #666; }
+.period-error { color: #b00020; }
+@media (max-width: 600px) { .period-row mat-form-field { width: 100%; } }
 .active-type { background: var(--theme-primary) !important; color: var(--theme-on-primary, white) !important; }
 .active-period { background: #1565c0 !important; color: white !important; }
 

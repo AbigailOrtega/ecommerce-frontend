@@ -3,7 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '@core/services/admin.service';
-import { ReportsComponent } from './reports.component';
+import { ReportsComponent, presetRange } from './reports.component';
 import { InventoryItem, ProductSalesItem, SalesReport } from '@shared/models';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -80,7 +80,8 @@ describe('ReportsComponent', () => {
     });
 
     it('calls getSalesReport on init', () => {
-      expect(adminService.getSalesReport).toHaveBeenCalledWith('month');
+      const m = presetRange('month');
+      expect(adminService.getSalesReport).toHaveBeenCalledWith(m.from, m.to);
     });
   });
 
@@ -144,7 +145,8 @@ describe('ReportsComponent', () => {
       tick(60);
 
       expect(component.period).toBe('week');
-      expect(adminService.getSalesReport).toHaveBeenCalledWith('week');
+      const w = presetRange('week');
+      expect(adminService.getSalesReport).toHaveBeenCalledWith(w.from, w.to);
     }));
 
     it('period selector only calls getSalesReport (not other endpoints)', fakeAsync(() => {
@@ -152,8 +154,35 @@ describe('ReportsComponent', () => {
       tick();
 
       expect(adminService.getTopSellingProducts).not.toHaveBeenCalled();
-      expect(adminService.getSalesReport).toHaveBeenCalledWith('year');
+      const y = presetRange('year');
+      expect(adminService.getSalesReport).toHaveBeenCalledWith(y.from, y.to);
     }));
+
+    it('dates typed by the admin load that range and mark the period as custom', fakeAsync(() => {
+      adminService.getSalesReport.calls.reset();
+      component.setRange('2026-10-03', '2026-10-20');
+      tick();
+
+      expect(component.period).toBe('custom');
+      expect(adminService.getSalesReport).toHaveBeenCalledOnceWith('2026-10-03', '2026-10-20');
+    }));
+
+    it('does not load while "Hasta" is before "Desde", and says why', fakeAsync(() => {
+      adminService.getSalesReport.calls.reset();
+      component.setRange('2026-10-20', '2026-10-03');
+      tick();
+      fixture.detectChanges();
+
+      expect(adminService.getSalesReport).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain('debe ser igual o posterior');
+    }));
+  });
+
+  describe('presetRange()', () => {
+    const today = new Date(2026, 10, 11);
+    it('last 7 days include today', () => expect(presetRange('week', today)).toEqual({ from: '2026-11-05', to: '2026-11-11' }));
+    it('this month starts on the 1st', () => expect(presetRange('month', today)).toEqual({ from: '2026-11-01', to: '2026-11-11' }));
+    it('this year starts on January 1st', () => expect(presetRange('year', today)).toEqual({ from: '2026-01-01', to: '2026-11-11' }));
   });
 
   // ── loadReport() — data processing ────────────────────────────────────
@@ -382,7 +411,8 @@ describe('ReportsComponent', () => {
       tick(60);
 
       expect(component.period).toBe('year');
-      expect(adminService.getSalesReport).toHaveBeenCalledWith('year');
+      const y = presetRange('year');
+      expect(adminService.getSalesReport).toHaveBeenCalledWith(y.from, y.to);
     }));
   });
 });

@@ -1,4 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Observable } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -8,19 +11,27 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from '@core/services/admin.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
-import { AccountingReportComponent } from './accounting-report/accounting-report.component';
+import { AccountingReportComponent, isoDay } from './accounting-report/accounting-report.component';
 import { ApiResponse, InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
 
 type ReportData = SalesReport | ProductSalesItem[] | InventoryItem[];
 
 type ReportType = 'sales' | 'top' | 'least' | 'inventory' | 'outofstock' | 'accounting';
-type SalesPeriod = 'week' | 'month' | 'year';
+type SalesPeriod = 'week' | 'month' | 'year' | 'custom';
+
+/** The days a shortcut covers, up to today: the last 7 days, this month or this year. */
+export function presetRange(p: Exclude<SalesPeriod, 'custom'>, today = new Date()): { from: string; to: string } {
+  const start = p === 'week' ? new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6)
+              : p === 'year' ? new Date(today.getFullYear(), 0, 1)
+              : new Date(today.getFullYear(), today.getMonth(), 1);
+  return { from: isoDay(start), to: isoDay(today) };
+}
 
 @Component({
     selector: 'app-reports',
     imports: [
-        RouterLink,
-        MatCardModule, MatButtonModule, MatIconModule,
+        RouterLink, FormsModule,
+        MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
         MatProgressSpinnerModule, MatTooltipModule,
         LoadingComponent, AccountingReportComponent,
     ],
@@ -32,6 +43,8 @@ export class ReportsComponent implements OnInit {
 
   reportType: ReportType = 'sales';
   period: SalesPeriod = 'month';
+  from = presetRange('month').from;
+  to = presetRange('month').to;
   loading = false;
   hasData = false;
   dataLoaded = false;
@@ -57,9 +70,22 @@ export class ReportsComponent implements OnInit {
     this.loadReport();
   }
 
-  setPeriod(p: SalesPeriod): void {
+  setPeriod(p: Exclude<SalesPeriod, 'custom'>): void {
     this.period = p;
+    ({ from: this.from, to: this.to } = presetRange(p));
     this.loadReport();
+  }
+
+  /** Dates typed by the admin; loads once both are set and in order. */
+  setRange(from: string, to: string): void {
+    this.from = from;
+    this.to = to;
+    this.period = 'custom';
+    if (this.rangeValid()) this.loadReport();
+  }
+
+  rangeValid(): boolean {
+    return !!this.from && !!this.to && this.from <= this.to;
   }
 
   loadReport(): void {
@@ -67,7 +93,7 @@ export class ReportsComponent implements OnInit {
     this.hasData = false;
     this.dataLoaded = false;
 
-    const obs: Observable<ApiResponse<ReportData>> = this.reportType === 'sales'   ? this.adminService.getSalesReport(this.period)
+    const obs: Observable<ApiResponse<ReportData>> = this.reportType === 'sales'   ? this.adminService.getSalesReport(this.from, this.to)
               : this.reportType === 'top'     ? this.adminService.getTopSellingProducts()
               : this.reportType === 'least'   ? this.adminService.getLeastSellingProducts()
               : this.reportType === 'inventory' ? this.adminService.getInventoryReport()

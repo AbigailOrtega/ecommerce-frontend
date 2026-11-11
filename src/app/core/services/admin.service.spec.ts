@@ -1057,39 +1057,32 @@ describe('AdminService', () => {
   // ── getSalesReport() ──────────────────────────────────────────────────
 
   describe('getSalesReport()', () => {
-    it('sends GET to /admin/reports/sales with period param', () => {
-      service.getSalesReport('month').subscribe();
+    it('sends GET to /admin/reports/sales with the from and to days', () => {
+      service.getSalesReport('2026-10-03', '2026-10-20').subscribe();
 
-      const req = httpMock.expectOne(`${API}/reports/sales?period=month`);
+      const req = httpMock.expectOne(`${API}/reports/sales?from=2026-10-03&to=2026-10-20`);
       expect(req.request.method).toBe('GET');
-      req.flush({ success: true, data: { period: 'Este mes', data: [], totalRevenue: 0, totalOrders: 0 } });
-    });
-
-    it('sends week period correctly', () => {
-      service.getSalesReport('week').subscribe();
-
-      const req = httpMock.expectOne(`${API}/reports/sales?period=week`);
-      expect(req.request.method).toBe('GET');
-      req.flush({ success: true, data: { period: 'Última semana', data: [], totalRevenue: 0, totalOrders: 0 } });
+      req.flush({ success: true, data: { period: 'Del 03/10/2026 al 20/10/2026', data: [], totalRevenue: 0, totalOrders: 0 } });
     });
 
     it('returns SalesReport in response data', () => {
       const report: SalesReport = {
-        period: 'Este mes',
+        period: 'Del 01/03/2025 al 31/03/2025',
         data: [{ date: '2025-03-01', orderCount: 3, revenue: 900 }],
         totalRevenue: 900,
         totalOrders: 3,
       };
 
-      service.getSalesReport('month').subscribe(res => {
-        expect(res.data.period).toBe('Este mes');
+      service.getSalesReport('2025-03-01', '2025-03-31').subscribe(res => {
+        expect(res.data.period).toBe('Del 01/03/2025 al 31/03/2025');
         expect(res.data.totalOrders).toBe(3);
         expect(res.data.data.length).toBe(1);
       });
 
-      httpMock.expectOne(`${API}/reports/sales?period=month`).flush({ success: true, data: report });
+      httpMock.expectOne(`${API}/reports/sales?from=2025-03-01&to=2025-03-31`).flush({ success: true, data: report });
     });
   });
+
 
   // ── getTopSellingProducts() ───────────────────────────────────────────
 

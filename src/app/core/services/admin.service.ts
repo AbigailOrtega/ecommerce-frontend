@@ -45,8 +45,9 @@ export class AdminService {
     return this.http.put<ApiResponse<number>>(`${this.apiUrl}/reports/product-costs/${id}`, { costPrice });
   }
 
-  getSalesReport(period: 'week' | 'month' | 'year'): Observable<ApiResponse<SalesReport>> {
-    return this.http.get<ApiResponse<SalesReport>>(`${this.apiUrl}/reports/sales?period=${period}`);
+  /** Sales paid between two days (yyyy-mm-dd), both included. */
+  getSalesReport(from: string, to: string): Observable<ApiResponse<SalesReport>> {
+    return this.http.get<ApiResponse<SalesReport>>(`${this.apiUrl}/reports/sales`, { params: { from, to } });
   }
 
   getTopSellingProducts(limit = 20): Observable<ApiResponse<ProductSalesItem[]>> {

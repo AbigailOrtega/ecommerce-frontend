@@ -35,14 +35,28 @@
 
     @if (reportType === 'sales') {
       <div class="period-row">
-        <span class="period-label">Período (por fecha de pago):</span>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Desde</mat-label>
+          <input matInput type="date" data-testid="sales-from" [ngModel]="from" (ngModelChange)="setRange($event, to)" [max]="to">
+        </mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Hasta</mat-label>
+          <input matInput type="date" data-testid="sales-to" [ngModel]="to" (ngModelChange)="setRange(from, $event)" [min]="from">
+        </mat-form-field>
         <button mat-stroked-button [class.active-period]="period === 'week'"
-                (click)="setPeriod('week')">Semana</button>
+                (click)="setPeriod('week')">Últimos 7 días</button>
         <button mat-stroked-button [class.active-period]="period === 'month'"
-                (click)="setPeriod('month')">Mes</button>
+                (click)="setPeriod('month')">Este mes</button>
         <button mat-stroked-button [class.active-period]="period === 'year'"
-                (click)="setPeriod('year')">Año</button>
+                (click)="setPeriod('year')">Este año</button>
       </div>
+      <p class="period-hint">
+        @if (rangeValid()) {
+          Ventas por fecha de pago; los pedidos sin pagar no cuentan.
+        } @else {
+          <span class="period-error">La fecha "Hasta" debe ser igual o posterior a "Desde".</span>
+        }
+      </p>
     }
   </mat-card>
 
