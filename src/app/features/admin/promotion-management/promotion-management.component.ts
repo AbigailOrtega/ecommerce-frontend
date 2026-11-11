@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePickerOnClickDirective } from '@shared/directives/date-picker-on-click.directive';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +18,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
     selector: 'app-promotion-management',
-    imports: [
+    imports: [DatePickerOnClickDirective, 
         FormsModule, ReactiveFormsModule, RouterLink,
         MatTableModule, MatButtonModule, MatIconModule,
         MatFormFieldModule, MatInputModule, MatSelectModule,

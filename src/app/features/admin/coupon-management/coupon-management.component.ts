@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePickerOnClickDirective } from '@shared/directives/date-picker-on-click.directive';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +17,7 @@ import { Coupon, CouponRequest } from '@shared/models';
 
 @Component({
     selector: 'app-coupon-management',
-    imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
+    imports: [DatePickerOnClickDirective, RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatCardModule,
         MatFormFieldModule, MatInputModule, MatSlideToggleModule, MatSnackBarModule, MatTooltipModule, DatePipe],
     template: `
     <div class="container">

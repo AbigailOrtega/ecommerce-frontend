@@ -1,4 +1,5 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { DatePickerOnClickDirective } from '@shared/directives/date-picker-on-click.directive';
 import { RouterLink } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +19,7 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
 
 @Component({
     selector: 'app-order-management',
-    imports: [RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatPaginatorModule,
+    imports: [DatePickerOnClickDirective, RouterLink, FormsModule, MatTableModule, MatButtonModule, MatIconModule, MatPaginatorModule,
         MatSelectModule, MatChipsModule, MatSnackBarModule, MatProgressSpinnerModule, MatRadioModule,
         MatDividerModule, CurrencyPipe, DatePipe, LoadingComponent],
     templateUrl: './order-management.component.html',

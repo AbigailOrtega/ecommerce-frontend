@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { DatePickerOnClickDirective } from '@shared/directives/date-picker-on-click.directive';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -29,7 +30,7 @@ export function presetRange(p: Exclude<SalesPeriod, 'custom'>, today = new Date(
 
 @Component({
     selector: 'app-reports',
-    imports: [
+    imports: [DatePickerOnClickDirective, 
         RouterLink, FormsModule,
         MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
         MatProgressSpinnerModule, MatTooltipModule,

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { DatePickerOnClickDirective } from '@shared/directives/date-picker-on-click.directive';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -56,7 +57,7 @@ interface BreakdownLine { label: string; amount: number; sign: '' | '−' | '+' 
  */
 @Component({
   selector: 'app-accounting-report',
-  imports: [FormsModule, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
+  imports: [DatePickerOnClickDirective, FormsModule, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
     MatSnackBarModule, LoadingComponent],
   template: `
     <mat-card class="range-card">

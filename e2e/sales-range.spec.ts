@@ -43,6 +43,14 @@ test('sales for dates the admin chooses', async ({ page, request }) => {
   expect(await label('2020-01-01', '2020-01-31')).toBe('Del 01/01/2020 al 31/01/2020');
   expect(await label(iso(today), iso(today))).toBe(dmy(today));
 
+  // clicking anywhere on a date field opens the calendar (not only its small icon)
+  await page.evaluate(() => {
+    (window as any).__pickers = 0;
+    HTMLInputElement.prototype.showPicker = function () { (window as any).__pickers++; };
+  });
+  await page.getByTestId('sales-from').click({ position: { x: 20, y: 10 } });
+  expect(await page.evaluate(() => (window as any).__pickers)).toBe(1);
+
   // the shortcuts still fill the dates
   await page.getByRole('button', { name: 'Este año' }).click();
   await expect(page.getByTestId('sales-from')).toHaveValue(`${today.getFullYear()}-01-01`);
