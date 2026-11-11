@@ -2,15 +2,19 @@ import { test, expect } from '@playwright/test';
 import { TEST_ADMIN, loginAs } from './helpers/auth';
 import { API, adminToken } from './helpers/purchase';
 
-// Admin → Productos: search by name or SKU, price range and active / inactive.
+// Admin → Productos: search by name or SKU, price range, active / inactive and category.
 
 test('searching the admin product list', async ({ page, request }) => {
   const tag = `Bq${Date.now()}`;
   const headers = { Authorization: `Bearer ${await adminToken(request)}` };
-  for (const [name, sku, price, active] of [
-    [`Vestido ${tag}`, `VES-${tag}`, 139, true], [`Sweater ${tag}`, `SWE-${tag}`, 100, false], [`Falda ${tag}`, `FAL-${tag}`, 199, true],
+  const cat = await request.post(`${API}/categories`, { headers, data: { name: `Faldas ${tag}` } });
+  expect(cat.ok(), await cat.text()).toBeTruthy();
+  const faldas = (await cat.json()).data.id;
+  for (const [name, sku, price, active, categoryIds] of [
+    [`Vestido ${tag}`, `VES-${tag}`, 139, true, []], [`Sweater ${tag}`, `SWE-${tag}`, 100, false, []],
+    [`Falda ${tag}`, `FAL-${tag}`, 199, true, [faldas]],
   ] as const) {
-    const res = await request.post(`${API}/products`, { headers, data: { name, sku, price, stockQuantity: 2, active } });
+    const res = await request.post(`${API}/products`, { headers, data: { name, sku, price, stockQuantity: 2, active, categoryIds } });
     expect(res.ok(), await res.text()).toBeTruthy();
   }
 
@@ -37,7 +41,16 @@ test('searching the admin product list', async ({ page, request }) => {
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText(`Sweater ${tag}`);
 
+  // by category (with the text, so only this test's products count)
+  await page.getByTestId('filter-active').click();
+  await page.getByRole('option', { name: 'Todos' }).click();
+  await page.getByTestId('filter-category').click();
+  await page.getByRole('option', { name: `Faldas ${tag}` }).click();
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText(`Falda ${tag}`);
+
   await page.getByTestId('filter-clear').click();
+  await expect(page.getByTestId('filter-category')).toContainText('Todas');
   await expect(page.getByTestId('filter-q')).toHaveValue('');
   await expect(rows.first()).toBeVisible();
 });

@@ -162,6 +162,15 @@
         <mat-option value="false">Inactivos</mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="f-category">
+      <mat-label>Categoría</mat-label>
+      <mat-select data-testid="filter-category" [(ngModel)]="filters.categoryId" (ngModelChange)="onFilterChange()">
+        <mat-option value="">Todas</mat-option>
+        @for (c of categories; track c.id) {
+          <mat-option [value]="c.id">{{ c.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     @if (hasFilters) {
       <button mat-button type="button" data-testid="filter-clear" (click)="clearFilters()">
         <mat-icon>close</mat-icon> Limpiar

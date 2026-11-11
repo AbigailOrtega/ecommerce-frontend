@@ -58,9 +58,10 @@
 .filters .f-search { flex: 1 1 260px; max-width: 420px; }
 .filters .f-price { width: 130px; }
 .filters .f-active { width: 150px; }
+.filters .f-category { width: 180px; }
 .filter-error { color: #b00020; margin: -8px 0 12px; font-size: 0.9rem; }
 .no-results { color: #666; padding: 24px 0; }
 @media (max-width: 600px) {
   .filters .f-search { flex-basis: 100%; max-width: none; }
-  .filters .f-price, .filters .f-active { flex: 1 1 calc(50% - 6px); width: auto; }
+  .filters .f-price, .filters .f-active, .filters .f-category { flex: 1 1 calc(50% - 6px); width: auto; }
 }

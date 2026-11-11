@@ -96,8 +96,8 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   }
 
   // ── Search ──
-  filters: { q: string; minPrice: number | null; maxPrice: number | null; active: '' | 'true' | 'false' } =
-    { q: '', minPrice: null, maxPrice: null, active: '' };
+  filters: { q: string; minPrice: number | null; maxPrice: number | null; active: '' | 'true' | 'false'; categoryId: number | '' } =
+    { q: '', minPrice: null, maxPrice: null, active: '', categoryId: '' };
   private readonly filterChanges = new Subject<void>();
   private readonly filterSub = this.filterChanges.pipe(debounceTime(300)).subscribe(() => {
     this.currentPage = 0;
@@ -111,7 +111,7 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
 
   get hasFilters(): boolean {
     const f = this.filters;
-    return !!f.q.trim() || f.minPrice != null || f.maxPrice != null || f.active !== '';
+    return !!f.q.trim() || f.minPrice != null || f.maxPrice != null || f.active !== '' || f.categoryId !== '';
   }
 
   get priceRangeInvalid(): boolean {
@@ -120,14 +120,15 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   }
 
   clearFilters(): void {
-    this.filters = { q: '', minPrice: null, maxPrice: null, active: '' };
+    this.filters = { q: '', minPrice: null, maxPrice: null, active: '', categoryId: '' };
     this.currentPage = 0;
     this.loadProducts();
   }
 
   private apiFilters(): ProductFilters {
     const f = this.filters;
-    return { q: f.q, minPrice: f.minPrice, maxPrice: f.maxPrice, active: f.active === '' ? null : f.active === 'true' };
+    return { q: f.q, minPrice: f.minPrice, maxPrice: f.maxPrice, active: f.active === '' ? null : f.active === 'true',
+             categoryId: f.categoryId === '' ? null : f.categoryId };
   }
 
   loadProducts(): void {

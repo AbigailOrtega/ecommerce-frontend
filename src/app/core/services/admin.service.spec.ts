@@ -265,13 +265,14 @@ describe('AdminService', () => {
     });
 
     it('sends the search filters, leaving out the empty ones', () => {
-      service.getAllProducts(1, 20, { q: '  SKU-12 ', minPrice: 0, maxPrice: null, active: false }).subscribe();
+      service.getAllProducts(1, 20, { q: '  SKU-12 ', minPrice: 0, maxPrice: null, active: false, categoryId: 3 }).subscribe();
 
       const req = httpMock.expectOne(r => r.url === `${API}/products`);
       expect(req.request.params.get('q')).toBe('SKU-12');
       expect(req.request.params.get('minPrice')).toBe('0');
       expect(req.request.params.has('maxPrice')).toBeFalse();
       expect(req.request.params.get('active')).toBe('false');
+      expect(req.request.params.get('categoryId')).toBe('3');
       req.flush({ success: true, data: makePage([]) });
     });
 

@@ -8,12 +8,13 @@ import { AccountingReport, ApiResponse, Coupon, CouponRequest, DashboardStats, I
 /** count: page views; visits: distinct browsing sessions. */
 export interface PageViewRow { label: string; count: number; visits: number; }
 
-/** Admin → Productos search: name or SKU, price range, active or not. */
+/** Admin → Productos search: name or SKU, price range, active or not, category. */
 export interface ProductFilters {
   q?: string;
   minPrice?: number | null;
   maxPrice?: number | null;
   active?: boolean | null;
+  categoryId?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -106,6 +107,7 @@ export class AdminService {
     if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice);
     if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice);
     if (filters.active != null) params = params.set('active', filters.active);
+    if (filters.categoryId != null) params = params.set('categoryId', filters.categoryId);
     return this.http.get<ApiResponse<Page<Product>>>(`${this.apiUrl}/products`, { params });
   }
 
