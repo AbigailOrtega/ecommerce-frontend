@@ -17,6 +17,13 @@ test('deleting products from the admin', async ({ page, request }) => {
 
   await loginAs(page, TEST_ADMIN.email, TEST_ADMIN.password);
   page.on('dialog', d => d.accept());
+  // the admin table shows 20 per page in no set order, and CI has many products: ask for all of
+  // them so the two new ones are on screen
+  await page.route('**/api/admin/products?*', route => {
+    const url = new URL(route.request().url());
+    url.searchParams.set('size', '1000');
+    return route.continue({ url: url.toString() });
+  });
   const productGet = async (id: number) => (await request.get(`${API}/products/${id}`,
     { headers: { Authorization: `Bearer ${await adminToken(request)}` } }));
 
