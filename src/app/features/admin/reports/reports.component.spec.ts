@@ -1,6 +1,6 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AdminService } from '@core/services/admin.service';
 import { ReportsComponent, presetRange } from './reports.component';
@@ -175,6 +175,34 @@ describe('ReportsComponent', () => {
 
       expect(adminService.getSalesReport).not.toHaveBeenCalled();
       expect(fixture.nativeElement.textContent).toContain('debe ser igual o posterior');
+    }));
+  });
+
+  describe('product rows', () => {
+    it('product reports remember each row\'s product, and a row opens it in Admin → Productos', fakeAsync(() => {
+      adminService.getOutOfStockProducts.and.returnValue(
+        of({ success: true, data: [makeInventoryItem({ productId: 9, slug: 'falda-floral' } as any)] }));
+      const router = TestBed.inject(Router);
+      const nav = spyOn(router, 'navigate').and.resolveTo(true);
+
+      component.selectType('outofstock');
+      tick(60);
+      fixture.detectChanges();
+
+      expect(component.rowProducts).toEqual([{ id: 9, slug: 'falda-floral' }]);
+      const row = fixture.nativeElement.querySelector('[data-testid="report-row-9"]') as HTMLElement;
+      const store = fixture.nativeElement.querySelector('[data-testid="report-store-9"]') as HTMLAnchorElement;
+      expect(store.getAttribute('href')).toBe('/products/falda-floral');
+      expect(store.target).toBe('_blank');
+
+      row.click();
+      expect(nav).toHaveBeenCalledWith(['/admin/products'], { queryParams: { edit: 9 } });
+    }));
+
+    it('the sales report rows are not product links', fakeAsync(() => {
+      component.setPeriod('month');
+      tick(60);
+      expect(component.rowProducts).toEqual([]);
     }));
   });
 

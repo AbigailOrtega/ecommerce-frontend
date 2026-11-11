@@ -109,15 +109,35 @@
               @for (h of tableHeaders; track h) {
                 <th>{{ h }}</th>
               }
+              @if (rowProducts.length) { <th class="link-col"><span class="sr-only">Ver en la tienda</span></th> }
             </tr>
           </thead>
           <tbody>
-            @for (row of tableRows; track $index) {
-              <tr>
-                @for (cell of row; track $index) {
-                  <td>{{ cell }}</td>
-                }
-              </tr>
+            @for (row of tableRows; track $index; let i = $index) {
+              @if (rowProducts[i]; as product) {
+                <tr class="product-row" tabindex="0" role="link" [attr.data-testid]="'report-row-' + product.id"
+                    matTooltip="Editar en Productos" matTooltipShowDelay="600"
+                    (click)="openInAdmin(product)" (keydown.enter)="openInAdmin(product)">
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
+                  <td class="link-col">
+                    @if (product.slug) {
+                      <a mat-icon-button [href]="'/products/' + product.slug" target="_blank" rel="noopener"
+                         [attr.data-testid]="'report-store-' + product.id" aria-label="Ver en la tienda"
+                         matTooltip="Ver en la tienda" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+                        <mat-icon>open_in_new</mat-icon>
+                      </a>
+                    }
+                  </td>
+                </tr>
+              } @else {
+                <tr>
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
+                </tr>
+              }
             }
           </tbody>
         </table>

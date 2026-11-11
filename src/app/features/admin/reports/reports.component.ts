@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Observable } from 'rxjs';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -57,8 +57,15 @@ export class ReportsComponent implements OnInit {
   kpis: { icon: string; value: string; label: string }[] = [];
   tableHeaders: string[] = [];
   tableRows: string[][] = [];
+  /** The product behind each row (product reports only): the row opens it in the admin, the icon in the store. */
+  rowProducts: ({ id: number; slug?: string | null } | null)[] = [];
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private router: Router) {}
+
+  /** Opens the product's edit form in Admin → Productos. */
+  openInAdmin(product: { id: number } | null): void {
+    if (product) this.router.navigate(['/admin/products'], { queryParams: { edit: product.id } });
+  }
 
   ngOnInit(): void {
     this.loadReport();
@@ -112,6 +119,7 @@ export class ReportsComponent implements OnInit {
   }
 
   private processData(data: ReportData): void {
+    this.rowProducts = [];
     if (this.reportType === 'sales') {
       this.salesReport = data as SalesReport;
       const points = this.salesReport.data;
@@ -138,6 +146,7 @@ export class ReportsComponent implements OnInit {
         { icon: 'attach_money', value: this.fmtCurrency(totalRev), label: 'Ingresos totales' },
       ];
       this.tableHeaders = ['Producto', 'Unidades vendidas', 'Ingresos', 'Stock actual'];
+      this.rowProducts = this.productItems.map(p => ({ id: p.productId, slug: p.slug }));
       this.tableRows = this.productItems.map(p => [
         p.productName, String(p.unitsSold), this.fmtCurrency(p.revenue), String(p.currentStock)
       ]);
@@ -157,6 +166,7 @@ export class ReportsComponent implements OnInit {
       this.tableHeaders = isOutOfStock
         ? ['Producto', 'SKU', 'Stock total', 'Sin existencia', 'Precio', 'Activo']
         : ['Producto', 'SKU', 'Stock', 'Precio', 'Activo'];
+      this.rowProducts = this.inventoryItems.map(i => ({ id: i.productId, slug: i.slug }));
       this.tableRows = this.inventoryItems.map(i => isOutOfStock
         ? [i.name, i.sku ?? '—', String(i.stock), (i.outOfStockVariants && i.outOfStockVariants.length > 0) ? i.outOfStockVariants.join(', ') : '—', this.fmtCurrency(i.price), i.active ? 'Sí' : 'No']
         : [i.name, i.sku ?? '—', String(i.stock), this.fmtCurrency(i.price), i.active ? 'Sí' : 'No']

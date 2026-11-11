@@ -200,6 +200,8 @@ export interface ProductSalesItem {
   unitsSold: number;
   revenue: number;
   currentStock: number;
+  /** for the link to the product's store page */
+  slug?: string | null;
 }
 
 export interface InventoryItem {
@@ -210,6 +212,7 @@ export interface InventoryItem {
   price: number;
   active: boolean;
   outOfStockVariants?: string[];
+  slug?: string | null;
 }
 
 export interface DashboardStats {

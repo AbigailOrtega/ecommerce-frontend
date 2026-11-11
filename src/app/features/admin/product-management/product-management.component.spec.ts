@@ -116,3 +116,26 @@ describe('ProductManagementComponent — search', () => {
     expect(admin.getAllProducts).not.toHaveBeenCalled();
   }));
 });
+
+describe('ProductManagementComponent — opened from a report row', () => {
+  it('?edit=<id> opens that product\'s form and clears the link', () => {
+    const admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts']);
+    admin.pendingUploads.and.returnValue(new PendingUploads(() => {}));
+    admin.getAllProducts.and.returnValue(of({ success: true, data: { content: [], totalElements: 0 } } as any));
+    const products = jasmine.createSpyObj<ProductService>('ProductService', ['getCategories', 'getProductById']);
+    products.getCategories.and.returnValue(of({ success: true, data: [] } as any));
+    products.getProductById.and.returnValue(of({ success: true, data: { id: 7, name: 'Falda floral', price: 199, images: [], colors: [] } } as any));
+    const route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'edit' ? '7' : null) } } } as any;
+    const router = jasmine.createSpyObj('Router', ['navigate']);
+    const component = new ProductManagementComponent(new FormBuilder(), admin, products,
+      jasmine.createSpyObj<MatSnackBar>('MatSnackBar', ['open']), route, router);
+
+    component.ngOnInit();
+
+    expect(products.getProductById).toHaveBeenCalledWith(7);
+    expect(component.editingId).toBe(7);
+    expect(component.showForm).toBeTrue();
+    expect(router.navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { edit: null } }));
+    component.ngOnDestroy();
+  });
+});

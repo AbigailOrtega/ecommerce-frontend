@@ -12,7 +12,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Optional } from '@angular/core';
 import { AdminService, ProductFilters } from '@core/services/admin.service';
 import { Subject, debounceTime } from 'rxjs';
 import { ProductService } from '@core/services/product.service';
@@ -67,6 +68,8 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
     private adminService: AdminService,
     private productService: ProductService,
     private snackBar: MatSnackBar,
+    @Optional() private route?: ActivatedRoute,
+    @Optional() private router?: Router,
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -82,6 +85,7 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.openFromLink();
     this.loadProducts();
     this.productService.getCategories().subscribe(res => this.categories = res.data);
   }
@@ -142,6 +146,20 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
     this.productImages = [];
     this.productImagesUploading = false;
     this.form.reset({ price: 0, stockQuantity: 0, featured: false, active: true, categoryIds: [] });
+  }
+
+  /** ?edit=<id> (from a report row) opens that product's form, then the link is cleared. */
+  private openFromLink(): void {
+    const id = Number(this.route?.snapshot.queryParamMap.get('edit'));
+    if (!id) return;
+    this.productService.getProductById(id).subscribe({
+      next: res => {
+        this.editProduct(res.data);
+        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        this.router?.navigate([], { queryParams: { edit: null }, queryParamsHandling: 'merge', replaceUrl: true });
+      },
+      error: () => this.snackBar.open('No se encontró el producto', 'Cerrar', { duration: 4000 }),
+    });
   }
 
   editProduct(product: Product): void {
