@@ -248,7 +248,7 @@ test.describe('Admin › Products', () => {
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
-    ).toContainText('created', { timeout: 10000 });
+    ).toContainText('Producto creado', { timeout: 10000 });
   });
 
   test('can edit a product', async ({ page, request }) => {
@@ -266,7 +266,7 @@ test.describe('Admin › Products', () => {
 
     await expect(
       page.locator('simple-snack-bar, mat-snack-bar-container').first()
-    ).toContainText('updated', { timeout: 10000 });
+    ).toContainText('Producto actualizado', { timeout: 10000 });
     await expect(page.locator('tr', { hasText: `${product.name} editado` })).toBeVisible();
   });
 });

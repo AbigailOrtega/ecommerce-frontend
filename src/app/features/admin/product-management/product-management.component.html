@@ -26,6 +26,12 @@
         <div class="row">
           <mat-form-field appearance="outline"><mat-label>Precio</mat-label><input matInput formControlName="price" type="number"></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>Precio comparativo</mat-label><input matInput formControlName="compareAtPrice" type="number"></mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Costo de la prenda</mat-label>
+            <input matInput formControlName="costPrice" type="number" min="0" data-testid="product-cost">
+            <mat-icon matSuffix matTooltip="Solo tú lo ves: no aparece en la tienda">lock</mat-icon>
+            <mat-hint>{{ marginHint ?? 'Lo que pagaste por ella. Solo tú lo ves.' }}</mat-hint>
+          </mat-form-field>
           @if (colorEntries.length === 0) {
             <mat-form-field appearance="outline"><mat-label>Stock</mat-label><input matInput formControlName="stockQuantity" type="number"></mat-form-field>
           }
@@ -123,7 +129,7 @@
           <mat-label>Categorías</mat-label>
           <mat-select formControlName="categoryIds" multiple>
             @for (cat of categories; track cat.id) {
-              <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+              <mat-option [value]="cat.id">{{ cat.name }}@if (cat.visible === false) { <span class="hidden-cat">(oculta)</span> }</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -167,7 +173,7 @@
       <mat-select data-testid="filter-category" [(ngModel)]="filters.categoryId" (ngModelChange)="onFilterChange()">
         <mat-option value="">Todas</mat-option>
         @for (c of categories; track c.id) {
-          <mat-option [value]="c.id">{{ c.name }}</mat-option>
+          <mat-option [value]="c.id">{{ c.name }}@if (c.visible === false) { <span class="hidden-cat">(oculta)</span> }</mat-option>
         }
       </mat-select>
     </mat-form-field>

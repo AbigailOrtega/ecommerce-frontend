@@ -65,3 +65,5 @@
   .filters .f-search { flex-basis: 100%; max-width: none; }
   .filters .f-price, .filters .f-active, .filters .f-category { flex: 1 1 calc(50% - 6px); width: auto; }
 }
+
+.hidden-cat { color: #888; font-size: 0.85em; margin-left: 4px; }

@@ -7,6 +7,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -29,7 +30,7 @@ import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 @Component({
     selector: 'app-product-management',
     imports: [CloudinaryPipe, FormsModule, ReactiveFormsModule, RouterLink, MatTableModule, MatButtonModule, MatIconModule,
-        MatPaginatorModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule,
+        MatPaginatorModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatTooltipModule,
         MatCardModule, MatSnackBarModule, MatProgressSpinnerModule, CurrencyPipe, LoadingComponent],
     templateUrl: './product-management.component.html',
     styleUrl: './product-management.component.scss'
@@ -76,6 +77,8 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
       description: [''],
       price: [0, [Validators.required, Validators.min(0.01)]],
       compareAtPrice: [null],
+      // what the garment cost the store: saved apart (admin-only endpoint), never sent with the product
+      costPrice: [null as number | null, [Validators.min(0)]],
       sku: [''],
       stockQuantity: [0],
       categoryIds: [[]],
@@ -87,7 +90,9 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.openFromLink();
     this.loadProducts();
-    this.productService.getCategories().subscribe(res => this.categories = res.data);
+    this.loadCosts();
+    // every category, hidden ones too: products can be put in them and filtered by them
+    this.productService.getAdminCategories().subscribe(res => this.categories = res.data);
   }
 
   ngOnDestroy(): void {
@@ -151,6 +156,9 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
 
   /** ?edit=<id> (from a report row) opens that product's form, then the link is cleared. */
   private openFromLink(): void {
+    // ?category=<id> (from the report by category): the list filtered by it
+    const category = Number(this.route?.snapshot.queryParamMap.get('category'));
+    if (category) this.filters.categoryId = category;
     const id = Number(this.route?.snapshot.queryParamMap.get('edit'));
     if (!id) return;
     this.productService.getProductById(id).subscribe({
@@ -185,7 +193,32 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
       stockQuantity: product.stockQuantity,
       categoryIds: product.categories?.map(c => c.id) || [],
       featured: product.featured, active: product.active,
+      costPrice: this.costs.get(product.id) ?? null,
     });
+  }
+
+  // ── Garment cost (only the admin sees it) ──
+  /** product id → what it cost the store, from the admin-only costs list */
+  private costs = new Map<number, number | null>();
+
+  private loadCosts(): void {
+    this.adminService.getProductCosts().subscribe({
+      next: res => {
+        this.costs = new Map(res.data.map(c => [c.id, c.costPrice]));
+        // a form opened before the list arrived gets its cost now, unless it was already typed
+        const control = this.form.get('costPrice')!;
+        if (this.editingId && control.pristine) control.setValue(this.costs.get(this.editingId) ?? null);
+      },
+      error: () => {},
+    });
+  }
+
+  /** "Ganancia por prenda: $60.00 (30 %)" while price and cost are filled in. */
+  get marginHint(): string | null {
+    const { price, costPrice } = this.form.value;
+    if (costPrice == null || costPrice === '' || !price) return null;
+    const margin = Number(price) - Number(costPrice);
+    return `Ganancia por prenda: ${margin.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (${Math.round(margin / Number(price) * 100)} %)`;
   }
 
   // Colors
@@ -323,8 +356,11 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
     const baseImages = colors.length > 0 ? (colors[0].images || []) : this.productImages;
     const firstImage = baseImages[0] || null;
 
+    const { costPrice, ...productFields } = this.form.value;
+    const cost: number | null = costPrice === '' || costPrice == null ? null : Number(costPrice);
+    const previousCost = this.editingId ? (this.costs.get(this.editingId) ?? null) : null;
     const payload = {
-      ...this.form.value,
+      ...productFields,
       images: baseImages,
       imageUrl: firstImage,
       colors,
@@ -334,9 +370,22 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
       ? this.productService.updateProduct(this.editingId, payload)
       : this.productService.createProduct(payload);
 
+    const wasEditing = !!this.editingId;
     obs.subscribe({
-      next: () => {
-        this.snackBar.open(`Product ${this.editingId ? 'updated' : 'created'}`, 'Cerrar', { duration: 3000 });
+      next: (res) => {
+        const id = this.editingId ?? res.data?.id;
+        const saved = wasEditing ? 'Producto actualizado' : 'Producto creado';
+        if (id && cost !== previousCost) {
+          this.adminService.setProductCost(id, cost).subscribe({
+            next: r => {
+              this.costs.set(id, cost);
+              this.snackBar.open(r.message ? `${saved}. ${r.message}` : saved, 'Cerrar', { duration: 4000 });
+            },
+            error: (err) => this.snackBar.open(`${saved}, pero no se guardó el costo: ${err.error?.message || 'intenta de nuevo'}`, 'Cerrar', { duration: 6000 }),
+          });
+        } else {
+          this.snackBar.open(saved, 'Cerrar', { duration: 3000 });
+        }
         this.pendingUploads.committed([...baseImages, ...colors.flatMap(c => c.images)]);
         this.showForm = false;
         this.resetForm();

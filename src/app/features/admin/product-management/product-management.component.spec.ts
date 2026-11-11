@@ -73,7 +73,8 @@ describe('ProductManagementComponent — search', () => {
   let component: ProductManagementComponent;
 
   beforeEach(() => {
-    admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts']);
+    admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts', 'getProductCosts']);
+    admin.getProductCosts.and.returnValue(of({ success: true, data: [] } as any));
     admin.pendingUploads.and.returnValue(new PendingUploads(() => {}));
     admin.getAllProducts.and.returnValue(of({ success: true, data: { content: [], totalElements: 0 } } as any));
     component = new ProductManagementComponent(new FormBuilder(), admin,
@@ -119,11 +120,12 @@ describe('ProductManagementComponent — search', () => {
 
 describe('ProductManagementComponent — opened from a report row', () => {
   it('?edit=<id> opens that product\'s form and clears the link', () => {
-    const admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts']);
+    const admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts', 'getProductCosts']);
+    admin.getProductCosts.and.returnValue(of({ success: true, data: [{ id: 7, costPrice: 80 }] } as any));
     admin.pendingUploads.and.returnValue(new PendingUploads(() => {}));
     admin.getAllProducts.and.returnValue(of({ success: true, data: { content: [], totalElements: 0 } } as any));
-    const products = jasmine.createSpyObj<ProductService>('ProductService', ['getCategories', 'getProductById']);
-    products.getCategories.and.returnValue(of({ success: true, data: [] } as any));
+    const products = jasmine.createSpyObj<ProductService>('ProductService', ['getAdminCategories', 'getProductById']);
+    products.getAdminCategories.and.returnValue(of({ success: true, data: [] } as any));
     products.getProductById.and.returnValue(of({ success: true, data: { id: 7, name: 'Falda floral', price: 199, images: [], colors: [] } } as any));
     const route = { snapshot: { queryParamMap: { get: (k: string) => (k === 'edit' ? '7' : null) } } } as any;
     const router = jasmine.createSpyObj('Router', ['navigate']);
@@ -135,7 +137,59 @@ describe('ProductManagementComponent — opened from a report row', () => {
     expect(products.getProductById).toHaveBeenCalledWith(7);
     expect(component.editingId).toBe(7);
     expect(component.showForm).toBeTrue();
+    expect(component.form.value.costPrice).toBe(80);
     expect(router.navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { edit: null } }));
     component.ngOnDestroy();
+  });
+});
+
+describe('ProductManagementComponent — garment cost', () => {
+  let admin: jasmine.SpyObj<AdminService>;
+  let products: jasmine.SpyObj<ProductService>;
+  let snack: jasmine.SpyObj<MatSnackBar>;
+  let component: ProductManagementComponent;
+
+  beforeEach(() => {
+    admin = jasmine.createSpyObj('AdminService', ['pendingUploads', 'getAllProducts', 'getProductCosts', 'setProductCost']);
+    admin.pendingUploads.and.returnValue(new PendingUploads(() => {}));
+    admin.getAllProducts.and.returnValue(of({ success: true, data: { content: [], totalElements: 0 } } as any));
+    admin.getProductCosts.and.returnValue(of({ success: true, data: [{ id: 4, costPrice: 50 }] } as any));
+    admin.setProductCost.and.returnValue(of({ success: true, message: 'Costo guardado', data: 0 } as any));
+    products = jasmine.createSpyObj<ProductService>('ProductService', ['getAdminCategories', 'createProduct', 'updateProduct']);
+    products.getAdminCategories.and.returnValue(of({ success: true, data: [] } as any));
+    products.createProduct.and.returnValue(of({ success: true, data: { id: 9 } } as any));
+    products.updateProduct.and.returnValue(of({ success: true, data: { id: 4 } } as any));
+    snack = jasmine.createSpyObj<MatSnackBar>('MatSnackBar', ['open']);
+    component = new ProductManagementComponent(new FormBuilder(), admin, products, snack);
+    component.ngOnInit();
+  });
+
+  afterEach(() => component.ngOnDestroy());
+
+  it('is never sent with the product, only to the admin-only cost endpoint', () => {
+    component.form.patchValue({ name: 'Blusa', price: 200, costPrice: 120 });
+    component.saveProduct();
+
+    const sent = products.createProduct.calls.mostRecent().args[0] as any;
+    expect('costPrice' in sent).toBeFalse();
+    expect(admin.setProductCost).toHaveBeenCalledOnceWith(9, 120);
+    expect(snack.open.calls.mostRecent().args[0]).toContain('Costo guardado');
+  });
+
+  it('editing shows the saved cost, and saving without changing it does not send it again', () => {
+    component.editProduct({ id: 4, name: 'Falda', price: 199, images: [], colors: [] } as any);
+    expect(component.form.value.costPrice).toBe(50);
+    expect(component.marginHint).toContain('75 %');
+
+    component.saveProduct();
+    expect(products.updateProduct).toHaveBeenCalled();
+    expect(admin.setProductCost).not.toHaveBeenCalled();
+  });
+
+  it('clearing it removes the cost', () => {
+    component.editProduct({ id: 4, name: 'Falda', price: 199, images: [], colors: [] } as any);
+    component.form.patchValue({ costPrice: null });
+    component.saveProduct();
+    expect(admin.setProductCost).toHaveBeenCalledOnceWith(4, null);
   });
 });
