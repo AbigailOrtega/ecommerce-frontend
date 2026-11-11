@@ -27,11 +27,15 @@
               (click)="selectType('outofstock')">
         <mat-icon>warning</mat-icon> Sin stock
       </button>
+      <button mat-stroked-button [class.active-type]="reportType === 'accounting'"
+              data-testid="report-accounting" (click)="selectType('accounting')">
+        <mat-icon>account_balance</mat-icon> Contabilidad
+      </button>
     </div>
 
     @if (reportType === 'sales') {
       <div class="period-row">
-        <span class="period-label">Período:</span>
+        <span class="period-label">Período (por fecha de pago):</span>
         <button mat-stroked-button [class.active-period]="period === 'week'"
                 (click)="setPeriod('week')">Semana</button>
         <button mat-stroked-button [class.active-period]="period === 'month'"
@@ -42,6 +46,9 @@
     }
   </mat-card>
 
+  @if (reportType === 'accounting') {
+    <app-accounting-report />
+  } @else {
   <!-- ── Loading ─────────────────────────────────────────── -->
   @if (loading) {
     <app-loading />
@@ -109,5 +116,6 @@
       <mat-icon>bar_chart</mat-icon>
       <p>No hay datos disponibles para este reporte.</p>
     </div>
+  }
   }
 </div>

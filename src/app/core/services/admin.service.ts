@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import { PendingUploads } from '../utils/pending-uploads';
-import { ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User, PostalCatalogStatus } from '@shared/models';
+import { AccountingReport, ApiResponse, Coupon, CouponRequest, DashboardStats, InventoryItem, Order, Page, PickupAvailability, PickupAvailabilityRequest, PickupException, PickupExceptionRequest, PickupLocation, PickupLocationRequest, Product, ProductSalesItem, PromoBanner, PromoBannerRequest, Promotion, PromotionRequest, Review, SalesReport, ShippingConfig, SkydropxQuotation, Ticket, TicketUpdateRequest, UpcomingSchedule, User, PostalCatalogStatus, ProductCostItem } from '@shared/models';
 
 /** count: page views; visits: distinct browsing sessions. */
 export interface PageViewRow { label: string; count: number; visits: number; }
@@ -29,6 +29,20 @@ export class AdminService {
 
   getUpcomingSchedule(): Observable<ApiResponse<UpcomingSchedule>> {
     return this.http.get<ApiResponse<UpcomingSchedule>>(`${this.apiUrl}/orders/upcoming-schedule`);
+  }
+
+  /** Accounts between two days (yyyy-mm-dd, both included). */
+  getAccountingReport(from: string, to: string): Observable<ApiResponse<AccountingReport>> {
+    return this.http.get<ApiResponse<AccountingReport>>(`${this.apiUrl}/reports/accounting`, { params: { from, to } });
+  }
+
+  getProductCosts(): Observable<ApiResponse<ProductCostItem[]>> {
+    return this.http.get<ApiResponse<ProductCostItem[]>>(`${this.apiUrl}/reports/product-costs`);
+  }
+
+  /** Sets what a product cost (null clears it); the answer is how many past sales took it. */
+  setProductCost(id: number, costPrice: number | null): Observable<ApiResponse<number>> {
+    return this.http.put<ApiResponse<number>>(`${this.apiUrl}/reports/product-costs/${id}`, { costPrice });
   }
 
   getSalesReport(period: 'week' | 'month' | 'year'): Observable<ApiResponse<SalesReport>> {

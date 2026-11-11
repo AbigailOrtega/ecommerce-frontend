@@ -134,6 +134,66 @@ export interface SalesReport {
   totalOrders: number;
 }
 
+/** The store's accounts for a date range (Reportes → Contabilidad). */
+export interface AccountingReport {
+  from: string;
+  to: string;
+  summary: AccountingSummary;
+  byPaymentMethod: { method: string; orders: number; collected: number; fees: number }[];
+  daily: SalesDataPoint[];
+  ledger: LedgerRow[];
+}
+
+export interface AccountingSummary {
+  paidOrders: number;
+  productSales: number;
+  discounts: number;
+  shippingCharged: number;
+  totalCollected: number;
+  refundedOrders: number;
+  refunds: number;
+  netSales: number;
+  paymentFees: number;
+  ordersMissingFee: number;
+  labelCosts: number;
+  shipmentsMissingCost: number;
+  costOfGoods: number;
+  unitsMissingCost: number;
+  grossProfit: number;
+  paidThenCancelled: number;
+}
+
+/** One movement of the sales ledger: a sale, or a refund (negative amounts). */
+export interface LedgerRow {
+  movement: 'VENTA' | 'REEMBOLSO';
+  date: string;
+  orderNumber: string;
+  customer: string;
+  email: string | null;
+  status: string;
+  paymentMethod: string;
+  paymentId: string | null;
+  couponCode: string | null;
+  shippingType: string | null;
+  productSales: number;
+  discount: number;
+  shipping: number;
+  total: number;
+  paymentFee: number | null;
+  labelCost: number | null;
+  costOfGoods: number;
+}
+
+/** A product's price and what it cost the store (admin only). */
+export interface ProductCostItem {
+  id: number;
+  name: string;
+  sku: string | null;
+  price: number;
+  costPrice: number | null;
+  active: boolean;
+}
+
 export interface ProductSalesItem {
   productId: number;
   productName: string;

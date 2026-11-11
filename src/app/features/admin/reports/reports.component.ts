@@ -8,11 +8,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AdminService } from '@core/services/admin.service';
 import { LoadingComponent } from '@shared/components/loading/loading.component';
+import { AccountingReportComponent } from './accounting-report/accounting-report.component';
 import { ApiResponse, InventoryItem, ProductSalesItem, SalesDataPoint, SalesReport } from '@shared/models';
 
 type ReportData = SalesReport | ProductSalesItem[] | InventoryItem[];
 
-type ReportType = 'sales' | 'top' | 'least' | 'inventory' | 'outofstock';
+type ReportType = 'sales' | 'top' | 'least' | 'inventory' | 'outofstock' | 'accounting';
 type SalesPeriod = 'week' | 'month' | 'year';
 
 @Component({
@@ -21,7 +22,7 @@ type SalesPeriod = 'week' | 'month' | 'year';
         RouterLink,
         MatCardModule, MatButtonModule, MatIconModule,
         MatProgressSpinnerModule, MatTooltipModule,
-        LoadingComponent,
+        LoadingComponent, AccountingReportComponent,
     ],
     templateUrl: './reports.component.html',
     styleUrl: './reports.component.scss'
@@ -51,6 +52,8 @@ export class ReportsComponent implements OnInit {
 
   selectType(type: ReportType): void {
     this.reportType = type;
+    // the accounts have their own screen, with its own dates and loading
+    if (type === 'accounting') return;
     this.loadReport();
   }
 
@@ -366,6 +369,7 @@ ${chartImg ? `<img src="${chartImg}" />` : ''}
       least: 'Productos menos vendidos',
       inventory: 'Inventario',
       outofstock: 'Productos sin stock',
+      accounting: 'Contabilidad',
     };
     return map[this.reportType];
   }
