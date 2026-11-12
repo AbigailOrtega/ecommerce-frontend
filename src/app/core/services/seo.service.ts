@@ -9,7 +9,8 @@ export interface PageSeo {
   type?: 'website' | 'product';
 }
 
-const DEFAULT_STORE_NAME = 'Marea';
+// one deploy serves every store: no store's name is built in, it comes from the store info
+const DEFAULT_STORE_NAME = '';
 const DEFAULT_DESCRIPTION = 'Textiles y artículos para el hogar. Compra en línea con envío a todo México o recoge en tienda.';
 const JSON_LD_ID = 'seo-json-ld';
 
@@ -40,7 +41,7 @@ export class SeoService {
 
   update(page: PageSeo): void {
     const store = this.storeName();
-    const fullTitle = page.title ? `${page.title} | ${store}` : store;
+    const fullTitle = page.title && store ? `${page.title} | ${store}` : page.title || store;
     this.title.setTitle(fullTitle);
     this.setTag('og:title', fullTitle, 'property');
     this.setTag('twitter:title', fullTitle);

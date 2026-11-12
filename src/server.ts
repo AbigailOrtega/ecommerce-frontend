@@ -12,8 +12,9 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 // Vercel's edge sets (and overwrites) these on every request. Angular falls back to client-side
-// rendering when it sees an X-Forwarded-* header it was not told to trust; the host is still checked
-// against "allowedHosts" in angular.json.
+// rendering when it sees an X-Forwarded-* header it was not told to trust. "allowedHosts" in
+// angular.json is "*": one deploy serves every store's domain, Vercel only routes the domains added
+// to the project, and the render's API calls always go to API_ORIGIN whatever the host says.
 const angularApp = new AngularNodeAppEngine({
   trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-for'],
 });
@@ -36,7 +37,7 @@ app.get('/robots.txt', (req, res) => {
 
 app.get('/sitemap.xml', async (req, res) => {
   try {
-    const products = await fetchProductSlugs(apiOrigin);
+    const products = await fetchProductSlugs(apiOrigin, fetch, new URL(siteOrigin(req)).host);
     res.type('application/xml').set('Cache-Control', CDN_HOUR).send(sitemapXml(siteOrigin(req), products));
   } catch (error) {
     // no stale or partial sitemap: search engines retry a 503 later

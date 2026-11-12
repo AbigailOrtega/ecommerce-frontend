@@ -40,7 +40,7 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": ["mareatextiles.com", "www.mareatextiles.com", "*.vercel.app", "localhost"]
+              "allowedHosts": ["*"]
             },
             "ssr": {
               "entry": "src/server.ts"

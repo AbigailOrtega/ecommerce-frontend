@@ -109,7 +109,7 @@ import { NavbarMenusComponent } from './navbar-menus.component';
   `]
 })
 export class NavbarComponent implements OnInit {
-  // shared with the footer and page titles; "Marea" until the store info loads
+  // shared with the footer and page titles; empty until the store info loads
   private readonly seo = inject(SeoService);
   readonly storeName = this.seo.storeName;
   readonly logoUrl = signal<string | null>(null);

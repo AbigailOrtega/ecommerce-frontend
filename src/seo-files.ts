@@ -19,11 +19,13 @@ interface ProductPage {
 }
 
 /** Every active product's slug, page by page from the public catalog API. */
-export async function fetchProductSlugs(apiOrigin: string, fetchFn: typeof fetch = fetch): Promise<{ slug: string; createdAt?: string }[]> {
+export async function fetchProductSlugs(apiOrigin: string, fetchFn: typeof fetch = fetch, storeHost?: string): Promise<{ slug: string; createdAt?: string }[]> {
   const products: { slug: string; createdAt?: string }[] = [];
   for (let page = 0; page < MAX_PAGES; page++) {
     const res = await fetchFn(`${apiOrigin}/api/products?page=${page}&size=${PAGE_SIZE}`, {
       signal: AbortSignal.timeout(10_000),
+      // the backend serves every store: it picks this site's catalog by its domain
+      headers: storeHost ? { 'X-Store-Host': storeHost } : undefined,
     });
     if (!res.ok) throw new Error(`catalog API answered ${res.status}`);
     const data = ((await res.json()) as { data: ProductPage }).data;

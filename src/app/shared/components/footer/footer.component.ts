@@ -37,7 +37,7 @@ import { SeoService } from '@core/services/seo.service';
   `]
 })
 export class FooterComponent {
-  /** The name set in the admin's store info (see AppComponent), "Marea" until it loads. */
+  /** The name set in the admin's store info (see AppComponent), empty until it loads. */
   readonly storeName = inject(SeoService).storeName;
   readonly year = new Date().getFullYear();
 }

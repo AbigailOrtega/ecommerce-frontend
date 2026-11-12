@@ -6,6 +6,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { routes } from './app.routes';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { storeHostInterceptor } from './core/interceptors/store-host.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { SeoTitleStrategy } from './core/services/seo.service';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
@@ -21,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     // a page left open across a deploy asks for chunks that are gone: load the new version
     provideRouter(routes, withNavigationErrorHandler(reloadOnStaleChunk)),
     { provide: TitleStrategy, useClass: SeoTitleStrategy },
-    provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([storeHostInterceptor, jwtInterceptor])),
     provideAnimationsAsync(),
     provideNativeDateAdapter(),
     // trade the refresh token cookie for an access token before the first route guard runs
