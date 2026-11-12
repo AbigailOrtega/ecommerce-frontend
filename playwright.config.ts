@@ -73,7 +73,7 @@ export default defineConfig({
     {
       name: 'flow-tests',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /variants\.spec|account\.spec|admin-accounts\.spec|pickup\.spec|accounting\.spec|sales-range\.spec|product-delete\.spec|product-search\.spec|report-links\.spec|categories\.spec|product-cost\.spec|platform\.spec/,
+      testMatch: /variants\.spec|account\.spec|admin-accounts\.spec|pickup\.spec|accounting\.spec|sales-range\.spec|product-delete\.spec|product-search\.spec|report-links\.spec|categories\.spec|product-cost\.spec|platform\.spec|payment-settings\.spec/,
     },
     {
       name: 'public-tests',

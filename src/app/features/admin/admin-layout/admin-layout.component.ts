@@ -83,6 +83,7 @@ export class AdminLayoutComponent {
     { title: 'Configuración', items: [
       { path: 'store-info', label: 'Info general', icon: 'storefront' },
       { path: 'shipping', label: 'Config. entregas', icon: 'local_shipping' },
+      { path: 'payments', label: 'Pagos y envíos', icon: 'payments' },
     ] },
   ];
 

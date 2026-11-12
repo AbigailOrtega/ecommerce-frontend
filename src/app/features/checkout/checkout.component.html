@@ -316,12 +316,15 @@
     <mat-step label="Pago">
       <form [formGroup]="paymentForm">
         <h3>Selecciona método de pago</h3>
+        @if (!cardAvailable && !paypalAvailable) {
+          <p class="stripe-error" data-testid="no-payment-methods">Esta tienda aún no acepta pagos en línea.</p>
+        }
         <mat-radio-group formControlName="paymentMethod" class="payment-options">
-          <mat-radio-button value="stripe">Tarjeta de crédito/débito (Stripe)</mat-radio-button>
-          <mat-radio-button value="paypal">PayPal</mat-radio-button>
+          @if (cardAvailable) { <mat-radio-button value="stripe">Tarjeta de crédito/débito (Stripe)</mat-radio-button> }
+          @if (paypalAvailable) { <mat-radio-button value="paypal">PayPal</mat-radio-button> }
         </mat-radio-group>
 
-        @if (paymentForm.get('paymentMethod')?.value === 'stripe') {
+        @if (cardAvailable && paymentForm.get('paymentMethod')?.value === 'stripe') {
           <mat-card class="card-form">
             <h4>Datos de la tarjeta</h4>
             @if (!authService.isLoggedIn() && guestForm.invalid) {
@@ -346,7 +349,7 @@
           </mat-card>
         }
 
-        @if (paymentForm.get('paymentMethod')?.value === 'paypal') {
+        @if (paypalAvailable && paymentForm.get('paymentMethod')?.value === 'paypal') {
           <mat-card class="card-form">
             <h4>PayPal</h4>
             @if (!authService.isLoggedIn() && guestForm.invalid) {

@@ -24,7 +24,7 @@ import { ShippingService } from '@core/services/shipping.service';
 import { AuthService } from '@core/services/auth.service';
 import { GuestOrderItemRequest, GuestOrderRequest, OrderRequest, PickupAvailability, PickupLocation, PostalCodeInfo, ShippingConfig, ShippingRatesResponse, SkydropxRate } from '@shared/models';
 import { Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
-import { switchMap, merge, of, catchError, debounceTime, distinctUntilChanged, filter, map, tap } from 'rxjs';
+import { switchMap, merge, of, catchError, debounceTime, distinctUntilChanged, filter, map, tap, forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-checkout',
@@ -197,7 +197,19 @@ export class CheckoutComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  /** Each store pays into its own accounts: a method it has not set up is not offered. */
+  cardAvailable = true;
+  paypalAvailable = true;
+
   ngOnInit(): void {
+    forkJoin({
+      card: this.paymentService.getStripeConfig().pipe(map(r => !!r.data?.publishableKey), catchError(() => of(true))),
+      paypal: this.paymentService.getPayPalConfig().pipe(map(r => !!r.data?.clientId), catchError(() => of(true))),
+    }).subscribe(({ card, paypal }) => {
+      this.cardAvailable = card;
+      this.paypalAvailable = paypal;
+      if (!card && paypal) this.paymentForm.get('paymentMethod')!.setValue('paypal');
+    });
     this.cart.loadCart();
     this.shippingService.getConfig().subscribe({
       next: (res) => {

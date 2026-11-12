@@ -141,6 +141,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/shipping-management/shipping-management.component').then(m => m.ShippingManagementComponent),
       },
       {
+        path: 'payments',
+        loadComponent: () => import('./features/admin/payment-settings/payment-settings.component').then(m => m.PaymentSettingsComponent),
+      },
+      {
         path: 'store-info',
         loadComponent: () => import('./features/admin/store-info/store-info.component').then(m => m.StoreInfoComponent),
       },
