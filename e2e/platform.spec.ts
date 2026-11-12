@@ -14,6 +14,9 @@ test('the super admin creates a store and invites its admin', async ({ page, req
   // on the platform's domain (plataforma.localhost here) the home page is the platform page
   await page.goto('http://plataforma.localhost:4200/');
   await expect(page).toHaveURL(/plataforma\.localhost:4200\/plataforma$/);
+  // and so does a store's page there (it is no store, not even #1)
+  await page.goto('http://plataforma.localhost:4200/login');
+  await expect(page).toHaveURL(/plataforma\.localhost:4200\/plataforma$/);
 
   // a store's admin has no account on the platform
   await page.getByTestId('platform-email').fill('admin@test.com');

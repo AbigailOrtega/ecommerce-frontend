@@ -8,8 +8,8 @@ import { environment } from '@env/environment';
  */
 export const platformHostGuard: CanMatchFn = () => isPlatformHost();
 
-/** On the platform's domain the home page is the platform page, not a store. */
-export const platformHomeRedirect: CanMatchFn = () =>
+/** The platform's domain is no store: every page but /plataforma goes there. */
+export const platformElsewhereRedirect: CanMatchFn = () =>
   isPlatformHost() ? inject(Router).parseUrl('/plataforma') : false;
 
 export function isPlatformHost(): boolean {

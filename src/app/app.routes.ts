@@ -1,14 +1,21 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
-import { platformHomeRedirect, platformHostGuard } from './core/guards/platform-host.guard';
+import { platformElsewhereRedirect, platformHostGuard } from './core/guards/platform-host.guard';
 
 export const routes: Routes = [
   {
-    // the platform's own domain has no store: its home is the platform page
-    path: '',
-    pathMatch: 'full',
-    canMatch: [platformHomeRedirect],
+    // the super admins' page: only on the platform's own domain (a store's gets "not found")
+    path: 'plataforma',
+    canMatch: [platformHostGuard],
+    title: 'Plataforma',
+    data: { noindex: true },
+    loadComponent: () => import('./features/platform/platform.component').then(m => m.PlatformComponent),
+  },
+  {
+    // the platform's domain is no store (not even #1): any other page goes to the platform page
+    path: '**',
+    canMatch: [platformElsewhereRedirect],
     children: [],
   },
   {
@@ -81,15 +88,6 @@ export const routes: Routes = [
     data: { noindex: true },
     loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [authGuard],
-  },
-  {
-    // the platform owner's page: only on the platform's own domain (a store's gets "not found");
-    // the platform key guards the API
-    path: 'plataforma',
-    canMatch: [platformHostGuard],
-    title: 'Plataforma',
-    data: { noindex: true },
-    loadComponent: () => import('./features/platform/platform.component').then(m => m.PlatformComponent),
   },
   {
     path: 'admin',
