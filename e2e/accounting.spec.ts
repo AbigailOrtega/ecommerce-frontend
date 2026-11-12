@@ -3,8 +3,7 @@ import * as fs from 'fs';
 import { TEST_ADMIN, loginAs } from './helpers/auth';
 import {
   API, addToCartFromDetail, adminToken, createProduct, fillGuestContact, goToPaymentWithNationalShipping, payWithCard,
-  sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders,
-} from './helpers/purchase';
+  sendStripePaymentSucceeded, trackOrder, useFakePaymentProviders, storeToday } from './helpers/purchase';
 
 // Reportes → Contabilidad: a card sale shows up with its commission (looked up by the server a
 // few seconds after the payment), the garment cost entered afterwards applies to it, and the
@@ -46,8 +45,7 @@ test('a card sale: commission, cost entered later, and the ledger for the accoun
 
   // the server reads the commission from Stripe on its own (every 3 s in this environment)
   const fee = Math.round((order.totalAmount * 0.036 + 3) * 100) / 100;
-  const today = new Date();
-  const day = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const day = storeToday();
   await expect.poll(async () => {
     const res = await request.get(`${API}/admin/reports/accounting?from=${day}&to=${day}`,
       { headers: { Authorization: `Bearer ${await adminToken(request)}` } });

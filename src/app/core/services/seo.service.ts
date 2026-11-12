@@ -27,8 +27,13 @@ export class SeoService {
 
   readonly storeName = signal(DEFAULT_STORE_NAME);
 
+  /** The page last shown, so a store name that arrives after it (from the store info) still makes its title. */
+  private lastPage: PageSeo | null = null;
+
   setStoreName(name: string | null | undefined): void {
-    if (name?.trim()) this.storeName.set(name.trim());
+    if (!name?.trim() || name.trim() === this.storeName()) return;
+    this.storeName.set(name.trim());
+    if (this.lastPage) this.update(this.lastPage);
   }
 
   /** Applied on every navigation: the route's title, the store description, indexable unless told otherwise. */
@@ -40,6 +45,7 @@ export class SeoService {
   }
 
   update(page: PageSeo): void {
+    this.lastPage = page;
     const store = this.storeName();
     const fullTitle = page.title && store ? `${page.title} | ${store}` : page.title || store;
     this.title.setTitle(fullTitle);

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { TEST_ADMIN, loginAs } from './helpers/auth';
-import { API, adminToken } from './helpers/purchase';
+import { API, adminToken, storeToday } from './helpers/purchase';
 
 // Categories: one hidden in Admin → Categorías leaves the store (filters and product labels) while
 // its products stay on sale; Reportes → Por categoría counts what each category sold.
@@ -47,8 +47,7 @@ test('hiding a category, and the sales report by category', async ({ page, reque
   // the report by category, today: 2 shirts, also counted in the hidden category
   await page.goto('/admin/reports');
   await page.getByTestId('report-categories').click();
-  const today = new Date();
-  const iso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const iso = storeToday();
   await page.getByTestId('sales-from').fill(iso);
   await expect(page.getByTestId(`category-row-${camisas.id}`)).toContainText('2');
   await expect(page.getByTestId(`category-row-${camisas.id}`)).toContainText('$500.00');

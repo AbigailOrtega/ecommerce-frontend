@@ -246,3 +246,11 @@ export async function setQuantity(page: Page, quantity: number): Promise<void> {
     await expect(shown).toHaveText(String(quantity), { timeout: 1_000 });
   }).toPass({ timeout: 15_000 });
 }
+
+/**
+ * Today in the store's time zone, YYYY-MM-DD. The backend dates sales in Mexico City time; CI runs
+ * in UTC, where from 18:00 (Mexico) the calendar has already moved to tomorrow.
+ */
+export function storeToday(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date());
+}
