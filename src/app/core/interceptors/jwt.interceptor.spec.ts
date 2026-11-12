@@ -91,19 +91,6 @@ describe('jwtInterceptor', () => {
     expect(authService.logout).not.toHaveBeenCalled();
   });
 
-  it('leaves platform calls alone: no store token, and a wrong platform key does not log the user out', () => {
-    authService.getToken.and.returnValue('store-token');
-    authService.isLoggedIn.and.returnValue(true);
-
-    http.get('/api/platform/stores').subscribe({ error: () => {} });
-
-    const req = httpMock.expectOne('/api/platform/stores');
-    expect(req.request.headers.has('Authorization')).toBeFalse();
-    req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
-    expect(authService.logout).not.toHaveBeenCalled();
-    expect(authService.refreshToken).not.toHaveBeenCalled();
-  });
-
   it('propagates non-401 errors without logging out', () => {
     authService.getToken.and.returnValue('tok');
     let errorStatus = 0;

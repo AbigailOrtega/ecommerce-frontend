@@ -80,13 +80,15 @@ import { LoadingComponent } from '@shared/components/loading/loading.component';
             <ng-container matColumnDef="role">
               <th mat-header-cell *matHeaderCellDef>Rol</th>
               <td mat-cell *matCellDef="let u">
-                <mat-chip [class]="u.role === 'ADMIN' ? 'admin-chip' : ''">{{ u.role }}</mat-chip>
+                <mat-chip [class]="u.role !== 'CUSTOMER' ? 'admin-chip' : ''">{{ u.role === 'SUPER_ADMIN' ? 'SUPER ADMIN' : u.role }}</mat-chip>
               </td>
             </ng-container>
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let u">
-                @if (u.role === 'ADMIN') {
+                @if (u.role === 'SUPER_ADMIN') {
+                  <!-- set by hand in the database, not from here -->
+                } @else if (u.role === 'ADMIN') {
                   @if (!isMe(u)) {
                     <button mat-stroked-button color="warn" [disabled]="saving" (click)="revoke(u)">Quitar admin</button>
                   }

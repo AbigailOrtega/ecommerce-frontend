@@ -69,6 +69,22 @@ describe('AuthService', () => {
       expect(localStorage.getItem('accessToken')).toBeNull();
       expect(localStorage.getItem('refreshToken')).toBeNull();
       expect(JSON.parse(localStorage.getItem('user')!).email).toBe('a@a.com');
+      expect(service.isSuperAdmin()).toBeFalse();
+    });
+
+    it('a super admin is also an admin of its store; a customer is neither', () => {
+      const as = (role: string) => ({ ...authResp, data: { ...authResp.data,
+        accessToken: 'h.' + btoa(JSON.stringify({ role, exp: Date.now() / 1000 + 600 })) + '.s' } });
+
+      service.login({ email: 'a@a.com', password: 'pass' }).subscribe();
+      httpMock.expectOne(`${API}/login`).flush(as('SUPER_ADMIN'));
+      expect(service.isAdmin()).toBeTrue();
+      expect(service.isSuperAdmin()).toBeTrue();
+
+      service.login({ email: 'a@a.com', password: 'pass' }).subscribe();
+      httpMock.expectOne(`${API}/login`).flush(as('CUSTOMER'));
+      expect(service.isAdmin()).toBeFalse();
+      expect(service.isSuperAdmin()).toBeFalse();
     });
   });
 

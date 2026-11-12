@@ -26,7 +26,10 @@ export class AuthService {
 
   readonly user = this.currentUser.asReadonly();
   readonly isLoggedIn = computed(() => !!this.currentUser());
-  readonly isAdmin = computed(() => !!this.currentUser() && this.roleFromToken(this.accessToken()) === 'ADMIN');
+  /** Runs this store: an admin, or a super admin (who is also an admin of store #1). */
+  readonly isAdmin = computed(() => !!this.currentUser() && ['ADMIN', 'SUPER_ADMIN'].includes(this.roleFromToken(this.accessToken()) ?? ''));
+  /** Runs the platform (every store), on the platform's domain. */
+  readonly isSuperAdmin = computed(() => !!this.currentUser() && this.roleFromToken(this.accessToken()) === 'SUPER_ADMIN');
 
   constructor(private http: HttpClient, private router: Router) {
     this.loadUser();
@@ -91,11 +94,11 @@ export class AuthService {
       }));
   }
 
-  logout(): void {
+  logout(then: string = '/login'): void {
     // Expire the cookie on the server; the local session ends right away either way
     this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({ error: () => {} });
     this.clearSession();
-    this.router.navigate(['/login']);
+    this.router.navigate([then]);
   }
 
   getToken(): string | null {

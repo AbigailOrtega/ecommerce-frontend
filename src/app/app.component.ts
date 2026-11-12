@@ -12,11 +12,12 @@ import { SeoService } from './core/services/seo.service';
     selector: 'app-root',
     imports: [RouterOutlet, NavbarComponent, FooterComponent],
     template: `
-    <app-navbar />
+    <!-- the platform page is not a store: no store's menu or footer -->
+    @if (!inPlatform()) { <app-navbar /> }
     <main class="page-container">
       <router-outlet />
     </main>
-    <app-footer />
+    @if (!inPlatform()) { <app-footer /> }
 
     <!-- for shoppers: not in the admin panel, where it covers the page -->
     @if (whatsappNumber() && !inAdmin()) {
@@ -64,6 +65,7 @@ import { SeoService } from './core/services/seo.service';
 export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
   inAdmin = signal(false);
+  inPlatform = signal(false);
 
   constructor(
     private storeInfoService: StoreInfoService,
@@ -80,7 +82,8 @@ export class AppComponent implements OnInit {
       filter(e => e instanceof NavigationEnd),
     ).subscribe(e => {
       const url = (e as NavigationEnd).urlAfterRedirects;
-      this.inAdmin.set(url.startsWith('/admin') || url.startsWith('/plataforma'));
+      this.inPlatform.set(url.startsWith('/plataforma'));
+      this.inAdmin.set(url.startsWith('/admin') || this.inPlatform());
       this.pageviewService.track(url);
     });
 

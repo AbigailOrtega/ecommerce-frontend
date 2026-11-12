@@ -1,19 +1,33 @@
 import { test, expect } from '@playwright/test';
 import { API } from './helpers/purchase';
 
-// The platform owner's page: entered with the platform key (application-e2e.yml), it creates a
-// store that then answers on its own domain with its own name, and resends its admin invitation.
-const KEY = 'e2e-platform-key-not-a-secret-0123456789';
-
-test('the platform owner creates a store and invites its admin', async ({ page, request }) => {
+// The super admin's page: only on the platform's domain, entered with a super admin's login
+// (super@test.com, seeded by TestDataInitializer); it creates a store that then answers on its own
+// domain with its own name, and resends its admin invitation.
+test('the super admin creates a store and invites its admin', async ({ page, request }) => {
   const tag = `${Date.now()}`;
+  // on a store's domain (localhost here) the page does not exist
   await page.goto('/plataforma');
+  await expect(page.getByTestId('platform-email')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'No encontramos esta página' })).toBeVisible();
 
-  await page.getByTestId('platform-key').fill('una-clave-equivocada');
+  // on the platform's domain (plataforma.localhost here) the home page is the platform page
+  await page.goto('http://plataforma.localhost:4200/');
+  await expect(page).toHaveURL(/plataforma\.localhost:4200\/plataforma$/);
+
+  // a store admin is not a super admin
+  await page.getByTestId('platform-email').fill('admin@test.com');
+  await page.getByTestId('platform-password').fill('Admin123!');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByTestId('platform-key-error')).toContainText('Clave incorrecta');
+  await expect(page.getByTestId('platform-denied')).toContainText('no es super admin');
+  await page.getByRole('button', { name: /Salir y entrar con otra cuenta/ }).click();
 
-  await page.getByTestId('platform-key').fill(KEY);
+  await page.getByTestId('platform-email').fill('super@test.com');
+  await page.getByTestId('platform-password').fill('mal-password');
+  await page.getByRole('button', { name: 'Entrar' }).click();
+  await expect(page.getByTestId('platform-login-error')).toContainText('incorrectos');
+
+  await page.getByTestId('platform-password').fill('Super123!');
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByTestId('store-marea')).toBeVisible();
 

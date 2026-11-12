@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
@@ -22,51 +22,30 @@ export interface NewStore {
   adminFirstName?: string;
 }
 
-const KEY_STORAGE = 'platform-key';
-
-/**
- * The platform owner's API (/api/platform/stores): every call carries the platform key, which is
- * kept only for this browser tab (sessionStorage), never in the code or the store's login.
- */
+/** The platform's API (/api/platform/stores): only for a super admin logged in on the platform's domain. */
 @Injectable({ providedIn: 'root' })
 export class PlatformService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.apiUrl}/platform/stores`;
 
-  get key(): string {
-    try { return sessionStorage.getItem(KEY_STORAGE) ?? ''; } catch { return ''; }
-  }
-
-  set key(value: string) {
-    try {
-      if (value) sessionStorage.setItem(KEY_STORAGE, value);
-      else sessionStorage.removeItem(KEY_STORAGE);
-    } catch { /* private mode: the key lives only in memory for this page */ }
-  }
-
-  private headers(): HttpHeaders {
-    return new HttpHeaders({ 'X-Platform-Key': this.key });
-  }
-
   list(): Observable<ApiResponse<PlatformStore[]>> {
-    return this.http.get<ApiResponse<PlatformStore[]>>(this.url, { headers: this.headers() });
+    return this.http.get<ApiResponse<PlatformStore[]>>(this.url);
   }
 
   create(store: NewStore): Observable<ApiResponse<PlatformStore>> {
-    return this.http.post<ApiResponse<PlatformStore>>(this.url, store, { headers: this.headers() });
+    return this.http.post<ApiResponse<PlatformStore>>(this.url, store);
   }
 
   setStatus(id: number, status: PlatformStore['status']): Observable<ApiResponse<PlatformStore>> {
-    return this.http.patch<ApiResponse<PlatformStore>>(`${this.url}/${id}/status`, null,
-      { headers: this.headers(), params: { status } });
+    return this.http.patch<ApiResponse<PlatformStore>>(`${this.url}/${id}/status`, null, { params: { status } });
   }
 
   invite(id: number, email: string, firstName?: string): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.url}/${id}/invite`, { email, firstName }, { headers: this.headers() });
+    return this.http.post<ApiResponse<void>>(`${this.url}/${id}/invite`, { email, firstName });
   }
 
   addDomain(id: number, domain: string): Observable<ApiResponse<PlatformStore>> {
-    return this.http.post<ApiResponse<PlatformStore>>(`${this.url}/${id}/domains`, { domain }, { headers: this.headers() });
+    return this.http.post<ApiResponse<PlatformStore>>(`${this.url}/${id}/domains`, { domain });
   }
 }
 

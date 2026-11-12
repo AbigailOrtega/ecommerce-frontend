@@ -1,8 +1,16 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { platformHomeRedirect, platformHostGuard } from './core/guards/platform-host.guard';
 
 export const routes: Routes = [
+  {
+    // the platform's own domain has no store: its home is the platform page
+    path: '',
+    pathMatch: 'full',
+    canMatch: [platformHomeRedirect],
+    children: [],
+  },
   {
     path: '',
     loadComponent: () => import('./features/products/product-list/product-list.component').then(m => m.ProductListComponent),
@@ -75,8 +83,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    // the platform owner's page (every store's domain serves it; the platform key guards the API)
+    // the platform owner's page: only on the platform's own domain (a store's gets "not found");
+    // the platform key guards the API
     path: 'plataforma',
+    canMatch: [platformHostGuard],
     title: 'Plataforma',
     data: { noindex: true },
     loadComponent: () => import('./features/platform/platform.component').then(m => m.PlatformComponent),

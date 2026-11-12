@@ -67,6 +67,7 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": { "allowedHosts": ["plataforma.localhost"] },
           "configurations": {
             "production": { "buildTarget": "ecommerce-frontend:build:production" },
             "development": { "buildTarget": "ecommerce-frontend:build:development" }

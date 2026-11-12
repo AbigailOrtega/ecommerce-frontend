@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,10 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PlatformService, PlatformStore, cleanDomain, slugify } from './platform.service';
+import { AuthService } from '@core/services/auth.service';
 
 /**
- * The platform owner's page (not a store's admin): create stores, invite their admins, add domains,
- * suspend or reactivate them. Entered with the platform key (PLATFORM_API_KEY on Render).
+ * The super admin's page (not a store's admin): create stores, invite their admins, add domains,
+ * suspend or reactivate them. Only on the platform's domain, entered with a super admin's login.
  */
 @Component({
   selector: 'app-platform',
@@ -21,24 +22,35 @@ import { PlatformService, PlatformStore, cleanDomain, slugify } from './platform
   <div class="container platform">
     <h1>Plataforma: tiendas</h1>
 
-    @if (!unlocked()) {
+    @if (!auth.isLoggedIn()) {
       <mat-card class="card">
-        <p>Entra con la clave de plataforma (la variable <code>PLATFORM_API_KEY</code> de Render).</p>
-        <form [formGroup]="keyForm" (ngSubmit)="unlock()">
+        <p>Inicia sesión con tu cuenta de super admin.</p>
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Clave de plataforma</mat-label>
-            <input matInput type="password" formControlName="key" autocomplete="off" data-testid="platform-key">
+            <mat-label>Correo</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="username" data-testid="platform-email">
           </mat-form-field>
-          <button mat-raised-button color="primary" type="submit" [disabled]="keyForm.invalid || busy()">Entrar</button>
-          @if (keyError()) { <p class="error" data-testid="platform-key-error">{{ keyError() }}</p> }
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="current-password" data-testid="platform-password">
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || busy()">Entrar</button>
+          @if (loginError()) { <p class="error" data-testid="platform-login-error">{{ loginError() }}</p> }
         </form>
       </mat-card>
+    } @else if (!auth.isSuperAdmin()) {
+      <mat-card class="card" data-testid="platform-denied">
+        <p>La cuenta <b>{{ auth.user()?.email }}</b> no es super admin.</p>
+        <button mat-stroked-button (click)="logout()"><mat-icon>logout</mat-icon> Salir y entrar con otra cuenta</button>
+      </mat-card>
+    } @else if (!loaded()) {
+      @if (loadError()) { <p class="error">{{ loadError() }}</p> } @else { <p class="hint">Cargando tiendas…</p> }
     } @else {
       <div class="toolbar">
         <button mat-raised-button color="primary" (click)="showCreate.set(!showCreate())" data-testid="new-store">
           <mat-icon>add</mat-icon> {{ showCreate() ? 'Cancelar' : 'Nueva tienda' }}
         </button>
-        <button mat-button (click)="lock()"><mat-icon>logout</mat-icon> Salir</button>
+        <button mat-button (click)="logout()"><mat-icon>logout</mat-icon> Salir</button>
       </div>
 
       @if (showCreate()) {
@@ -146,18 +158,23 @@ import { PlatformService, PlatformStore, cleanDomain, slugify } from './platform
     .inline mat-form-field { flex: 1 1 220px; }
   `],
 })
-export class PlatformComponent implements OnInit {
+export class PlatformComponent {
   private readonly platform = inject(PlatformService);
   private readonly snack = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  readonly auth = inject(AuthService);
 
-  readonly unlocked = signal(false);
   readonly stores = signal<PlatformStore[]>([]);
+  readonly loaded = signal(false);
   readonly busy = signal(false);
-  readonly keyError = signal('');
+  readonly loginError = signal('');
+  readonly loadError = signal('');
   readonly showCreate = signal(false);
 
-  readonly keyForm = this.fb.nonNullable.group({ key: ['', Validators.required] });
+  readonly loginForm = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
   readonly createForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/)]],
@@ -166,20 +183,34 @@ export class PlatformComponent implements OnInit {
     adminFirstName: [''],
   });
 
-  ngOnInit(): void {
-    if (this.platform.key) this.load();
+  constructor() {
+    // also when the session is restored after the page opens (refresh cookie)
+    effect(() => {
+      if (this.auth.isSuperAdmin()) untracked(() => { if (!this.loaded() && !this.busy()) this.load(); });
+    });
   }
 
-  unlock(): void {
-    this.platform.key = this.keyForm.getRawValue().key.trim();
-    this.load();
+  login(): void {
+    this.busy.set(true);
+    this.loginError.set('');
+    const { email, password } = this.loginForm.getRawValue();
+    this.auth.login({ email: email.trim(), password }).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.loginForm.reset();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.busy.set(false);
+        this.loginError.set(e.status === 401 || e.status === 400 ? 'Correo o contraseña incorrectos'
+          : e.error?.message || 'No se pudo conectar con el servidor');
+      },
+    });
   }
 
-  lock(): void {
-    this.platform.key = '';
-    this.unlocked.set(false);
+  logout(): void {
     this.stores.set([]);
-    this.keyForm.reset();
+    this.loaded.set(false);
+    this.auth.logout('/plataforma');
   }
 
   private load(): void {
@@ -187,16 +218,14 @@ export class PlatformComponent implements OnInit {
     this.platform.list().subscribe({
       next: res => {
         this.stores.set(res.data);
-        this.unlocked.set(true);
-        this.keyError.set('');
+        this.loaded.set(true);
+        this.loadError.set('');
         this.busy.set(false);
       },
       error: (e: HttpErrorResponse) => {
-        this.platform.key = '';
-        this.unlocked.set(false);
         this.busy.set(false);
-        this.keyError.set(e.status === 401 ? 'Clave incorrecta'
-          : e.status === 404 ? 'La plataforma no está activada: falta PLATFORM_API_KEY en Render'
+        this.loadError.set(e.status === 403 ? 'Esta cuenta no es super admin'
+          : e.status === 404 ? 'La plataforma no responde en este dominio (revisa PLATFORM_HOST)'
           : 'No se pudo conectar con el servidor');
       },
     });
