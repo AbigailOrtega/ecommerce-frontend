@@ -19,8 +19,11 @@ function withToken(req: HttpRequest<unknown>, token: string | null): HttpRequest
  */
 const PUBLIC_CATALOG_READ = /\/api\/(products(?!\/[^/?]+\/reviews)|categories|banner|store-info)(\/|\?|$)/;
 
+/** The platform's API: its own super admin session (PlatformService), never a store's login; a 401 there ends only that. */
+const PLATFORM_API = /\/api\/platform\//;
+
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.method === 'GET' && PUBLIC_CATALOG_READ.test(req.url)) {
+  if ((req.method === 'GET' && PUBLIC_CATALOG_READ.test(req.url)) || PLATFORM_API.test(req.url)) {
     return next(req);
   }
   const authService = inject(AuthService);

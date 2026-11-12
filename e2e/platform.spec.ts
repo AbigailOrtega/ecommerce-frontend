@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { API } from './helpers/purchase';
 
-// The super admin's page: only on the platform's domain, entered with a super admin's login
-// (super@test.com, seeded by TestDataInitializer); it creates a store that then answers on its own
-// domain with its own name, and resends its admin invitation.
+// The super admin's page: only on the platform's domain, entered with a platform account (not a
+// store user; super@test.com, seeded by TestDataInitializer). It creates a store that then answers
+// on its own domain with its own name, and resends its admin invitation.
 test('the super admin creates a store and invites its admin', async ({ page, request }) => {
   const tag = `${Date.now()}`;
   // on a store's domain (localhost here) the page does not exist
@@ -15,12 +15,11 @@ test('the super admin creates a store and invites its admin', async ({ page, req
   await page.goto('http://plataforma.localhost:4200/');
   await expect(page).toHaveURL(/plataforma\.localhost:4200\/plataforma$/);
 
-  // a store admin is not a super admin
+  // a store's admin has no account on the platform
   await page.getByTestId('platform-email').fill('admin@test.com');
   await page.getByTestId('platform-password').fill('Admin123!');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByTestId('platform-denied')).toContainText('no es super admin');
-  await page.getByRole('button', { name: /Salir y entrar con otra cuenta/ }).click();
+  await expect(page.getByTestId('platform-login-error')).toContainText('incorrectos');
 
   await page.getByTestId('platform-email').fill('super@test.com');
   await page.getByTestId('platform-password').fill('mal-password');

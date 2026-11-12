@@ -1,6 +1,7 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,11 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PlatformService, PlatformStore, cleanDomain, slugify } from './platform.service';
-import { AuthService } from '@core/services/auth.service';
 
 /**
  * The super admin's page (not a store's admin): create stores, invite their admins, add domains,
- * suspend or reactivate them. Only on the platform's domain, entered with a super admin's login.
+ * suspend or reactivate them. Only on the platform's domain, with a super admin's own account
+ * (not a user of any store).
  */
 @Component({
   selector: 'app-platform',
@@ -22,26 +23,54 @@ import { AuthService } from '@core/services/auth.service';
   <div class="container platform">
     <h1>Plataforma: tiendas</h1>
 
-    @if (!auth.isLoggedIn()) {
+    @if (resetToken()) {
       <mat-card class="card">
-        <p>Inicia sesión con tu cuenta de super admin.</p>
-        <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <h2>Pon tu contraseña</h2>
+        <form [formGroup]="resetForm" (ngSubmit)="saveNewPassword()">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Correo</mat-label>
-            <input matInput type="email" formControlName="email" autocomplete="username" data-testid="platform-email">
+            <mat-label>Contraseña nueva (mínimo 8)</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="new-password" data-testid="platform-new-password">
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Contraseña</mat-label>
-            <input matInput type="password" formControlName="password" autocomplete="current-password" data-testid="platform-password">
+            <mat-label>Repítela</mat-label>
+            <input matInput type="password" formControlName="repeat" autocomplete="new-password" data-testid="platform-repeat-password">
           </mat-form-field>
-          <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || busy()">Entrar</button>
-          @if (loginError()) { <p class="error" data-testid="platform-login-error">{{ loginError() }}</p> }
+          @if (resetForm.controls.repeat.value && !passwordsMatch()) {
+            <p class="error" data-testid="platform-mismatch">Las contraseñas no coinciden</p>
+          }
+          <button mat-raised-button color="primary" type="submit"
+                  [disabled]="resetForm.invalid || !passwordsMatch() || busy()">Guardar contraseña</button>
+          @if (resetError()) { <p class="error">{{ resetError() }}</p> }
         </form>
       </mat-card>
-    } @else if (!auth.isSuperAdmin()) {
-      <mat-card class="card" data-testid="platform-denied">
-        <p>La cuenta <b>{{ auth.user()?.email }}</b> no es super admin.</p>
-        <button mat-stroked-button (click)="logout()"><mat-icon>logout</mat-icon> Salir y entrar con otra cuenta</button>
+    } @else if (!platform.session()) {
+      <mat-card class="card">
+        @if (forgotMode()) {
+          <p>Escribe tu correo y te enviamos un enlace para poner tu contraseña.</p>
+          <form [formGroup]="forgotForm" (ngSubmit)="sendLink()">
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Correo</mat-label>
+              <input matInput type="email" formControlName="email" autocomplete="username" data-testid="platform-forgot-email">
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="forgotForm.invalid || busy()">Enviar enlace</button>
+            <button mat-button type="button" (click)="forgotMode.set(false)">Volver</button>
+          </form>
+        } @else {
+          <p>Entra con tu cuenta de super admin.</p>
+          <form [formGroup]="loginForm" (ngSubmit)="login()">
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Correo</mat-label>
+              <input matInput type="email" formControlName="email" autocomplete="username" data-testid="platform-email">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>Contraseña</mat-label>
+              <input matInput type="password" formControlName="password" autocomplete="current-password" data-testid="platform-password">
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || busy()">Entrar</button>
+            <button mat-button type="button" (click)="forgotMode.set(true)" data-testid="platform-forgot">¿Olvidaste tu contraseña?</button>
+            @if (loginError()) { <p class="error" data-testid="platform-login-error">{{ loginError() }}</p> }
+          </form>
+        }
       </mat-card>
     } @else if (!loaded()) {
       @if (loadError()) { <p class="error">{{ loadError() }}</p> } @else { <p class="hint">Cargando tiendas…</p> }
@@ -159,21 +188,31 @@ import { AuthService } from '@core/services/auth.service';
   `],
 })
 export class PlatformComponent {
-  private readonly platform = inject(PlatformService);
+  readonly platform = inject(PlatformService);
   private readonly snack = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
-  readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly stores = signal<PlatformStore[]>([]);
   readonly loaded = signal(false);
   readonly busy = signal(false);
   readonly loginError = signal('');
   readonly loadError = signal('');
+  readonly resetError = signal('');
   readonly showCreate = signal(false);
+  readonly forgotMode = signal(false);
+  /** From the e-mailed link (/plataforma?token=…): set the password. */
+  readonly resetToken = signal<string | null>(this.route.snapshot.queryParamMap.get('token'));
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
+  });
+  readonly forgotForm = this.fb.nonNullable.group({ email: ['', [Validators.required, Validators.email]] });
+  readonly resetForm = this.fb.nonNullable.group({
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    repeat: ['', Validators.required],
   });
   readonly createForm = this.fb.nonNullable.group({
     name: ['', Validators.required],
@@ -184,33 +223,71 @@ export class PlatformComponent {
   });
 
   constructor() {
-    // also when the session is restored after the page opens (refresh cookie)
     effect(() => {
-      if (this.auth.isSuperAdmin()) untracked(() => { if (!this.loaded() && !this.busy()) this.load(); });
+      if (this.platform.session() && !this.resetToken()) untracked(() => { if (!this.loaded() && !this.busy()) this.load(); });
     });
+  }
+
+  passwordsMatch(): boolean {
+    const v = this.resetForm.getRawValue();
+    return v.password === v.repeat;
   }
 
   login(): void {
     this.busy.set(true);
     this.loginError.set('');
     const { email, password } = this.loginForm.getRawValue();
-    this.auth.login({ email: email.trim(), password }).subscribe({
-      next: () => {
-        this.busy.set(false);
-        this.loginForm.reset();
-      },
+    this.platform.login(email.trim(), password).subscribe({
+      next: () => { this.busy.set(false); this.loginForm.reset(); },
       error: (e: HttpErrorResponse) => {
         this.busy.set(false);
-        this.loginError.set(e.status === 401 || e.status === 400 ? 'Correo o contraseña incorrectos'
+        this.loginError.set(e.status === 401 ? 'Correo o contraseña incorrectos'
+          : e.status === 429 ? 'Demasiados intentos; espera unos minutos'
           : e.error?.message || 'No se pudo conectar con el servidor');
       },
     });
   }
 
+  sendLink(): void {
+    this.busy.set(true);
+    this.platform.forgotPassword(this.forgotForm.getRawValue().email.trim()).subscribe({
+      next: res => {
+        this.busy.set(false);
+        this.forgotMode.set(false);
+        this.snack.open(res.message || 'Si la cuenta existe, te enviamos un enlace.', 'Cerrar', { duration: 8000 });
+      },
+      error: (e: HttpErrorResponse) => {
+        this.busy.set(false);
+        this.snack.open(e.status === 429 ? 'Demasiados intentos; espera una hora' : 'No se pudo enviar', 'Cerrar', { duration: 6000 });
+      },
+    });
+  }
+
+  saveNewPassword(): void {
+    const token = this.resetToken();
+    if (!token || !this.passwordsMatch()) return;
+    this.busy.set(true);
+    this.resetError.set('');
+    this.platform.resetPassword(token, this.resetForm.getRawValue().password).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.platform.logout();
+        this.resetToken.set(null);
+        this.router.navigate([], { queryParams: {} });
+        this.snack.open('Contraseña guardada. Ya puedes entrar.', 'Cerrar', { duration: 6000 });
+      },
+      error: (e: HttpErrorResponse) => {
+        this.busy.set(false);
+        this.resetError.set(e.error?.message || 'No se pudo guardar');
+      },
+    });
+  }
+
   logout(): void {
+    this.platform.logout();
     this.stores.set([]);
     this.loaded.set(false);
-    this.auth.logout('/plataforma');
+    this.loadError.set('');
   }
 
   private load(): void {
@@ -224,8 +301,8 @@ export class PlatformComponent {
       },
       error: (e: HttpErrorResponse) => {
         this.busy.set(false);
-        this.loadError.set(e.status === 403 ? 'Esta cuenta no es super admin'
-          : e.status === 404 ? 'La plataforma no responde en este dominio (revisa PLATFORM_HOST)'
+        if (e.status === 401) { this.logout(); this.loginError.set('Tu sesión terminó; vuelve a entrar'); return; }
+        this.loadError.set(e.status === 404 ? 'La plataforma no responde en este dominio (revisa PLATFORM_HOST)'
           : 'No se pudo conectar con el servidor');
       },
     });
@@ -274,6 +351,7 @@ export class PlatformComponent {
       },
       error: (e: HttpErrorResponse) => {
         this.busy.set(false);
+        if (e.status === 401) { this.logout(); this.loginError.set('Tu sesión terminó; vuelve a entrar'); return; }
         this.snack.open(e.error?.message || 'No se pudo completar', 'Cerrar', { duration: 6000 });
       },
     });

@@ -7,6 +7,7 @@ import { StoreInfoService } from './core/services/store-info.service';
 import { ThemeService } from './core/services/theme.service';
 import { PageviewService } from './core/services/pageview.service';
 import { SeoService } from './core/services/seo.service';
+import { isPlatformHost } from './core/guards/platform-host.guard';
 
 @Component({
     selector: 'app-root',
@@ -66,6 +67,7 @@ export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
   inAdmin = signal(false);
   inPlatform = signal(false);
+  private readonly onPlatformHost = isPlatformHost();
 
   constructor(
     private storeInfoService: StoreInfoService,
@@ -77,6 +79,15 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.themeService.apply(null, null); // apply defaults while loading
+    // the platform's domain is no store: no store's name, theme or WhatsApp
+    if (this.onPlatformHost) {
+      this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(e => {
+        const url = (e as NavigationEnd).urlAfterRedirects;
+        this.inPlatform.set(url.startsWith('/plataforma'));
+        this.inAdmin.set(true);
+      });
+      return;
+    }
 
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
