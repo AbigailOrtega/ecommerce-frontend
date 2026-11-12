@@ -15,6 +15,7 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
 /**
  * The store's own accounts: card payments (Stripe), PayPal and shipping labels (Skydropx). Each key is
  * checked with the provider before it is saved; saved secrets are encrypted and only their end shown.
+ * Every change asks for the admin's password again and is e-mailed to all the store's admins.
  */
 @Component({
   selector: 'app-admin-payment-settings',
@@ -30,6 +31,15 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
       @if (!s.canSave) {
         <p class="error" data-testid="no-encryption">El servidor no tiene ENCRYPTION_KEY: no se pueden guardar claves.</p>
       }
+
+      <mat-card class="card confirm">
+        <p class="hint"><mat-icon inline>lock</mat-icon> Para guardar o desactivar algo, confirma tu contraseña.
+          Cada cambio se avisa por correo a todos los admins de la tienda.</p>
+        <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
+          <mat-label>Tu contraseña</mat-label>
+          <input matInput type="password" [(ngModel)]="password" autocomplete="current-password" data-testid="confirm-password">
+        </mat-form-field>
+      </mat-card>
 
       <!-- Stripe -->
       <mat-card class="card" data-testid="stripe-card">
@@ -57,8 +67,8 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
           </mat-form-field>
         </details>
         <div class="actions">
-          <button mat-raised-button color="primary" (click)="saveStripe()" [disabled]="busy() || !s.canSave || !stripe.publicKey" data-testid="stripe-save">Guardar y probar</button>
-          @if (s.stripe.active) { <button mat-button color="warn" (click)="remove('stripe', 'pagos con tarjeta')" [disabled]="busy()">Desactivar</button> }
+          <button mat-raised-button color="primary" (click)="saveStripe()" [disabled]="busy() || !s.canSave || !stripe.publicKey || !password" data-testid="stripe-save">Guardar y probar</button>
+          @if (s.stripe.active) { <button mat-button color="warn" (click)="remove('stripe', 'pagos con tarjeta')" [disabled]="busy() || !password">Desactivar</button> }
         </div>
       </mat-card>
 
@@ -80,8 +90,8 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
         </mat-form-field>
         <mat-slide-toggle [(ngModel)]="paypal.live">Cobros reales (apagado: sandbox de pruebas)</mat-slide-toggle>
         <div class="actions">
-          <button mat-raised-button color="primary" (click)="savePayPal()" [disabled]="busy() || !s.canSave || !paypal.clientId" data-testid="paypal-save">Guardar y probar</button>
-          @if (s.paypal.active) { <button mat-button color="warn" (click)="remove('paypal', 'PayPal')" [disabled]="busy()">Desactivar</button> }
+          <button mat-raised-button color="primary" (click)="savePayPal()" [disabled]="busy() || !s.canSave || !paypal.clientId || !password" data-testid="paypal-save">Guardar y probar</button>
+          @if (s.paypal.active) { <button mat-button color="warn" (click)="remove('paypal', 'PayPal')" [disabled]="busy() || !password">Desactivar</button> }
         </div>
       </mat-card>
 
@@ -111,8 +121,8 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
           </mat-form-field>
         </details>
         <div class="actions">
-          <button mat-raised-button color="primary" (click)="saveSkydropx()" [disabled]="busy() || !s.canSave || !skydropx.clientId" data-testid="skydropx-save">Guardar y probar</button>
-          @if (s.skydropx.active) { <button mat-button color="warn" (click)="remove('skydropx', 'las guías de Skydropx')" [disabled]="busy()">Desactivar</button> }
+          <button mat-raised-button color="primary" (click)="saveSkydropx()" [disabled]="busy() || !s.canSave || !skydropx.clientId || !password" data-testid="skydropx-save">Guardar y probar</button>
+          @if (s.skydropx.active) { <button mat-button color="warn" (click)="remove('skydropx', 'las guías de Skydropx')" [disabled]="busy() || !password">Desactivar</button> }
         </div>
       </mat-card>
     } @else if (loadError()) {
@@ -125,6 +135,7 @@ import { PaymentSettings, PaymentSettingsService } from './payment-settings.serv
   styles: [`
     .page { max-width: 760px; }
     .card { margin: 16px 0; padding: 16px; }
+    .confirm { background: #fffde7; }
     .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
     .head h2 { display: flex; align-items: center; gap: 8px; margin: 0; }
     .badge { font-size: .8rem; padding: 2px 10px; border-radius: 12px; background: #eceff1; color: #455a64; }
@@ -146,6 +157,8 @@ export class PaymentSettingsComponent implements OnInit {
   readonly busy = signal(false);
   readonly loadError = signal('');
 
+  /** The admin's password, asked again for every change; forgotten after each one. */
+  password = '';
   stripe = { publicKey: '', secretKey: '', webhookSecret: '' };
   paypal = { clientId: '', clientSecret: '', live: false };
   skydropx = { clientId: '', clientSecret: '', sandbox: true, webhookSecret: '' };
@@ -159,23 +172,24 @@ export class PaymentSettingsComponent implements OnInit {
 
   saveStripe(): void {
     this.run(this.service.saveStripe({ publicKey: this.stripe.publicKey.trim(),
-      secretKey: this.stripe.secretKey.trim() || undefined, webhookSecret: this.stripe.webhookSecret.trim() || undefined }), 'Stripe');
+      secretKey: this.stripe.secretKey.trim() || undefined, webhookSecret: this.stripe.webhookSecret.trim() || undefined,
+      currentPassword: this.password }), 'Stripe');
   }
 
   savePayPal(): void {
     this.run(this.service.savePayPal({ clientId: this.paypal.clientId.trim(),
-      clientSecret: this.paypal.clientSecret.trim() || undefined, live: this.paypal.live }), 'PayPal');
+      clientSecret: this.paypal.clientSecret.trim() || undefined, live: this.paypal.live, currentPassword: this.password }), 'PayPal');
   }
 
   saveSkydropx(): void {
     this.run(this.service.saveSkydropx({ clientId: this.skydropx.clientId.trim(),
       clientSecret: this.skydropx.clientSecret.trim() || undefined, sandbox: this.skydropx.sandbox,
-      webhookSecret: this.skydropx.webhookSecret.trim() || undefined }), 'Skydropx');
+      webhookSecret: this.skydropx.webhookSecret.trim() || undefined, currentPassword: this.password }), 'Skydropx');
   }
 
   remove(provider: 'stripe' | 'paypal' | 'skydropx', what: string): void {
     if (!confirm(`¿Desactivar ${what}? Sus claves se borran de la tienda.`)) return;
-    this.run(this.service.remove(provider), 'Desactivado');
+    this.run(this.service.remove(provider, this.password), 'Desactivado');
   }
 
   private run(call: Observable<ApiResponse<PaymentSettings>>, what: string): void {
@@ -183,6 +197,7 @@ export class PaymentSettingsComponent implements OnInit {
     call.subscribe({
       next: res => {
         this.busy.set(false);
+        this.password = '';
         this.apply(res.data);
         const notes = res.data.notes?.length ? ' · ' + res.data.notes.join(' · ') : '';
         this.snack.open(`${what}: guardado${notes}`, 'Cerrar', { duration: 9000 });

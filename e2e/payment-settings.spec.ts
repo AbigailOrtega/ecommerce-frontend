@@ -6,7 +6,7 @@ import { addToCartFromDetail, createProduct, fillGuestContact, goToPaymentWithNa
 // backend (StoreCredentialsIT, providers stubbed); here: the admin's page, and the checkout
 // offering only what the store has set up. Nothing is saved, so other tests keep their keys.
 
-test('Admin → Pagos y envíos shows the store\'s keys masked and refuses keys that cannot work', async ({ page }) => {
+test('Admin → Pagos y envíos shows the store\'s keys masked and asks for the password and refuses keys that cannot work', async ({ page }) => {
   await loginAs(page, TEST_ADMIN.email, TEST_ADMIN.password);
   await page.goto('/admin/payments');
   await expect(page.getByRole('heading', { name: 'Pagos y envíos' })).toBeVisible();
@@ -14,11 +14,18 @@ test('Admin → Pagos y envíos shows the store\'s keys masked and refuses keys 
     await expect(page.getByTestId(card)).toBeVisible();
   }
 
-  // a live publishable key with a test secret key: refused before asking Stripe
+  // nothing is saved without the admin's password
   await page.getByTestId('stripe-public').fill('pk_live_e2e');
   await page.getByTestId('stripe-secret').fill('sk_test_e2e');
+  await expect(page.getByTestId('stripe-save')).toBeDisabled();
+  await page.getByTestId('confirm-password').fill('otra-clave');
   await page.getByTestId('stripe-save').click();
-  await expect(page.locator('mat-snack-bar-container')).toContainText('mismo modo');
+  await expect(page.locator('mat-snack-bar-container')).toContainText('contraseña no es correcta');
+
+  // a live publishable key with a test secret key: refused before asking Stripe
+  await page.getByTestId('confirm-password').fill(TEST_ADMIN.password);
+  await page.getByTestId('stripe-save').click();
+  await expect(page.locator('mat-snack-bar-container').last()).toContainText('mismo modo');
 });
 
 test('the checkout offers only the payment methods the store has set up', async ({ page, request }) => {

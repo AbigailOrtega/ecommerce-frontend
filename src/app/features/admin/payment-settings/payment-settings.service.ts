@@ -25,19 +25,19 @@ export class PaymentSettingsService {
     return this.http.get<ApiResponse<PaymentSettings>>(this.url);
   }
 
-  saveStripe(body: { publicKey: string; secretKey?: string; webhookSecret?: string }): Observable<ApiResponse<PaymentSettings>> {
+  saveStripe(body: { publicKey: string; secretKey?: string; webhookSecret?: string; currentPassword: string }): Observable<ApiResponse<PaymentSettings>> {
     return this.http.put<ApiResponse<PaymentSettings>>(`${this.url}/stripe`, body);
   }
 
-  savePayPal(body: { clientId: string; clientSecret?: string; live: boolean }): Observable<ApiResponse<PaymentSettings>> {
+  savePayPal(body: { clientId: string; clientSecret?: string; live: boolean; currentPassword: string }): Observable<ApiResponse<PaymentSettings>> {
     return this.http.put<ApiResponse<PaymentSettings>>(`${this.url}/paypal`, body);
   }
 
-  saveSkydropx(body: { clientId: string; clientSecret?: string; sandbox: boolean; webhookSecret?: string }): Observable<ApiResponse<PaymentSettings>> {
+  saveSkydropx(body: { clientId: string; clientSecret?: string; sandbox: boolean; webhookSecret?: string; currentPassword: string }): Observable<ApiResponse<PaymentSettings>> {
     return this.http.put<ApiResponse<PaymentSettings>>(`${this.url}/skydropx`, body);
   }
 
-  remove(provider: 'stripe' | 'paypal' | 'skydropx'): Observable<ApiResponse<PaymentSettings>> {
-    return this.http.delete<ApiResponse<PaymentSettings>>(`${this.url}/${provider}`);
+  remove(provider: 'stripe' | 'paypal' | 'skydropx', currentPassword: string): Observable<ApiResponse<PaymentSettings>> {
+    return this.http.post<ApiResponse<PaymentSettings>>(`${this.url}/${provider}/disable`, { currentPassword });
   }
 }
