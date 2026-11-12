@@ -57,6 +57,15 @@ describe('ResetPasswordComponent', () => {
       expect(component.form.hasError('passwordsMismatch')).toBeTrue();
     });
 
+    it('pressing the button with different passwords says they do not match, and sends nothing', () => {
+      component.form.setValue({ newPassword: 'password1', confirmPassword: 'password2' });
+      fixture.nativeElement.querySelector('button[type="submit"]').click();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[data-testid="passwords-mismatch"]')?.textContent)
+        .toContain('Las contraseñas no coinciden');
+      expect(authService.resetPassword).not.toHaveBeenCalled();
+    });
+
     it('form is valid when passwords match and meet length', () => {
       component.form.setValue({ newPassword: 'password1', confirmPassword: 'password1' });
       expect(component.form.valid).toBeTrue();

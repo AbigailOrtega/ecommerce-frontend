@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { AuthService } from '@core/services/auth.service';
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -47,12 +48,14 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Confirmar contraseña</mat-label>
-                <input matInput formControlName="confirmPassword" [type]="hideConfirm ? 'password' : 'text'">
+                <input matInput formControlName="confirmPassword" [type]="hideConfirm ? 'password' : 'text'" [errorStateMatcher]="mismatchMatcher">
                 <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm">
                   <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
-                @if (form.get('confirmPassword')?.touched && form.hasError('passwordsMismatch')) {
-                  <mat-error>Las contraseñas no coinciden</mat-error>
+                @if (form.get('confirmPassword')?.hasError('required')) {
+                  <mat-error>Repite la contraseña</mat-error>
+                } @else if (form.hasError('passwordsMismatch')) {
+                  <mat-error data-testid="passwords-mismatch">Las contraseñas no coinciden</mat-error>
                 }
               </mat-form-field>
 
@@ -117,8 +120,21 @@ export class ResetPasswordComponent implements OnInit {
     this.invite = this.route.snapshot.queryParamMap.get('invite') === '1';
   }
 
+  /**
+   * "No coinciden" is an error of the form, not of the field: without this, Material never shows it
+   * and the button did nothing with no explanation.
+   */
+  readonly mismatchMatcher: ErrorStateMatcher = {
+    isErrorState: (control, form) =>
+      !!control && (control.touched || !!form?.submitted) && (control.invalid || !!form?.hasError('passwordsMismatch')),
+  };
+
   onSubmit(): void {
-    if (this.form.invalid || !this.token) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    if (!this.token) return;
     this.loading = true;
     this.auth.resetPassword(this.token, this.form.value.newPassword).subscribe({
       next: () => {
