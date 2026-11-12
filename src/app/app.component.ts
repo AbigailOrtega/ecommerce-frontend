@@ -80,7 +80,7 @@ export class AppComponent implements OnInit {
       filter(e => e instanceof NavigationEnd),
     ).subscribe(e => {
       const url = (e as NavigationEnd).urlAfterRedirects;
-      this.inAdmin.set(url.startsWith('/admin'));
+      this.inAdmin.set(url.startsWith('/admin') || url.startsWith('/plataforma'));
       this.pageviewService.track(url);
     });
 
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit {
       next: (res) => {
         this.themeService.apply(res.data?.themeKey, res.data?.fontKey);
         this.seo.setStoreName(res.data?.name);
+        this.seo.setStoreDescription(res.data?.aboutText);
         if (res.data?.whatsappNumber) {
           this.whatsappNumber.set(res.data.whatsappNumber);
         }

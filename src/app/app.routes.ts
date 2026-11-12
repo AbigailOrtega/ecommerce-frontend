@@ -75,6 +75,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    // the platform owner's page (every store's domain serves it; the platform key guards the API)
+    path: 'plataforma',
+    title: 'Plataforma',
+    data: { noindex: true },
+    loadComponent: () => import('./features/platform/platform.component').then(m => m.PlatformComponent),
+  },
+  {
     path: 'admin',
     title: 'Administración',
     loadComponent: () => import('./features/admin/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),

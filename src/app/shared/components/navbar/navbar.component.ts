@@ -129,6 +129,7 @@ export class NavbarComponent implements OnInit {
     this.storeInfoService.getPublic().subscribe({
       next: (res) => {
         this.seo.setStoreName(res.data?.name);
+        this.seo.setStoreDescription(res.data?.aboutText);
         if (res.data?.logoUrl) this.logoUrl.set(res.data.logoUrl);
         this.showName.set(res.data?.showNameInNavbar ?? true);
       },

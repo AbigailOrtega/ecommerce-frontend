@@ -13,7 +13,7 @@ const clientOnly = [
   'orders', 'orders/:orderNumber', 'profile',
   // the pickup emails' link: personal, token-protected, never rendered or cached on the server
   'recoleccion/:orderNumber',
-  'admin', 'admin/**',
+  'admin', 'admin/**', 'plataforma',
 ];
 
 export const serverRoutes: ServerRoute[] = [

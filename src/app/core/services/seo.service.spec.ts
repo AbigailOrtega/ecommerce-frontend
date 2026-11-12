@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Title } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import { SeoService } from './seo.service';
 
 describe('SeoService', () => {
@@ -23,5 +23,19 @@ describe('SeoService', () => {
     seo.setStoreName('Papelería Luna');
     seo.update({});
     expect(title.getTitle()).toBe('Papelería Luna');
+  });
+
+  it("pages without their own description use the store's text, also when it arrives later", () => {
+    const meta = TestBed.inject(Meta);
+    seo.reset('Contacto', '/contacto', false);
+    seo.setStoreName('Papelería Luna');
+    expect(meta.getTag('name="description"')?.content).toBe('Compra en línea en Papelería Luna.');
+    seo.setStoreDescription('Cuadernos, plumas y arte.');
+    expect(meta.getTag('name="description"')?.content).toBe('Cuadernos, plumas y arte.');
+
+    // a product keeps its own description
+    seo.update({ title: 'Lápiz', description: 'Un lápiz HB' });
+    seo.setStoreDescription('Otro texto');
+    expect(meta.getTag('name="description"')?.content).toBe('Un lápiz HB');
   });
 });

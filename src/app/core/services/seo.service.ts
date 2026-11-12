@@ -11,7 +11,6 @@ export interface PageSeo {
 
 // one deploy serves every store: no store's name is built in, it comes from the store info
 const DEFAULT_STORE_NAME = '';
-const DEFAULT_DESCRIPTION = 'Textiles y artículos para el hogar. Compra en línea con envío a todo México o recoge en tienda.';
 const JSON_LD_ID = 'seo-json-ld';
 
 /**
@@ -27,25 +26,53 @@ export class SeoService {
 
   readonly storeName = signal(DEFAULT_STORE_NAME);
 
-  /** The page last shown, so a store name that arrives after it (from the store info) still makes its title. */
+  /** The store's "Sobre nosotros" text: the description of pages that have none of their own. */
+  private storeDescription = '';
+
+  /** The page last shown, so a store name or text that arrives after it (store info) still reaches its tags. */
   private lastPage: PageSeo | null = null;
+  /** Whether that page uses the store's description (and so must follow it when it arrives). */
+  private lastUsesStoreDescription = false;
 
   setStoreName(name: string | null | undefined): void {
     if (!name?.trim() || name.trim() === this.storeName()) return;
     this.storeName.set(name.trim());
-    if (this.lastPage) this.update(this.lastPage);
+    this.refresh();
+  }
+
+  setStoreDescription(text: string | null | undefined): void {
+    const clean = text?.trim() ?? '';
+    if (clean === this.storeDescription) return;
+    this.storeDescription = clean;
+    this.refresh();
+  }
+
+  /** One deploy serves every store, so nothing store-specific is built in: it comes from the store info. */
+  private defaultDescription(): string {
+    if (this.storeDescription) return this.storeDescription;
+    const store = this.storeName();
+    return store ? `Compra en línea en ${store}.` : '';
+  }
+
+  private refresh(): void {
+    if (!this.lastPage) return;
+    const usesStore = this.lastUsesStoreDescription;
+    this.update(usesStore ? { ...this.lastPage, description: this.defaultDescription() } : this.lastPage);
+    this.lastUsesStoreDescription = usesStore;
   }
 
   /** Applied on every navigation: the route's title, the store description, indexable unless told otherwise. */
   reset(routeTitle: string | undefined, url: string, noindex: boolean): void {
     this.setStructuredData(null);
-    this.update({ title: routeTitle, description: DEFAULT_DESCRIPTION, type: 'website' });
+    this.update({ title: routeTitle, description: this.defaultDescription(), type: 'website' });
+    this.lastUsesStoreDescription = true;
     this.setCanonical(url);
     this.meta.updateTag({ name: 'robots', content: noindex ? 'noindex, nofollow' : 'index, follow' });
   }
 
   update(page: PageSeo): void {
     this.lastPage = page;
+    this.lastUsesStoreDescription = false;
     const store = this.storeName();
     const fullTitle = page.title && store ? `${page.title} | ${store}` : page.title || store;
     this.title.setTitle(fullTitle);
