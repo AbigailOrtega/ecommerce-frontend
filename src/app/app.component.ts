@@ -1,4 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, RESPONSE_INIT, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
@@ -13,6 +14,13 @@ import { isPlatformHost } from './core/guards/platform-host.guard';
     selector: 'app-root',
     imports: [RouterOutlet, NavbarComponent, FooterComponent],
     template: `
+    @if (storeSuspended()) {
+      <!-- the platform suspended this store: no menu, cart or catalog, only this -->
+      <main class="store-unavailable" data-testid="store-unavailable">
+        <h1>Esta tienda no está disponible por el momento</h1>
+        <p>Vuelve a intentarlo más tarde.</p>
+      </main>
+    } @else {
     <!-- the platform page is not a store: no store's menu or footer -->
     @if (!inPlatform()) { <app-navbar /> }
     <main class="page-container">
@@ -32,6 +40,7 @@ import { isPlatformHost } from './core/guards/platform-host.guard';
         </svg>
       </a>
     }
+    }
   `,
     styles: [`
     :host {
@@ -41,6 +50,23 @@ import { isPlatformHost } from './core/guards/platform-host.guard';
     }
     main {
       flex: 1;
+    }
+    .store-unavailable {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 16px;
+      gap: 8px;
+    }
+    .store-unavailable h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+    .store-unavailable p {
+      margin: 0;
+      color: #666;
     }
     .whatsapp-bubble {
       position: fixed;
@@ -67,6 +93,9 @@ export class AppComponent implements OnInit {
   whatsappNumber = signal<string | null>(null);
   inAdmin = signal(false);
   inPlatform = signal(false);
+  /** The platform suspended this store (the API answers 404 with STORE_SUSPENDED). */
+  storeSuspended = signal(false);
+  private readonly response = inject(RESPONSE_INIT, { optional: true });
   private readonly onPlatformHost = isPlatformHost();
 
   constructor(
@@ -107,7 +136,14 @@ export class AppComponent implements OnInit {
           this.whatsappNumber.set(res.data.whatsappNumber);
         }
       },
-      error: () => {},
+      error: (err: HttpErrorResponse) => {
+        if (err?.status === 404 && err.error?.code === 'STORE_SUSPENDED') {
+          this.storeSuspended.set(true);
+          this.seo.setStoreName('Tienda no disponible');
+          // server-rendered: tell browsers and search engines it is temporary, not a page that exists
+          if (this.response) (this.response as { status?: number }).status = 503;
+        }
+      },
     });
   }
 }

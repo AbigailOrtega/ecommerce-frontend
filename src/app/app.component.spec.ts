@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { StoreInfoService } from './core/services/store-info.service';
 import { PageviewService } from './core/services/pageview.service';
@@ -141,5 +142,50 @@ describe('AppComponent — WhatsApp bubble in the admin panel', () => {
     fixture.detectChanges();
     expect(bubble()).toBeTruthy();
     TestBed.resetTestingModule();
+  });
+});
+
+describe('AppComponent — suspended store', () => {
+  async function render(error: unknown) {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [
+        provideRouter([]),
+        { provide: PageviewService, useValue: { track: () => {} } },
+        { provide: StoreInfoService, useValue: { getPublic: () => throwError(() => error) } },
+      ],
+    })
+    .overrideComponent(AppComponent, {
+      remove: { imports: [NavbarComponent, FooterComponent] },
+      add:    { imports: [MockNavbarComponent, MockFooterComponent] },
+    })
+    .compileComponents();
+
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('shows only the "not available" page when the API says the store is suspended', async () => {
+    const page = await render(new HttpErrorResponse({
+      status: 404,
+      error: { success: false, code: 'STORE_SUSPENDED', message: 'Esta tienda no está disponible por el momento' },
+    }));
+
+    expect(page.querySelector('[data-testid="store-unavailable"]')?.textContent)
+      .toContain('Esta tienda no está disponible por el momento');
+    expect(page.querySelector('app-navbar')).toBeNull();
+    expect(page.querySelector('app-footer')).toBeNull();
+    expect(page.querySelector('router-outlet')).toBeNull();
+  });
+
+  it('keeps the store on any other error (a network blip is no suspension)', async () => {
+    const page = await render(new HttpErrorResponse({ status: 500 }));
+
+    expect(page.querySelector('[data-testid="store-unavailable"]')).toBeNull();
+    expect(page.querySelector('app-navbar')).not.toBeNull();
+    expect(page.querySelector('router-outlet')).not.toBeNull();
   });
 });
