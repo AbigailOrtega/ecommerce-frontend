@@ -130,11 +130,10 @@ import { PlatformService, PlatformStore, cleanDomain, slugify } from './platform
                 {{ store.status === 'ACTIVE' ? 'Activa' : 'Suspendida' }}
               </span>
             </div>
-            @if (store.id !== 1) {
-              <button mat-stroked-button (click)="toggle(store)" [disabled]="busy()">
-                {{ store.status === 'ACTIVE' ? 'Suspender' : 'Reactivar' }}
-              </button>
-            }
+            <button mat-stroked-button (click)="toggle(store)" [disabled]="busy()"
+                    [attr.data-testid]="'toggle-' + store.slug">
+              {{ store.status === 'ACTIVE' ? 'Suspender' : 'Reactivar' }}
+            </button>
           </div>
 
           <p class="domains">
